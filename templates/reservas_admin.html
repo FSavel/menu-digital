@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Reservas</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#111;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+
+h2{
+    text-align:center;
+}
+
+.card{
+    background:#222;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+}
+
+.status{
+    font-weight:bold;
+    margin-top:5px;
+}
+
+.btn{
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.confirmar{
+    background:#27ae60;
+    color:white;
+}
+
+.concluir{
+    background:#2980b9;
+    color:white;
+}
+
+@media(max-width:768px){
+    body{font-size:16px;}
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>📦 Painel de Reservas</h2>
+
+{% for r in reservas %}
+
+<div class="card">
+    <p><b>👤 Nome:</b> {{ r.nome }}</p>
+    <p><b>📞 Contacto:</b> {{ r.contacto }}</p>
+    <p><b>📦 Tipo:</b> {{ r.tipo }}</p>
+    <p><b>📝 Descrição:</b> {{ r.descricao }}</p>
+    <p><b>🔢 Quantidade:</b> {{ r.quantidade }}</p>
+    <p><b>📅 Data:</b> {{ r.data }}</p>
+    <p><b>📌 Observações:</b> {{ r.observacoes }}</p>
+    <p class="status">📍 Status: {{ r.status }}</p>
+
+    <a href="/confirmar_reserva/{{ loop.index0 }}">
+        <button class="btn confirmar">✔ Confirmar Contacto</button>
+    </a>
+
+    <a href="/concluir_reserva/{{ loop.index0 }}">
+        <button class="btn concluir">✅ Concluir</button>
+    </a>
+</div>
+
+{% endfor %}
+
+</body>
+</html>
