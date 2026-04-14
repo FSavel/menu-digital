@@ -64,8 +64,50 @@ def pedido():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <h2>✅ Pedido enviado com sucesso!</h2>
-    <a href="/">Voltar ao menu</a>
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+    body{
+        margin:0;
+        font-family: Arial;
+        background:#111;
+        color:white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        text-align:center;
+    }
+
+    button{
+        margin-top:20px;
+        padding:12px 20px;
+        border:none;
+        border-radius:8px;
+        background:#27ae60;
+        color:white;
+        font-size:16px;
+    }
+    </style>
+
+    </head>
+
+    <body>
+
+    <div>
+        <h2>✅ Pedido enviado com sucesso!</h2>
+        <p>Obrigado pela sua preferência 🍽️</p>
+
+        <a href="/menu_pt">
+        <button>Voltar ao Menu</button>
+        </a>
+    </div>
+
+    </body>
+    </html>
     """
 
 # =========================
@@ -92,11 +134,11 @@ def chamar():
 
     return """
     <h2>🙋 Garçom chamado!</h2>
-    <a href="/">Voltar ao menu</a>
+    <a href="/">Voltar</a>
     """
 
 # =========================
-# PAINEL DE PEDIDOS (V2 PROFISSIONAL)
+# PAINEL DE PEDIDOS (COZINHA)
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
