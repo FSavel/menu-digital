@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Painel de Pedidos</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#111;
+    margin:0;
+    padding:0;
+}
+
+.header{
+    background:#000;
+    color:white;
+    padding:20px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    padding:15px;
+}
+
+.card{
+    background:white;
+    margin:10px 0;
+    padding:15px;
+    border-radius:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.info{
+    flex:1;
+}
+
+.status{
+    padding:5px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.pendente{
+    background:#f39c12;
+    color:white;
+}
+
+.entregue{
+    background:#2ecc71;
+    color:white;
+}
+
+.botao{
+    background:#111;
+    color:white;
+    padding:8px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:12px;
+}
+
+.botao:hover{
+    background:#333;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🍽️ PAINEL DE PEDIDOS - COZINHA
+</div>
+
+<div class="container">
+
+{% for p in pedidos %}
+<div class="card">
+
+    <div class="info">
+        <b>{{ p.nome }}</b><br>
+        {{ p.pedido }}<br>
+        <small>{{ p.hora }}</small>
+    </div>
+
+    <div>
+        {% if p.status == "Entregue" %}
+            <span class="status entregue">Entregue</span>
+        {% else %}
+            <span class="status pendente">{{ p.status }}</span>
+            <br><br>
+            <a class="botao" href="/entregar/{{ loop.index0 }}">
+                Marcar Entregue
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+</body>
+</html>
