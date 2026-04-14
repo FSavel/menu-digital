@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservas</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial;
+    background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
+}
+
+.overlay{
+    background: rgba(0,0,0,0.7);
+    min-height:100vh;
+    padding:20px;
+}
+
+.header{
+    color:white;
+    text-align:center;
+    font-size:24px;
+    margin-bottom:20px;
+}
+
+.form-box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    max-width:500px;
+    margin:auto;
+}
+
+input, select, textarea, button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    background:#27ae60;
+    color:white;
+    border:none;
+    font-size:16px;
+}
+
+textarea{
+    resize:none;
+}
+
+/* 📱 MOBILE */
+@media (max-width:768px){
+    .header{font-size:20px;}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay">
+
+<div class="header">
+📦 Reservar Produto / Serviço / Evento
+</div>
+
+<div class="form-box">
+
+<form action="/reserva" method="post">
+
+<input type="text" name="nome" placeholder="Seu nome" required>
+
+<input type="tel" name="contacto" placeholder="Número de contacto" required>
+
+<select name="tipo" required>
+    <option value="">Tipo de pedido</option>
+    <option value="Produto">Produto 🍽️</option>
+    <option value="Serviço">Serviço 🎉</option>
+    <option value="Evento">Evento 🎂</option>
+</select>
+
+<textarea name="descricao" placeholder="Descreva o pedido" required></textarea>
+
+<input type="number" name="quantidade" min="1" placeholder="Quantidade" required>
+
+<input type="datetime-local" name="data" required>
+
+<textarea name="observacoes" placeholder="Observações adicionais"></textarea>
+
+<button type="submit">Enviar Reserva</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>
