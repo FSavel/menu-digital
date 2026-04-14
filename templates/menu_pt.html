@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menu Digital</title>
 
 <style>
 body{
@@ -13,7 +12,7 @@ body{
 }
 
 .overlay{
-    background: rgba(0,0,0,0.6);
+    background:rgba(0,0,0,0.6);
     min-height:100vh;
     padding-bottom:40px;
 }
@@ -23,72 +22,62 @@ body{
     text-align:center;
     padding:20px;
     font-size:24px;
-    font-weight:bold;
 }
 
 .category{
-    background:rgba(0,0,0,0.7);
+    background:#000000aa;
     color:white;
     padding:10px;
     margin:15px;
-    border-left:5px solid #27ae60;
 }
 
 .card{
     background:white;
     margin:10px 15px;
-    padding:15px;
     border-radius:12px;
-    display:flex;
-    justify-content:space-between;
+    overflow:hidden;
+    cursor:pointer;
 }
 
-.id{font-weight:bold;}
-.name{flex:1; margin-left:10px;}
-.price{color:#27ae60; font-weight:bold;}
-
-.order-box{
-    background:white;
-    margin:20px 15px;
-    padding:15px;
-    border-radius:12px;
-}
-
-input, button{
+.card img{
     width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
+    height:150px;
+    object-fit:cover;
+}
+
+.card-body{
+    padding:10px;
+}
+
+.price{
+    color:#27ae60;
+    font-weight:bold;
+}
+
+/* CARRINHO */
+.cart{
+    background:white;
+    margin:15px;
+    padding:15px;
+    border-radius:12px;
 }
 
 button{
-    background:#111;
-    color:white;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
     border:none;
+    border-radius:8px;
 }
 
-/* MOBILE */
-@media (max-width:768px){
-    .card{
-        flex-direction:column;
-        gap:6px;
-    }
-}
-
-html, body{
-    overflow-x:hidden;
-}
 </style>
-
 </head>
 
 <body>
 
 <div class="overlay">
 
-<div class="header">
-🍽️ Restaurante Digital
-</div>
+<div class="header">🍽️ Restaurante Digital</div>
 
 {% set categorias = menu | groupby('Categoria') %}
 
@@ -96,42 +85,57 @@ html, body{
 <div class="category">{{ cat }}</div>
 
 {% for item in items %}
-<div class="card">
-    <div class="id">[{{ item.ID }}]</div>
-    <div class="name">{{ item.Produto_PT }}</div>
-    <div class="price">{{ item.Preço }} MZN</div>
+<div class="card" onclick="addItem('{{ item.ID }} - {{ item.Produto_PT }}')">
+
+{% if item.Imagem %}
+<img src="{{ item.Imagem }}">
+{% endif %}
+
+<div class="card-body">
+<b>[{{ item.ID }}]</b> {{ item.Produto_PT }}
+<div class="price">{{ item.Preço }} MZN</div>
+</div>
+
 </div>
 {% endfor %}
 {% endfor %}
 
-<div class="order-box">
-<h3>🛒 Fazer Pedido</h3>
+<div class="cart">
+<h3>🛒 Seu Pedido</h3>
 
 <form action="/pedido" method="post">
 <input type="text" name="nome" placeholder="Seu nome" required>
-<input type="text" name="pedido" placeholder="Ex: 01, 03, 07" required>
+
+<textarea id="pedido" name="pedido" placeholder="Itens selecionados..." required></textarea>
+
 <button type="submit">Enviar Pedido</button>
 </form>
+
+<button onclick="limpar()">🗑️ Limpar Pedido</button>
 </div>
 
-<!-- BOTÕES -->
-<div style="margin:20px 15px;">
-
-<a href="/reserva">
-<button style="background:#f39c12;">
-📦 Reservas Especiais
-</button>
-</a>
-
-<a href="/chamar">
-<button style="background:#2980b9; margin-top:10px;">
-🙋 Chamar Garçom
-</button>
-</a>
-
+<div style="margin:15px;">
+<a href="/reserva"><button style="background:#f39c12;">📦 Reservas</button></a>
+<a href="/chamar"><button style="background:#2980b9;">🙋 Garçom</button></a>
 </div>
 
 </div>
+
+<script>
+function addItem(item){
+    let campo = document.getElementById("pedido");
+
+    if(campo.value === ""){
+        campo.value = item;
+    } else {
+        campo.value += ", " + item;
+    }
+}
+
+function limpar(){
+    document.getElementById("pedido").value = "";
+}
+</script>
 
 </body>
 </html>
