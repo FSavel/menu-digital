@@ -138,7 +138,7 @@ def chamar():
     """
 
 # =========================
-# PAINEL DE PEDIDOS (COZINHA)
+# VER PEDIDOS (PAINEL)
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
@@ -166,6 +166,93 @@ def entregar(id):
 
     except:
         return "Erro ao atualizar pedido"
+
+# =========================
+# RESERVAS (FORMULÁRIO)
+# =========================
+@app.route("/reserva", methods=["GET", "POST"])
+def reserva():
+
+    if request.method == "GET":
+        return render_template("reserva.html")
+
+    # POST
+    nome = request.form.get("nome")
+    contacto = request.form.get("contacto")
+    tipo = request.form.get("tipo")
+    descricao = request.form.get("descricao")
+    quantidade = request.form.get("quantidade")
+    data = request.form.get("data")
+    observacoes = request.form.get("observacoes")
+
+    novo = pd.DataFrame([{
+        "nome": nome,
+        "contacto": contacto,
+        "tipo": tipo,
+        "descricao": descricao,
+        "quantidade": quantidade,
+        "data": data,
+        "observacoes": observacoes,
+        "hora_registo": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "Pendente"
+    }])
+
+    ficheiro = "reservas.xlsx"
+
+    if os.path.exists(ficheiro):
+        df = pd.read_excel(ficheiro)
+        df = pd.concat([df, novo], ignore_index=True)
+    else:
+        df = novo
+
+    df.to_excel(ficheiro, index=False)
+
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+    body{
+        margin:0;
+        font-family: Arial;
+        background:#111;
+        color:white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        text-align:center;
+    }
+
+    button{
+        margin-top:20px;
+        padding:12px 20px;
+        border:none;
+        border-radius:8px;
+        background:#27ae60;
+        color:white;
+        font-size:16px;
+    }
+    </style>
+
+    </head>
+
+    <body>
+
+    <div>
+        <h2>📦 Reserva enviada com sucesso!</h2>
+        <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
+
+        <a href="/">
+        <button>Voltar ao Início</button>
+        </a>
+    </div>
+
+    </body>
+    </html>
+    """
 
 # =========================
 # RUN (RENDER)
