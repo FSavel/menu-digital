@@ -39,7 +39,7 @@ def menu_en():
     return render_template("menu_en.html", menu=menu)
 
 # =========================
-# FAZER PEDIDO
+# PEDIDOS
 # =========================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -64,50 +64,14 @@ def pedido():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-    body{
-        margin:0;
-        font-family: Arial;
-        background:#111;
-        color:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        text-align:center;
-    }
-
-    button{
-        margin-top:20px;
-        padding:12px 20px;
-        border:none;
-        border-radius:8px;
-        background:#27ae60;
-        color:white;
-        font-size:16px;
-    }
-    </style>
-
-    </head>
-
-    <body>
-
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;">
     <div>
-        <h2>✅ Pedido enviado com sucesso!</h2>
-        <p>Obrigado pela sua preferência 🍽️</p>
-
-        <a href="/menu_pt">
-        <button>Voltar ao Menu</button>
-        </a>
+    <h2>✅ Pedido enviado com sucesso!</h2>
+    <p>Obrigado pela sua preferência 🍽️</p>
+    <a href="/menu_pt"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar ao Menu</button></a>
     </div>
-
-    </body>
-    </html>
+    </body></html>
     """
 
 # =========================
@@ -132,13 +96,10 @@ def chamar():
 
     df.to_excel(ficheiro, index=False)
 
-    return """
-    <h2>🙋 Garçom chamado!</h2>
-    <a href="/">Voltar</a>
-    """
+    return "<h2>🙋 Garçom chamado!</h2><a href='/'>Voltar</a>"
 
 # =========================
-# VER PEDIDOS (PAINEL)
+# PAINEL PEDIDOS
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
@@ -150,25 +111,18 @@ def ver_pedidos():
         return "<h3>Nenhum pedido encontrado</h3>"
 
 # =========================
-# MARCAR COMO ENTREGUE
+# ENTREGAR PEDIDO
 # =========================
 @app.route("/entregar/<int:id>")
 def entregar(id):
-    try:
-        df = pd.read_excel("pedidos.xlsx")
-
-        if id < len(df):
-            df.at[id, "status"] = "Entregue"
-
-        df.to_excel("pedidos.xlsx", index=False)
-
-        return redirect("/pedidos")
-
-    except:
-        return "Erro ao atualizar pedido"
+    df = pd.read_excel("pedidos.xlsx")
+    if id < len(df):
+        df.at[id, "status"] = "Entregue"
+    df.to_excel("pedidos.xlsx", index=False)
+    return redirect("/pedidos")
 
 # =========================
-# RESERVAS (FORMULÁRIO)
+# RESERVAS
 # =========================
 @app.route("/reserva", methods=["GET", "POST"])
 def reserva():
@@ -176,23 +130,14 @@ def reserva():
     if request.method == "GET":
         return render_template("reserva.html")
 
-    # POST
-    nome = request.form.get("nome")
-    contacto = request.form.get("contacto")
-    tipo = request.form.get("tipo")
-    descricao = request.form.get("descricao")
-    quantidade = request.form.get("quantidade")
-    data = request.form.get("data")
-    observacoes = request.form.get("observacoes")
-
     novo = pd.DataFrame([{
-        "nome": nome,
-        "contacto": contacto,
-        "tipo": tipo,
-        "descricao": descricao,
-        "quantidade": quantidade,
-        "data": data,
-        "observacoes": observacoes,
+        "nome": request.form.get("nome"),
+        "contacto": request.form.get("contacto"),
+        "tipo": request.form.get("tipo"),
+        "descricao": request.form.get("descricao"),
+        "quantidade": request.form.get("quantidade"),
+        "data": request.form.get("data"),
+        "observacoes": request.form.get("observacoes"),
         "hora_registo": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": "Pendente"
     }])
@@ -208,51 +153,49 @@ def reserva():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-    body{
-        margin:0;
-        font-family: Arial;
-        background:#111;
-        color:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        text-align:center;
-    }
-
-    button{
-        margin-top:20px;
-        padding:12px 20px;
-        border:none;
-        border-radius:8px;
-        background:#27ae60;
-        color:white;
-        font-size:16px;
-    }
-    </style>
-
-    </head>
-
-    <body>
-
+    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;">
     <div>
-        <h2>📦 Reserva enviada com sucesso!</h2>
-        <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
-
-        <a href="/">
-        <button>Voltar ao Início</button>
-        </a>
+    <h2>📦 Reserva enviada com sucesso!</h2>
+    <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
+    <a href="/"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar</button></a>
     </div>
-
-    </body>
-    </html>
+    </body></html>
     """
+
+# =========================
+# PAINEL RESERVAS
+# =========================
+@app.route("/reservas_admin")
+def ver_reservas():
+    try:
+        df = pd.read_excel("reservas.xlsx")
+        reservas = df.to_dict(orient="records")
+        return render_template("reservas_admin.html", reservas=reservas)
+    except:
+        return "<h3>Sem reservas ainda</h3>"
+
+# =========================
+# CONFIRMAR RESERVA
+# =========================
+@app.route("/confirmar_reserva/<int:id>")
+def confirmar_reserva(id):
+    df = pd.read_excel("reservas.xlsx")
+    if id < len(df):
+        df.at[id, "status"] = "Contactado"
+    df.to_excel("reservas.xlsx", index=False)
+    return redirect("/reservas_admin")
+
+# =========================
+# CONCLUIR RESERVA
+# =========================
+@app.route("/concluir_reserva/<int:id>")
+def concluir_reserva(id):
+    df = pd.read_excel("reservas.xlsx")
+    if id < len(df):
+        df.at[id, "status"] = "Concluído"
+    df.to_excel("reservas.xlsx", index=False)
+    return redirect("/reservas_admin")
 
 # =========================
 # RUN (RENDER)
