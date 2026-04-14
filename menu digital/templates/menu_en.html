@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Menu</title>
+    <meta charset="UTF-8">
+</head>
+
+<body style="font-family: Arial; margin:20px; background-color:#fafafa;">
+
+    <h1>🍽️ Menu - English</h1>
+
+    <hr>
+
+    {% for item in menu %}
+
+        <p>
+            <b>{{ item.Categoria }}</b> <br>
+            {{ item.Produto }} - <b>{{ item.Preço }} MZN</b>
+        </p>
+
+        <hr>
+
+    {% endfor %}
+
+    <h2>🛒 Place Order</h2>
+
+    <form action="/pedido" method="post">
+        <input type="text" name="nome" placeholder="Your name" required><br><br>
+        <input type="text" name="pedido" placeholder="What would you like?" required><br><br>
+
+        <button type="submit" style="padding:10px 20px;">Send Order</button>
+    </form>
+
+    <br>
+
+    <a href="/chamar">
+        <button style="padding:10px 20px;">🙋 Call Waiter</button>
+    </a>
+
+    <br><br>
+
+    <a href="/">🔙 Back</a>
+
+</body>
+</html>
