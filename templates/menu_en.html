@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Digital Menu</title>
 
 <style>
@@ -13,7 +14,7 @@ body{
 }
 
 .overlay{
-    background: rgba(0,0,0,0.6);
+    background:rgba(0,0,0,0.6);
     min-height:100vh;
     padding-bottom:40px;
 }
@@ -27,51 +28,105 @@ body{
 }
 
 .category{
-    background:rgba(0,0,0,0.7);
+    background:rgba(0,0,0,0.75);
     color:white;
     padding:10px;
     margin:15px;
     border-left:5px solid #27ae60;
+    font-weight:bold;
 }
 
 .card{
     background:white;
     margin:10px 15px;
-    padding:15px;
     border-radius:12px;
+    overflow:hidden;
+    cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+
+.card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+}
+
+.card-body{
+    padding:10px;
     display:flex;
     justify-content:space-between;
+    align-items:center;
 }
 
-.id{font-weight:bold;}
-.name{flex:1; margin-left:10px;}
-.price{color:#27ae60; font-weight:bold;}
+.name{
+    flex:1;
+    margin-left:10px;
+}
 
-.order-box{
+.price{
+    color:#27ae60;
+    font-weight:bold;
+}
+
+/* CART */
+.cart{
     background:white;
-    margin:20px 15px;
+    margin:15px;
     padding:15px;
     border-radius:12px;
 }
 
-input, button{
+input, textarea, button{
     width:100%;
     padding:12px;
     margin-top:10px;
     border-radius:8px;
+    border:1px solid #ccc;
 }
 
 button{
-    background:#111;
-    color:white;
     border:none;
+    font-size:16px;
+}
+
+.btn-send{
+    background:#27ae60;
+    color:white;
+}
+
+.btn-clear{
+    background:#e74c3c;
+    color:white;
+}
+
+/* EXTRA BUTTONS */
+.extra-buttons{
+    margin:15px;
+}
+
+.extra-buttons button{
+    margin-top:10px;
+    color:white;
+}
+
+.btn-reserva{
+    background:#f39c12;
+}
+
+.btn-waiter{
+    background:#2980b9;
 }
 
 /* MOBILE */
-@media (max-width:768px){
-    .card{
+@media(max-width:768px){
+    .card-body{
         flex-direction:column;
-        gap:6px;
+        align-items:flex-start;
+        gap:5px;
+    }
+
+    .name{
+        margin-left:0;
     }
 }
 
@@ -96,42 +151,77 @@ html, body{
 <div class="category">{{ cat }}</div>
 
 {% for item in items %}
-<div class="card">
-    <div class="id">[{{ item.ID }}]</div>
-    <div class="name">{{ item.Produto_EN }}</div>
-    <div class="price">{{ item.Preço }} MZN</div>
+
+<div class="card" onclick="addItem('{{ item.ID }} - {{ item.Produto_EN }}')">
+
+{% if item.Imagem %}
+<img src="{{ item.Imagem }}">
+{% endif %}
+
+<div class="card-body">
+<div class="name">
+<b>[{{ item.ID }}]</b> {{ item.Produto_EN }}
 </div>
+
+<div class="price">
+{{ item.Preço }} MZN
+</div>
+</div>
+
+</div>
+
 {% endfor %}
 {% endfor %}
 
-<div class="order-box">
-<h3>🛒 Place Order</h3>
+<!-- CART -->
+<div class="cart">
+
+<h3>🛒 Your Order</h3>
 
 <form action="/pedido" method="post">
+
 <input type="text" name="nome" placeholder="Your name" required>
-<input type="text" name="pedido" placeholder="Ex: 01, 03, 07" required>
-<button type="submit">Send Order</button>
+
+<textarea id="pedido" name="pedido" placeholder="Click dishes to add..." required></textarea>
+
+<button type="submit" class="btn-send">Send Order</button>
+
 </form>
+
+<button class="btn-clear" onclick="limpar()">🗑️ Clear Order</button>
+
 </div>
 
-<!-- BUTTONS -->
-<div style="margin:20px 15px;">
+<!-- EXTRA BUTTONS -->
+<div class="extra-buttons">
 
 <a href="/reserva">
-<button style="background:#f39c12;">
-📦 Special Reservations
-</button>
+<button class="btn-reserva">📦 Special Reservations</button>
 </a>
 
 <a href="/chamar">
-<button style="background:#2980b9; margin-top:10px;">
-🙋 Call Waiter
-</button>
+<button class="btn-waiter">🙋 Call Waiter</button>
 </a>
 
 </div>
 
 </div>
+
+<script>
+function addItem(item){
+    let campo = document.getElementById("pedido");
+
+    if(campo.value === ""){
+        campo.value = item;
+    } else {
+        campo.value += ", " + item;
+    }
+}
+
+function limpar(){
+    document.getElementById("pedido").value = "";
+}
+</script>
 
 </body>
 </html>
