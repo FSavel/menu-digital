@@ -7,9 +7,8 @@
 
 <style>
 body{
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     margin:0;
-    padding:0;
     background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
 }
 
@@ -44,7 +43,7 @@ body{
     justify-content:space-between;
 }
 
-.id{font-weight:bold; color:#555;}
+.id{font-weight:bold;}
 .name{flex:1; margin-left:10px;}
 .price{color:#27ae60; font-weight:bold;}
 
@@ -68,39 +67,16 @@ button{
     border:none;
 }
 
-/* 🔥 MOBILE FIX */
-@media (max-width: 768px) {
-
-    body{
-        font-size: 18px;
-    }
-
+/* MOBILE */
+@media (max-width:768px){
     .card{
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-
-    .name{
-        margin-left: 0;
-    }
-
-    .price{
-        font-size: 16px;
-    }
-
-    .category{
-        font-size: 18px;
-    }
-
-    .header{
-        font-size: 20px;
+        flex-direction:column;
+        gap:6px;
     }
 }
 
-/* evita scroll lateral */
 html, body{
-    overflow-x: hidden;
+    overflow-x:hidden;
 }
 </style>
 
@@ -111,16 +87,13 @@ html, body{
 <div class="overlay">
 
 <div class="header">
-🍽️ Digital Menu
+🍽️ Digital Restaurant Menu
 </div>
 
 {% set categorias = menu | groupby('Categoria') %}
 
 {% for cat, items in categorias %}
-
-<div class="category">
-{{ cat }}
-</div>
+<div class="category">{{ cat }}</div>
 
 {% for item in items %}
 <div class="card">
@@ -129,21 +102,33 @@ html, body{
     <div class="price">{{ item.Preço }} MZN</div>
 </div>
 {% endfor %}
-
 {% endfor %}
 
 <div class="order-box">
 <h3>🛒 Place Order</h3>
 
 <form action="/pedido" method="post">
-
 <input type="text" name="nome" placeholder="Your name" required>
-
 <input type="text" name="pedido" placeholder="Ex: 01, 03, 07" required>
-
 <button type="submit">Send Order</button>
-
 </form>
+</div>
+
+<!-- BUTTONS -->
+<div style="margin:20px 15px;">
+
+<a href="/reserva">
+<button style="background:#f39c12;">
+📦 Special Reservations
+</button>
+</a>
+
+<a href="/chamar">
+<button style="background:#2980b9; margin-top:10px;">
+🙋 Call Waiter
+</button>
+</a>
+
 </div>
 
 </div>
