@@ -3,36 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escolher Idioma</title>
+<title>Clube A3</title>
 
 <style>
 body{
     margin:0;
     font-family: Arial;
-    background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
+    background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
 }
 
 .overlay{
-    background: rgba(0,0,0,0.6);
-    min-height:100vh;
+    background:rgba(0,0,0,0.7);
+    height:100vh;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
-    flex-direction:column;
-    text-align:center;
-    padding:20px;
-}
-
-.title{
     color:white;
-    font-size:28px;
-    font-weight:bold;
-    margin-bottom:30px;
+    text-align:center;
 }
 
-.btn{
-    width:200px;
-    padding:15px;
+button{
+    padding:15px 30px;
     margin:10px;
     border:none;
     border-radius:10px;
@@ -40,26 +32,12 @@ body{
     cursor:pointer;
 }
 
-.pt{
-    background:#27ae60;
-    color:white;
-}
+.pt{background:#27ae60; color:white;}
+.en{background:#2980b9; color:white;}
 
-.en{
-    background:#111;
-    color:white;
-}
-
-/* 📱 MOBILE */
-@media (max-width: 768px){
-    .title{
-        font-size:22px;
-    }
-
-    .btn{
-        width:80%;
-        font-size:16px;
-    }
+@media(max-width:768px){
+    h1{font-size:22px;}
+    button{font-size:16px;}
 }
 </style>
 
@@ -69,16 +47,17 @@ body{
 
 <div class="overlay">
 
-<div class="title">
-🍽️ Escolha o Idioma / Choose Language
-</div>
+<h1>🍽️ Bem-vindo ao Clube A3</h1>
+<p>Welcome to Clube A3</p>
+
+<h2>Escolha o idioma / Choose your language</h2>
 
 <a href="/menu_pt">
-<button class="btn pt">Português</button>
+<button class="pt">🇲🇿 Português</button>
 </a>
 
 <a href="/menu_en">
-<button class="btn en">English</button>
+<button class="en">🇬🇧 English</button>
 </a>
 
 </div>
