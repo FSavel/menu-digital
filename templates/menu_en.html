@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Digital Menu</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    padding:0;
+    background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
+}
+
+.overlay{
+    background: rgba(0,0,0,0.6);
+    min-height:100vh;
+    padding-bottom:40px;
+}
+
+.header{
+    color:white;
+    text-align:center;
+    padding:20px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.category{
+    background:rgba(0,0,0,0.7);
+    color:white;
+    padding:10px;
+    margin:15px;
+    border-left:5px solid #27ae60;
+}
+
+.card{
+    background:white;
+    margin:10px 15px;
+    padding:15px;
+    border-radius:12px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.id{font-weight:bold; color:#555;}
+.name{flex:1; margin-left:10px;}
+.price{color:#27ae60; font-weight:bold;}
+
+.order-box{
+    background:white;
+    margin:20px 15px;
+    padding:15px;
+    border-radius:12px;
+}
+
+input, button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:8px;
+}
+
+button{
+    background:#111;
+    color:white;
+    border:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay">
+
+<div class="header">
+🍽️ Digital Menu
+</div>
+
+{% set categorias = menu | groupby('Categoria') %}
+
+{% for cat, items in categorias %}
+
+<div class="category">
+{{ cat }}
+</div>
+
+{% for item in items %}
+<div class="card">
+    <div class="id">[{{ item.ID }}]</div>
+    <div class="name">{{ item.Produto_EN }}</div>
+    <div class="price">{{ item.Preço }} MZN</div>
+</div>
+{% endfor %}
+
+{% endfor %}
+
+<div class="order-box">
+<h3>🛒 Place Order</h3>
+
+<form action="/pedido" method="post">
+
+<input type="text" name="nome" placeholder="Your name" required>
+
+<input type="text" name="pedido" placeholder="Ex: 05, 07, 12" required>
+
+<button type="submit">Send Order</button>
+
+</form>
+</div>
+
+</div>
+
+</body>
+</html>
