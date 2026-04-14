@@ -2,6 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Menu Digital</title>
 
 <style>
@@ -66,6 +67,41 @@ button{
     color:white;
     border:none;
 }
+
+/* 🔥 MOBILE FIX */
+@media (max-width: 768px) {
+
+    body{
+        font-size: 18px;
+    }
+
+    .card{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .name{
+        margin-left: 0;
+    }
+
+    .price{
+        font-size: 16px;
+    }
+
+    .category{
+        font-size: 18px;
+    }
+
+    .header{
+        font-size: 20px;
+    }
+}
+
+/* evita scroll lateral */
+html, body{
+    overflow-x: hidden;
+}
 </style>
 
 </head>
@@ -103,7 +139,7 @@ button{
 
 <input type="text" name="nome" placeholder="Seu nome" required>
 
-<input type="text" name="pedido" placeholder="Ex: 05, 07, 12" required>
+<input type="text" name="pedido" placeholder="Ex: 01, 03, 07" required>
 
 <button type="submit">Enviar Pedido</button>
 
