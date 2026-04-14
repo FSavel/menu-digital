@@ -1,34 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <title>Bem-vindo</title>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escolher Idioma</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial;
+    background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
+}
+
+.overlay{
+    background: rgba(0,0,0,0.6);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+    padding:20px;
+}
+
+.title{
+    color:white;
+    font-size:28px;
+    font-weight:bold;
+    margin-bottom:30px;
+}
+
+.btn{
+    width:200px;
+    padding:15px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.pt{
+    background:#27ae60;
+    color:white;
+}
+
+.en{
+    background:#111;
+    color:white;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px){
+    .title{
+        font-size:22px;
+    }
+
+    .btn{
+        width:80%;
+        font-size:16px;
+    }
+}
+</style>
+
 </head>
 
-<body style="text-align:center; font-family: Arial; margin-top: 60px; background-color:#f5f5f5;">
+<body>
 
-    <h1>🍽️ Clube A3 - Menu Digital</h1>
-    <p>Escolha o idioma / Choose your language</p>
+<div class="overlay">
 
-    <br><br>
+<div class="title">
+🍽️ Escolha o Idioma / Choose Language
+</div>
 
-    <a href="/menu_pt">
-        <button style="padding:20px 40px; font-size:18px; margin:10px; cursor:pointer;">
-            🇵🇹 Português
-        </button>
-    </a>
+<a href="/menu_pt">
+<button class="btn pt">Português</button>
+</a>
 
-    <br><br>
+<a href="/menu_en">
+<button class="btn en">English</button>
+</a>
 
-    <a href="/menu_en">
-        <button style="padding:20px 40px; font-size:18px; margin:10px; cursor:pointer;">
-            🇬🇧 English
-        </button>
-    </a>
-
-    <br><br>
-
-    <p style="color:gray;">Sistema de Menu Digital com QR Code</p>
+</div>
 
 </body>
 </html>
