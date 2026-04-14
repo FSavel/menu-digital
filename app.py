@@ -39,10 +39,11 @@ def menu_en():
     return render_template("menu_en.html", menu=menu)
 
 # =========================
-# PEDIDOS
+# PEDIDO (CLIENTE)
 # =========================
 @app.route("/pedido", methods=["POST"])
 def pedido():
+
     nome = request.form.get("nome")
     pedido_texto = request.form.get("pedido")
 
@@ -64,14 +65,26 @@ def pedido():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;">
-    <div>
-    <h2>✅ Pedido enviado com sucesso!</h2>
-    <p>Obrigado pela sua preferência 🍽️</p>
-    <a href="/menu_pt"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar ao Menu</button></a>
-    </div>
-    </body></html>
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;font-family:Arial;">
+
+        <div>
+            <h2>✅ Pedido enviado com sucesso!</h2>
+            <h3>✔ Order completed successfully!</h3>
+            <p>Obrigado pela sua preferência 🍽️</p>
+
+            <a href="/menu_pt">
+                <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
+                    Voltar ao Menu
+                </button>
+            </a>
+        </div>
+
+    </body>
+    </html>
     """
 
 # =========================
@@ -79,6 +92,7 @@ def pedido():
 # =========================
 @app.route("/chamar")
 def chamar():
+
     novo = pd.DataFrame([{
         "nome": "Mesa",
         "pedido": "Chamada de garçom",
@@ -96,7 +110,10 @@ def chamar():
 
     df.to_excel(ficheiro, index=False)
 
-    return "<h2>🙋 Garçom chamado!</h2><a href='/'>Voltar</a>"
+    return """
+    <h2>🙋 Garçom chamado!</h2>
+    <a href="/menu_pt">Voltar</a>
+    """
 
 # =========================
 # PAINEL PEDIDOS
@@ -115,11 +132,19 @@ def ver_pedidos():
 # =========================
 @app.route("/entregar/<int:id>")
 def entregar(id):
-    df = pd.read_excel("pedidos.xlsx")
-    if id < len(df):
-        df.at[id, "status"] = "Entregue"
-    df.to_excel("pedidos.xlsx", index=False)
-    return redirect("/pedidos")
+
+    try:
+        df = pd.read_excel("pedidos.xlsx")
+
+        if id in df.index:
+            df.loc[df.index == id, "status"] = "Entregue"
+
+        df.to_excel("pedidos.xlsx", index=False)
+
+        return redirect("/pedidos")
+
+    except:
+        return "<h3>Erro ao atualizar pedido</h3>"
 
 # =========================
 # RESERVAS
@@ -153,14 +178,26 @@ def reserva():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;">
-    <div>
-    <h2>📦 Reserva enviada com sucesso!</h2>
-    <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
-    <a href="/"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar</button></a>
-    </div>
-    </body></html>
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;font-family:Arial;">
+
+        <div>
+            <h2>📦 Reserva enviada com sucesso!</h2>
+            <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
+            <h3>✔ Reservation sent successfully!</h3>
+
+            <a href="/">
+                <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
+                    Voltar
+                </button>
+            </a>
+        </div>
+
+    </body>
+    </html>
     """
 
 # =========================
@@ -180,10 +217,14 @@ def ver_reservas():
 # =========================
 @app.route("/confirmar_reserva/<int:id>")
 def confirmar_reserva(id):
+
     df = pd.read_excel("reservas.xlsx")
-    if id < len(df):
-        df.at[id, "status"] = "Contactado"
+
+    if id in df.index:
+        df.loc[df.index == id, "status"] = "Contactado"
+
     df.to_excel("reservas.xlsx", index=False)
+
     return redirect("/reservas_admin")
 
 # =========================
@@ -191,14 +232,18 @@ def confirmar_reserva(id):
 # =========================
 @app.route("/concluir_reserva/<int:id>")
 def concluir_reserva(id):
+
     df = pd.read_excel("reservas.xlsx")
-    if id < len(df):
-        df.at[id, "status"] = "Concluído"
+
+    if id in df.index:
+        df.loc[df.index == id, "status"] = "Concluído"
+
     df.to_excel("reservas.xlsx", index=False)
+
     return redirect("/reservas_admin")
 
 # =========================
-# RUN (RENDER)
+# RUN
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
