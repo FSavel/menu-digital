@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Digital Menu</title>
 
 <style>
@@ -42,34 +41,21 @@ body{
     border-radius:12px;
     overflow:hidden;
     cursor:pointer;
-    box-shadow:0 3px 10px rgba(0,0,0,0.2);
     display:flex;
-    flex-direction:row;
-    transition:0.2s;
-}
-
-.card:hover{
-    transform:scale(1.02);
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
 }
 
 .card img{
-    width:100px;
-    height:100px;
+    width:90px;
+    height:90px;
     object-fit:cover;
-    border-radius:10px;
 }
 
 .card-body{
     padding:10px;
     display:flex;
     justify-content:space-between;
-    align-items:center;
     width:100%;
-}
-
-.name{
-    flex:1;
-    margin-left:10px;
 }
 
 .price{
@@ -77,7 +63,6 @@ body{
     font-weight:bold;
 }
 
-/* CART */
 .cart{
     background:white;
     margin:15px;
@@ -85,77 +70,33 @@ body{
     border-radius:12px;
 }
 
-input, textarea, button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
+.item{
+    display:flex;
+    justify-content:space-between;
+    margin:5px 0;
 }
 
 button{
-    border:none;
-    font-size:16px;
-}
-
-.btn-send{
-    background:#27ae60;
-    color:white;
-}
-
-.btn-clear{
-    background:#e74c3c;
-    color:white;
-}
-
-/* EXTRA BUTTONS */
-.extra-buttons{
-    margin:15px;
-}
-
-.extra-buttons button{
-    margin-top:10px;
-    color:white;
     width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
 }
 
-.btn-reserva{
-    background:#f39c12;
-}
+.btn-send{background:#27ae60;color:white;}
+.btn-clear{background:#e74c3c;color:white;}
 
-.btn-waiter{
-    background:#2980b9;
+.total{
+    font-weight:bold;
+    margin-top:10px;
 }
 
 /* MOBILE */
 @media(max-width:768px){
-    .card{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .card-body{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:5px;
-    }
-
-    .name{
-        margin-left:0;
-    }
-
-    .card img{
-        width:100%;
-        height:160px;
-    }
-}
-
-html, body{
-    overflow-x:hidden;
+    .card{flex-direction:column;}
 }
 </style>
-
 </head>
 
 <body>
@@ -163,7 +104,8 @@ html, body{
 <div class="overlay">
 
 <div class="header">
-🍽️ Digital Restaurant Menu
+🍽️ Digital Menu <br>
+<small>Click dishes to add to order</small>
 </div>
 
 {% set categorias = menu | groupby('Categoria') %}
@@ -172,25 +114,18 @@ html, body{
 <div class="category">{{ cat }}</div>
 
 {% for item in items %}
-
-<div class="card" onclick="addItem('{{ item.ID }} - {{ item.Produto_EN }}')">
+<div class="card" onclick="addItem('{{ item.ID }}','{{ item.Produto_EN }}',{{ item.Preço }})">
 
 {% if item.Imagem %}
 <img src="{{ item.Imagem }}">
 {% endif %}
 
 <div class="card-body">
-<div class="name">
-<b>[{{ item.ID }}]</b> {{ item.Produto_EN }}
-</div>
-
-<div class="price">
-{{ item.Preço }} MZN
-</div>
+<div>{{ item.Produto_EN }}</div>
+<div class="price">{{ item.Preço }} MZN</div>
 </div>
 
 </div>
-
 {% endfor %}
 {% endfor %}
 
@@ -199,49 +134,78 @@ html, body{
 
 <h3>🛒 Your Order</h3>
 
-<form action="/pedido" method="post">
+<input type="text" id="nome" placeholder="Your name">
 
-<input type="text" name="nome" placeholder="Your name" required>
+<div id="cart"></div>
 
-<textarea id="pedido" name="pedido" placeholder="Click dishes to add..." required></textarea>
+<div class="total">Total: <span id="total">0</span> MZN</div>
+
+<form action="/pedido" method="post" onsubmit="prepareOrder()">
+<input type="hidden" name="pedido" id="pedido">
+<input type="hidden" name="nome_hidden" id="nome_hidden">
 
 <button type="submit" class="btn-send">Send Order</button>
-
 </form>
 
-<button class="btn-clear" onclick="limpar()">🗑️ Clear Order</button>
-
-</div>
-
-<!-- EXTRA BUTTONS -->
-<div class="extra-buttons">
-
-<a href="/reserva">
-<button class="btn-reserva">📦 Special Reservations</button>
-</a>
-
-<a href="/chamar">
-<button class="btn-waiter">🙋 Call Waiter</button>
-</a>
+<button class="btn-clear" onclick="clearCart()">Clear</button>
 
 </div>
 
 </div>
 
 <script>
-function addItem(item){
-    let campo = document.getElementById("pedido");
 
-    if(campo.value === ""){
-        campo.value = item;
+let cart = [];
+let total = 0;
+
+function addItem(id,name,price){
+
+    let existing = cart.find(i => i.id === id);
+
+    if(existing){
+        existing.qty += 1;
     } else {
-        campo.value += ", " + item;
+        cart.push({id,name,price,qty:1});
     }
+
+    updateCart();
 }
 
-function limpar(){
-    document.getElementById("pedido").value = "";
+function updateCart(){
+
+    let div = document.getElementById("cart");
+    div.innerHTML = "";
+    total = 0;
+
+    cart.forEach((item,index)=>{
+
+        total += item.price * item.qty;
+
+        div.innerHTML += `
+        <div class="item">
+            ${item.name} x${item.qty}
+            <button onclick="removeItem(${index})">X</button>
+        </div>`;
+    });
+
+    document.getElementById("total").innerText = total;
 }
+
+function removeItem(index){
+    cart.splice(index,1);
+    updateCart();
+}
+
+function clearCart(){
+    cart = [];
+    updateCart();
+}
+
+function prepareOrder(){
+    document.getElementById("pedido").value = JSON.stringify(cart);
+    document.getElementById("nome_hidden").value = document.getElementById("nome").value;
+}
+
 </script>
 
 </body>
