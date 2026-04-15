@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chamadas</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial;
+    background:#111;
+}
+
+/* HEADER */
+.header{
+    background:#000;
+    color:white;
+    text-align:center;
+    padding:20px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+    padding:15px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    margin:10px 0;
+    padding:15px;
+    border-radius:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+/* INFO */
+.info{
+    flex:1;
+    line-height:1.4;
+}
+
+/* STATUS */
+.status{
+    padding:5px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:bold;
+    background:#2980b9;
+    color:white;
+}
+
+/* BOTÃO (caso futuramente quiseres ações) */
+.botao{
+    background:#111;
+    color:white;
+    padding:8px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:12px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .card{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:6px;
+    }
+}
+
+/* evita scroll lateral */
+html, body{
+    overflow-x:hidden;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🙋 PAINEL DE CHAMADAS
+</div>
+
+<div class="container">
+
+{% for c in chamadas %}
+<div class="card">
+
+    <div class="info">
+        <b>{{ c.nome }}</b><br>
+        {{ c.pedido }}<br>
+        <small>🕒 {{ c.hora }}</small>
+    </div>
+
+    <div>
+        <span class="status">{{ c.status }}</span>
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+</body>
+</html>
