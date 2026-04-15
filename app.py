@@ -28,11 +28,6 @@ def hora_mocambique_bonita():
 
 
 # =========================
-# APP INIT
-# =========================
-app = Flask(__name__)
-
-# =========================
 # MENU
 # =========================
 def carregar_menu():
@@ -44,7 +39,7 @@ def carregar_menu():
 
 
 # =========================
-# HOME (IDIOMA)
+# HOME
 # =========================
 @app.route("/")
 def idioma():
@@ -73,20 +68,26 @@ def pedido():
     pedido_raw = request.form.get("pedido")
 
     total = 0
+    pedido_texto = pedido_raw
 
     try:
-        pedido_lista = json.loads(pedido_raw)
+        if pedido_raw:
+            pedido_lista = json.loads(pedido_raw)
+        else:
+            pedido_lista = []
 
         linhas = []
-        for item in pedido_lista:
-            subtotal = item["price"] * item["qty"]
-            total += subtotal
-            linhas.append(f"{item['name']} x{item['qty']}")
 
-        pedido_texto = " | ".join(linhas)
+        for item in pedido_lista:
+            subtotal = float(item.get("price", 0)) * int(item.get("qty", 1))
+            total += subtotal
+            linhas.append(f"{item.get('name')} x{item.get('qty')}")
+
+        if linhas:
+            pedido_texto = " | ".join(linhas)
 
     except:
-        pedido_texto = pedido_texto = pedido_raw
+        pedido_texto = pedido_raw
 
     novo = pd.DataFrame([{
         "nome": nome,
@@ -132,7 +133,7 @@ def chamar():
 
     novo = pd.DataFrame([{
         "nome": "Mesa",
-        "pedido": "Chamada de garçom",
+        "pedido": "🙋 Chamada de garçom",
         "hora": hora_mocambique_bonita(),
         "status": "Nova chamada"
     }])
@@ -147,7 +148,7 @@ def chamar():
 
     df.to_excel(ficheiro, index=False)
 
-    return "<h2>🙋 Garçom chamado!</h2><a href='/menu_pt'>Voltar</a>"
+    return redirect("/menu_pt")
 
 
 # =========================
@@ -155,11 +156,12 @@ def chamar():
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
+
     try:
         df = pd.read_excel("pedidos.xlsx")
         pedidos = df.to_dict(orient="records")
 
-        total_dia = df["total"].sum() if "total" in df.columns else 0
+        total_dia = df["total"].fillna(0).sum() if "total" in df.columns else 0
 
         return render_template("pedidos.html",
                                pedidos=pedidos,
