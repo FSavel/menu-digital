@@ -254,7 +254,7 @@ def sobre():
         <p>firminosavel@gmail.com</p>
 
         <h3>🗺️ Localização</h3>
-        <a href="https://www.google.com/maps?q=-25.9692,32.5732" target="_blank">
+        <a href="https://maps.app.goo.gl/k9we8ZFzk3uqkj9A9" target="_blank">
             <button>Ver no Mapa</button>
         </a>
 
