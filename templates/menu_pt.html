@@ -3,112 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Menu Digital</title>
 
 <style>
-body{
-    font-family: Arial;
-    margin:0;
-    background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
-}
+body{font-family:Arial;margin:0;background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;}
+.overlay{background:rgba(0,0,0,0.6);min-height:100vh;padding-bottom:40px;}
+.header{color:white;text-align:center;padding:20px;font-size:24px;font-weight:bold;}
+.category{background:rgba(0,0,0,0.75);color:white;padding:10px;margin:15px;border-left:5px solid #27ae60;}
+.card{background:white;margin:10px 15px;border-radius:12px;cursor:pointer;display:flex;}
+.card img{width:90px;height:90px;object-fit:cover;}
+.card-body{padding:10px;display:flex;justify-content:space-between;width:100%;}
+.price{color:#27ae60;font-weight:bold;}
 
-.overlay{
-    background:rgba(0,0,0,0.6);
-    min-height:100vh;
-    padding-bottom:40px;
-}
+.cart{background:white;margin:15px;padding:15px;border-radius:12px;}
+.item{display:flex;justify-content:space-between;margin:5px 0;}
 
-.header{
-    color:white;
-    text-align:center;
-    padding:20px;
-    font-size:24px;
-    font-weight:bold;
-}
-
-.category{
-    background:rgba(0,0,0,0.75);
-    color:white;
-    padding:10px;
-    margin:15px;
-    border-left:5px solid #27ae60;
-    font-weight:bold;
-}
-
-.card{
-    background:white;
-    margin:10px 15px;
-    border-radius:12px;
-    overflow:hidden;
-    cursor:pointer;
-    display:flex;
-    box-shadow:0 3px 10px rgba(0,0,0,0.2);
-    transition:0.2s;
-}
-
-.card:hover{
-    transform:scale(1.02);
-}
-
-.card img{
-    width:90px;
-    height:90px;
-    object-fit:cover;
-}
-
-.card-body{
-    padding:10px;
-    display:flex;
-    justify-content:space-between;
-    width:100%;
-}
-
-.price{
-    color:#27ae60;
-    font-weight:bold;
-}
-
-/* CART */
-.cart{
-    background:white;
-    margin:15px;
-    padding:15px;
-    border-radius:12px;
-}
-
-input, textarea, button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
-
-button{
-    border:none;
-    font-size:16px;
-}
-
+button{width:100%;padding:10px;margin-top:10px;border:none;border-radius:8px;}
 .btn-send{background:#27ae60;color:white;}
 .btn-clear{background:#e74c3c;color:white;}
 
-.extra-buttons{
-    margin:15px;
-}
-
-.extra-buttons button{
-    width:100%;
-    margin-top:10px;
-    color:white;
-}
-
+.extra-buttons{margin:15px;}
+.extra-buttons button{margin-top:10px;color:white;}
 .btn-reserva{background:#f39c12;}
 .btn-waiter{background:#2980b9;}
 
-@media(max-width:768px){
-    .card{flex-direction:column;}
-}
+.total{font-weight:bold;margin-top:10px;}
 </style>
 </head>
 
@@ -121,13 +41,11 @@ button{
 <small>Clique nos pratos para adicionar ao pedido</small>
 </div>
 
-{% set categorias = menu | groupby('Categoria') %}
-
-{% for cat, items in categorias %}
+{% for cat, items in menu | groupby('Categoria') %}
 <div class="category">{{ cat }}</div>
 
 {% for item in items %}
-<div class="card" onclick="addItem('{{ item.ID }} - {{ item.Produto_PT }}')">
+<div class="card" onclick="addItem('{{ item.ID }}','{{ item.Produto_PT }}',{{ item.Preço }})">
 
 {% if item.Imagem %}
 <img src="{{ item.Imagem }}">
@@ -142,44 +60,62 @@ button{
 {% endfor %}
 {% endfor %}
 
-<!-- CART -->
 <div class="cart">
-
 <h3>🛒 O Seu Pedido</h3>
 
-<form action="/pedido" method="post">
+<input type="text" id="nome" placeholder="O seu nome">
 
-<input type="text" name="nome" placeholder="O seu nome" required>
+<div id="cart"></div>
 
-<textarea id="pedido" name="pedido" placeholder="Clique nos pratos..." required></textarea>
+<div class="total">Total: <span id="total">0</span> MZN</div>
 
-<button type="submit" class="btn-send">Enviar Pedido</button>
-
+<form action="/pedido" method="post" onsubmit="prepareOrder()">
+<input type="hidden" name="pedido" id="pedido">
+<input type="hidden" name="nome" id="nome_hidden">
+<button class="btn-send">Enviar Pedido</button>
 </form>
 
-<button class="btn-clear" onclick="limpar()">Limpar</button>
-
+<button class="btn-clear" onclick="clearCart()">Limpar</button>
 </div>
 
-<!-- BOTÕES FIXOS -->
 <div class="extra-buttons">
-
-<a href="/reserva"><button class="btn-reserva">📦 Reservas Especiais</button></a>
+<a href="/reserva"><button class="btn-reserva">📦 Reservas</button></a>
 <a href="/chamar"><button class="btn-waiter">🙋 Chamar Empregado</button></a>
-<a href="/pedidos"><button style="background:#2c3e50;">📊 Ver Pedidos</button></a>
-
 </div>
 
 </div>
 
 <script>
-function addItem(item){
-    let campo = document.getElementById("pedido");
-    campo.value = campo.value ? campo.value + ", " + item : item;
+let cart=[]; let total=0;
+
+function addItem(id,name,price){
+    let item=cart.find(i=>i.id===id);
+    if(item){item.qty+=1;}
+    else{cart.push({id,name,price,qty:1});}
+    updateCart();
 }
 
-function limpar(){
-    document.getElementById("pedido").value = "";
+function updateCart(){
+    let div=document.getElementById("cart");
+    div.innerHTML=""; total=0;
+
+    cart.forEach((i,index)=>{
+        total+=i.price*i.qty;
+        div.innerHTML+=`<div class="item">
+        ${i.name} x${i.qty}
+        <button onclick="removeItem(${index})">X</button>
+        </div>`;
+    });
+
+    document.getElementById("total").innerText=total;
+}
+
+function removeItem(i){cart.splice(i,1);updateCart();}
+function clearCart(){cart=[];updateCart();}
+
+function prepareOrder(){
+    document.getElementById("pedido").value=JSON.stringify(cart);
+    document.getElementById("nome_hidden").value=document.getElementById("nome").value;
 }
 </script>
 
