@@ -1,9 +1,35 @@
 from flask import Flask, render_template, request, redirect
 import pandas as pd
 from datetime import datetime
+import pytz
 import os
 import json
 
+app = Flask(__name__)
+
+# =========================
+# HORA MOÇAMBIQUE FORMATADA
+# =========================
+def hora_mocambique_bonita():
+    tz = pytz.timezone("Africa/Maputo")
+    agora = datetime.now(tz)
+
+    meses = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+
+    dia = agora.day
+    mes = meses[agora.month]
+    hora = agora.strftime("%H:%M")
+
+    return f"{dia} {mes}, {hora}"
+
+
+# =========================
+# APP INIT
+# =========================
 app = Flask(__name__)
 
 # =========================
@@ -16,12 +42,14 @@ def carregar_menu():
     except:
         return []
 
+
 # =========================
-# HOME
+# HOME (IDIOMA)
 # =========================
 @app.route("/")
 def idioma():
     return render_template("idioma.html")
+
 
 # =========================
 # MENUS
@@ -34,8 +62,9 @@ def menu_pt():
 def menu_en():
     return render_template("menu_en.html", menu=carregar_menu())
 
+
 # =========================
-# PEDIDOS (COM TOTAL)
+# PEDIDO (COM TOTAL)
 # =========================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -50,20 +79,20 @@ def pedido():
 
         linhas = []
         for item in pedido_lista:
-            subtotal = item['price'] * item['qty']
+            subtotal = item["price"] * item["qty"]
             total += subtotal
             linhas.append(f"{item['name']} x{item['qty']}")
 
         pedido_texto = " | ".join(linhas)
 
     except:
-        pedido_texto = pedido_raw
+        pedido_texto = pedido_texto = pedido_raw
 
     novo = pd.DataFrame([{
         "nome": nome,
         "pedido": pedido_texto,
         "total": total,
-        "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "hora": hora_mocambique_bonita(),
         "status": "Pendente"
     }])
 
@@ -84,11 +113,16 @@ def pedido():
             <h2>✅ Pedido enviado com sucesso!</h2>
             <h3>✔ Order completed successfully!</h3>
             <h3>💰 Total: {total} MZN</h3>
-            <a href="/menu_pt"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar</button></a>
+            <a href="/menu_pt">
+                <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
+                    Voltar ao Menu
+                </button>
+            </a>
         </div>
     </body>
     </html>
     """
+
 
 # =========================
 # CHAMAR GARÇOM
@@ -99,7 +133,7 @@ def chamar():
     novo = pd.DataFrame([{
         "nome": "Mesa",
         "pedido": "Chamada de garçom",
-        "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "hora": hora_mocambique_bonita(),
         "status": "Nova chamada"
     }])
 
@@ -115,23 +149,25 @@ def chamar():
 
     return "<h2>🙋 Garçom chamado!</h2><a href='/menu_pt'>Voltar</a>"
 
+
 # =========================
-# PAINEL PEDIDOS (COM TOTAL DO DIA)
+# PAINEL PEDIDOS
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
     try:
         df = pd.read_excel("pedidos.xlsx")
-
         pedidos = df.to_dict(orient="records")
 
-        # 💰 TOTAL DO DIA
         total_dia = df["total"].sum() if "total" in df.columns else 0
 
-        return render_template("pedidos.html", pedidos=pedidos, total_dia=total_dia)
+        return render_template("pedidos.html",
+                               pedidos=pedidos,
+                               total_dia=total_dia)
 
     except:
         return "<h3>Nenhum pedido encontrado</h3>"
+
 
 # =========================
 # ENTREGAR PEDIDO
@@ -152,6 +188,7 @@ def entregar(id):
     except:
         return "<h3>Erro ao atualizar pedido</h3>"
 
+
 # =========================
 # RESERVAS
 # =========================
@@ -169,7 +206,7 @@ def reserva():
         "quantidade": request.form.get("quantidade"),
         "data": request.form.get("data"),
         "observacoes": request.form.get("observacoes"),
-        "hora_registo": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "hora_registo": hora_mocambique_bonita(),
         "status": "Pendente"
     }])
 
@@ -193,50 +230,9 @@ def reserva():
     </html>
     """
 
-# =========================
-# PAINEL RESERVAS
-# =========================
-@app.route("/reservas_admin")
-def ver_reservas():
-    try:
-        df = pd.read_excel("reservas.xlsx")
-        reservas = df.to_dict(orient="records")
-        return render_template("reservas_admin.html", reservas=reservas)
-    except:
-        return "<h3>Sem reservas ainda</h3>"
 
 # =========================
-# CONFIRMAR RESERVA
-# =========================
-@app.route("/confirmar_reserva/<int:id>")
-def confirmar_reserva(id):
-
-    df = pd.read_excel("reservas.xlsx")
-
-    if 0 <= id < len(df):
-        df.at[id, "status"] = "Contactado"
-
-    df.to_excel("reservas.xlsx", index=False)
-
-    return redirect("/reservas_admin")
-
-# =========================
-# CONCLUIR RESERVA
-# =========================
-@app.route("/concluir_reserva/<int:id>")
-def concluir_reserva(id):
-
-    df = pd.read_excel("reservas.xlsx")
-
-    if 0 <= id < len(df):
-        df.at[id, "status"] = "Concluído"
-
-    df.to_excel("reservas.xlsx", index=False)
-
-    return redirect("/reservas_admin")
-
-# =========================
-# SOBRE
+# SOBRE / CONTACTO / MAPA
 # =========================
 @app.route("/sobre")
 def sobre():
@@ -263,6 +259,7 @@ def sobre():
     </body>
     </html>
     """
+
 
 # =========================
 # RUN
