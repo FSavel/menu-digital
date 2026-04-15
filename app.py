@@ -240,24 +240,85 @@ def reserva():
 def sobre():
     return """
     <html>
-    <body style="background:#111;color:white;text-align:center;font-family:Arial;padding:20px;">
-        <h2>🍽️ Clube A3</h2>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+
+    <body style="
+        margin:0;
+        background:#111;
+        color:white;
+        font-family:Arial;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        min-height:100vh;
+        padding:20px;
+    ">
+
+    <div style="
+        width:100%;
+        max-width:500px;
+        background:rgba(255,255,255,0.05);
+        padding:20px;
+        border-radius:12px;
+        line-height:1.6;
+        font-size:16px;
+    ">
+
+        <h2 style="text-align:center;">🍽️ Clube A3</h2>
+
+        <hr style="border:0;border-top:1px solid #444;margin:15px 0;">
 
         <h3>📞 Restaurante</h3>
-        <p>+258878605154</p>
+        <p style="font-size:18px;">+258878605154</p>
 
         <h3>👨‍💻 Desenvolvedor</h3>
         <p>Firmino S. Savel</p>
-        <p>+258879131089 | +258844681767</p>
-        <p>firminosavel@gmail.com</p>
+
+        <p style="font-size:16px;">
+            +258879131089<br>
+            +258844681767
+        </p>
+
+        <p style="word-break:break-word;">
+            📧 firminosavel@gmail.com
+        </p>
 
         <h3>🗺️ Localização</h3>
+
         <a href="https://maps.app.goo.gl/k9we8ZFzk3uqkj9A9" target="_blank">
-            <button>Ver no Mapa</button>
+            <button style="
+                width:100%;
+                padding:12px;
+                border:none;
+                border-radius:8px;
+                background:#27ae60;
+                color:white;
+                font-size:16px;
+                margin-top:10px;
+            ">
+                Ver no Mapa
+            </button>
         </a>
 
-        <br><br>
-        <a href="/"><button>Voltar</button></a>
+        <a href="/menu_pt">
+            <button style="
+                width:100%;
+                padding:12px;
+                border:none;
+                border-radius:8px;
+                background:#444;
+                color:white;
+                font-size:16px;
+                margin-top:10px;
+            ">
+                Voltar
+            </button>
+        </a>
+
+    </div>
+
     </body>
     </html>
     """
