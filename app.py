@@ -17,30 +17,25 @@ def carregar_menu():
         return []
 
 # =========================
-# HOME (IDIOMA)
+# HOME
 # =========================
 @app.route("/")
 def idioma():
     return render_template("idioma.html")
 
 # =========================
-# MENU PT
+# MENUS
 # =========================
 @app.route("/menu_pt")
 def menu_pt():
-    menu = carregar_menu()
-    return render_template("menu_pt.html", menu=menu)
+    return render_template("menu_pt.html", menu=carregar_menu())
 
-# =========================
-# MENU EN
-# =========================
 @app.route("/menu_en")
 def menu_en():
-    menu = carregar_menu()
-    return render_template("menu_en.html", menu=menu)
+    return render_template("menu_en.html", menu=carregar_menu())
 
 # =========================
-# PEDIDOS
+# PEDIDOS (COM TOTAL)
 # =========================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -48,14 +43,18 @@ def pedido():
     nome = request.form.get("nome")
     pedido_raw = request.form.get("pedido")
 
-    # 🔥 Converter JSON do carrinho em texto bonito
+    total = 0
+
     try:
         pedido_lista = json.loads(pedido_raw)
 
-        pedido_texto = " | ".join([
-            f"{item['name']} x{item['qty']}"
-            for item in pedido_lista
-        ])
+        linhas = []
+        for item in pedido_lista:
+            subtotal = item['price'] * item['qty']
+            total += subtotal
+            linhas.append(f"{item['name']} x{item['qty']}")
+
+        pedido_texto = " | ".join(linhas)
 
     except:
         pedido_texto = pedido_raw
@@ -63,6 +62,7 @@ def pedido():
     novo = pd.DataFrame([{
         "nome": nome,
         "pedido": pedido_texto,
+        "total": total,
         "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": "Pendente"
     }])
@@ -77,25 +77,15 @@ def pedido():
 
     df.to_excel(ficheiro, index=False)
 
-    return """
+    return f"""
     <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
     <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;font-family:Arial;">
-
         <div>
             <h2>✅ Pedido enviado com sucesso!</h2>
             <h3>✔ Order completed successfully!</h3>
-            <p>Obrigado pela sua preferência 🍽️</p>
-
-            <a href="/menu_pt">
-                <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
-                    Voltar ao Menu
-                </button>
-            </a>
+            <h3>💰 Total: {total} MZN</h3>
+            <a href="/menu_pt"><button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">Voltar</button></a>
         </div>
-
     </body>
     </html>
     """
@@ -123,24 +113,23 @@ def chamar():
 
     df.to_excel(ficheiro, index=False)
 
-    return """
-    <html>
-    <body style="text-align:center;font-family:Arial;">
-        <h2>🙋 Garçom chamado!</h2>
-        <a href="/menu_pt"><button>Voltar</button></a>
-    </body>
-    </html>
-    """
+    return "<h2>🙋 Garçom chamado!</h2><a href='/menu_pt'>Voltar</a>"
 
 # =========================
-# PAINEL PEDIDOS
+# PAINEL PEDIDOS (COM TOTAL DO DIA)
 # =========================
 @app.route("/pedidos")
 def ver_pedidos():
     try:
         df = pd.read_excel("pedidos.xlsx")
+
         pedidos = df.to_dict(orient="records")
-        return render_template("pedidos.html", pedidos=pedidos)
+
+        # 💰 TOTAL DO DIA
+        total_dia = df["total"].sum() if "total" in df.columns else 0
+
+        return render_template("pedidos.html", pedidos=pedidos, total_dia=total_dia)
+
     except:
         return "<h3>Nenhum pedido encontrado</h3>"
 
@@ -196,23 +185,10 @@ def reserva():
 
     return """
     <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="background:#111;color:white;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;font-family:Arial;">
-
-        <div>
-            <h2>📦 Reserva enviada com sucesso!</h2>
-            <h3>✔ Reservation sent successfully!</h3>
-            <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
-
-            <a href="/">
-                <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
-                    Voltar
-                </button>
-            </a>
-        </div>
-
+    <body style="background:#111;color:white;text-align:center;font-family:Arial;padding-top:40px;">
+        <h2>📦 Reserva enviada com sucesso!</h2>
+        <h3>✔ Reservation sent successfully!</h3>
+        <a href="/"><button>Voltar</button></a>
     </body>
     </html>
     """
@@ -260,37 +236,30 @@ def concluir_reserva(id):
     return redirect("/reservas_admin")
 
 # =========================
-# SOBRE / CONTACTO
+# SOBRE
 # =========================
 @app.route("/sobre")
 def sobre():
     return """
     <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
     <body style="background:#111;color:white;text-align:center;font-family:Arial;padding:20px;">
+        <h2>🍽️ Clube A3</h2>
 
-    <h2>🍽️ Clube A3</h2>
+        <h3>📞 Restaurante</h3>
+        <p>+258878605154</p>
 
-    <h3>📞 Restaurante</h3>
-    <p>+258878605154</p>
+        <h3>👨‍💻 Desenvolvedor</h3>
+        <p>Firmino S. Savel</p>
+        <p>+258879131089 | +258844681767</p>
+        <p>firminosavel@gmail.com</p>
 
-    <h3>👨‍💻 Desenvolvedor</h3>
-    <p>Firmino S. Savel</p>
-    <p>+258879131089 | +258844681767</p>
-    <p>firminosavel@gmail.com</p>
+        <h3>🗺️ Localização</h3>
+        <a href="https://www.google.com/maps?q=-25.9692,32.5732" target="_blank">
+            <button>Ver no Mapa</button>
+        </a>
 
-    <h3>🗺️ Localização</h3>
-    <a href="https://www.google.com/maps?q=-25.9692,32.5732" target="_blank">
-        <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
-            Ver no Mapa
-        </button>
-    </a>
-
-    <br><br>
-    <a href="/"><button style="padding:10px;">Voltar</button></a>
-
+        <br><br>
+        <a href="/"><button>Voltar</button></a>
     </body>
     </html>
     """
