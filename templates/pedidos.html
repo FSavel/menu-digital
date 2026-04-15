@@ -104,9 +104,13 @@ body{
 <div class="card">
 
     <div class="info">
-        <b>{{ p.nome }}</b><br>
-        {{ p.pedido }}<br>
-        <small>{{ p.hora }}</small>
+       <b>{{ p.nome }}</b><br>
+    {{ p.pedido }}<br>
+    <small>{{ p.hora }}</small><br>
+
+    <b style="color:#27ae60;">
+        💵 Total do Pedido: {{ p.total }} MZN
+    </b>
     </div>
 
     <div>
