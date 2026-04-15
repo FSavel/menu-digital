@@ -25,6 +25,7 @@ body{
     margin-bottom:20px;
 }
 
+/* FORM */
 .form-box{
     background:white;
     padding:20px;
@@ -33,12 +34,18 @@ body{
     margin:auto;
 }
 
+/* INPUTS */
 input, select, textarea, button{
     width:100%;
     padding:12px;
     margin-top:10px;
     border-radius:8px;
     border:1px solid #ccc;
+    font-size:14px;
+}
+
+textarea{
+    resize:none;
 }
 
 button{
@@ -48,13 +55,27 @@ button{
     font-size:16px;
 }
 
-textarea{
-    resize:none;
+/* TIPOS */
+.hint{
+    font-size:12px;
+    color:#555;
+    margin-top:5px;
 }
 
-/* 📱 MOBILE */
+/* MOBILE FIX */
 @media (max-width:768px){
-    .header{font-size:20px;}
+    .header{
+        font-size:20px;
+    }
+
+    .form-box{
+        margin:10px;
+    }
+}
+
+/* evita scroll horizontal */
+html, body{
+    overflow-x:hidden;
 }
 </style>
 
@@ -87,7 +108,12 @@ textarea{
 
 <input type="number" name="quantidade" min="1" placeholder="Quantidade" required>
 
+<!-- 📅 MELHORADO: data sem problemas de layout -->
 <input type="datetime-local" name="data" required>
+
+<div class="hint">
+📌 Escolha a data e hora do seu evento ou reserva
+</div>
 
 <textarea name="observacoes" placeholder="Observações adicionais"></textarea>
 
