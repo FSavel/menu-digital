@@ -44,12 +44,20 @@ body{
     border-radius:12px;
     display:flex;
     justify-content:space-between;
-    align-items:center;
+    align-items:flex-start;
 }
 
 /* INFO DO PEDIDO */
 .info{
     flex:1;
+    line-height:1.5;
+}
+
+/* TOTAL DO PEDIDO */
+.total-pedido{
+    color:#27ae60;
+    font-weight:bold;
+    margin-top:5px;
 }
 
 /* STATUS */
@@ -104,13 +112,15 @@ body{
 <div class="card">
 
     <div class="info">
-       <b>{{ p.nome }}</b><br>
-    {{ p.pedido }}<br>
-    <small>{{ p.hora }}</small><br>
+        <b>{{ p.nome }}</b><br>
 
-    <b style="color:#27ae60;">
-        💵 Total do Pedido: {{ p.total }} MZN
-    </b>
+        {{ p.pedido }}<br>
+
+        <small>🕒 {{ p.hora }}</small><br>
+
+        <div class="total-pedido">
+            💵 Total do Pedido: {{ p.total }} MZN
+        </div>
     </div>
 
     <div>
