@@ -3,41 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Clube A3</title>
 
 <style>
 body{
     margin:0;
-    font-family: Arial;
+    font-family:Arial;
     background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;
 }
 
 .overlay{
     background:rgba(0,0,0,0.7);
-    height:100vh;
+    min-height:100vh;
     display:flex;
-    flex-direction:column;
     justify-content:center;
     align-items:center;
-    color:white;
     text-align:center;
+    padding:20px;
+}
+
+.container{
+    background:rgba(0,0,0,0.6);
+    padding:30px;
+    border-radius:15px;
+    width:100%;
+    max-width:400px;
+}
+
+h1{
+    color:white;
+    margin-bottom:10px;
+}
+
+p{
+    color:#ddd;
+    font-size:14px;
 }
 
 button{
-    padding:15px 30px;
-    margin:10px;
+    width:100%;
+    padding:15px;
+    margin-top:15px;
     border:none;
     border-radius:10px;
-    font-size:18px;
+    font-size:16px;
     cursor:pointer;
 }
 
-.pt{background:#27ae60; color:white;}
-.en{background:#2980b9; color:white;}
+.btn-pt{
+    background:#27ae60;
+    color:white;
+}
 
+.btn-en{
+    background:#2980b9;
+    color:white;
+}
+
+.btn-sobre{
+    background:#8e44ad;
+    color:white;
+}
+
+.footer{
+    margin-top:20px;
+    font-size:12px;
+    color:#bbb;
+}
+
+/* MOBILE */
 @media(max-width:768px){
     h1{font-size:22px;}
-    button{font-size:16px;}
 }
 </style>
 
@@ -47,18 +84,31 @@ button{
 
 <div class="overlay">
 
-<h1>🍽️ Bem-vindo ao Clube A3</h1>
-<p>Welcome to A3 Club</p>
+<div class="container">
 
-<h2>Escolha o idioma / Choose your language</h2>
+<h1>🍽️ Clube A3</h1>
 
+<p>Bem-vindo / Welcome</p>
+
+<!-- BOTÕES IDIOMA -->
 <a href="/menu_pt">
-<button class="pt">🇲🇿 Português</button>
+<button class="btn-pt">🇵🇹 Português</button>
 </a>
 
 <a href="/menu_en">
-<button class="en">🇬🇧 English</button>
+<button class="btn-en">🇬🇧 English</button>
 </a>
+
+<!-- SOBRE -->
+<a href="/sobre">
+<button class="btn-sobre">ℹ️ Sobre / Contacto</button>
+</a>
+
+<div class="footer">
+<p>Experiência digital moderna 🍽️</p>
+</div>
+
+</div>
 
 </div>
 
