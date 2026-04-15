@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 import pandas as pd
 from datetime import datetime
 import os
+import json
 
 app = Flask(__name__)
 
@@ -39,13 +40,25 @@ def menu_en():
     return render_template("menu_en.html", menu=menu)
 
 # =========================
-# PEDIDO (CLIENTE)
+# PEDIDOS
 # =========================
 @app.route("/pedido", methods=["POST"])
 def pedido():
 
     nome = request.form.get("nome")
-    pedido_texto = request.form.get("pedido")
+    pedido_raw = request.form.get("pedido")
+
+    # 🔥 Converter JSON do carrinho em texto bonito
+    try:
+        pedido_lista = json.loads(pedido_raw)
+
+        pedido_texto = " | ".join([
+            f"{item['name']} x{item['qty']}"
+            for item in pedido_lista
+        ])
+
+    except:
+        pedido_texto = pedido_raw
 
     novo = pd.DataFrame([{
         "nome": nome,
@@ -111,8 +124,12 @@ def chamar():
     df.to_excel(ficheiro, index=False)
 
     return """
-    <h2>🙋 Garçom chamado!</h2>
-    <a href="/menu_pt">Voltar</a>
+    <html>
+    <body style="text-align:center;font-family:Arial;">
+        <h2>🙋 Garçom chamado!</h2>
+        <a href="/menu_pt"><button>Voltar</button></a>
+    </body>
+    </html>
     """
 
 # =========================
@@ -136,8 +153,8 @@ def entregar(id):
     try:
         df = pd.read_excel("pedidos.xlsx")
 
-        if id in df.index:
-            df.loc[df.index == id, "status"] = "Entregue"
+        if 0 <= id < len(df):
+            df.at[id, "status"] = "Entregue"
 
         df.to_excel("pedidos.xlsx", index=False)
 
@@ -186,8 +203,8 @@ def reserva():
 
         <div>
             <h2>📦 Reserva enviada com sucesso!</h2>
-            <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
             <h3>✔ Reservation sent successfully!</h3>
+            <p>Entraremos em contacto para confirmar detalhes e pagamento.</p>
 
             <a href="/">
                 <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
@@ -220,8 +237,8 @@ def confirmar_reserva(id):
 
     df = pd.read_excel("reservas.xlsx")
 
-    if id in df.index:
-        df.loc[df.index == id, "status"] = "Contactado"
+    if 0 <= id < len(df):
+        df.at[id, "status"] = "Contactado"
 
     df.to_excel("reservas.xlsx", index=False)
 
@@ -235,12 +252,48 @@ def concluir_reserva(id):
 
     df = pd.read_excel("reservas.xlsx")
 
-    if id in df.index:
-        df.loc[df.index == id, "status"] = "Concluído"
+    if 0 <= id < len(df):
+        df.at[id, "status"] = "Concluído"
 
     df.to_excel("reservas.xlsx", index=False)
 
     return redirect("/reservas_admin")
+
+# =========================
+# SOBRE / CONTACTO
+# =========================
+@app.route("/sobre")
+def sobre():
+    return """
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="background:#111;color:white;text-align:center;font-family:Arial;padding:20px;">
+
+    <h2>🍽️ Clube A3</h2>
+
+    <h3>📞 Restaurante</h3>
+    <p>+258878605154</p>
+
+    <h3>👨‍💻 Desenvolvedor</h3>
+    <p>Firmino S. Savel</p>
+    <p>+258879131089 | +258844681767</p>
+    <p>firminosavel@gmail.com</p>
+
+    <h3>🗺️ Localização</h3>
+    <a href="https://www.google.com/maps?q=-25.9692,32.5732" target="_blank">
+        <button style="padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;">
+            Ver no Mapa
+        </button>
+    </a>
+
+    <br><br>
+    <a href="/"><button style="padding:10px;">Voltar</button></a>
+
+    </body>
+    </html>
+    """
 
 # =========================
 # RUN
