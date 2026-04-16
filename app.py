@@ -266,7 +266,7 @@ def sobre():
         font-size:16px;
     ">
 
-        <h2 style="text-align:center;">🍽️ Clube A3</h2>
+        <h2 style="text-align:center;">🍽️ Dourados</h2>
 
         <hr style="border:0;border-top:1px solid #444;margin:15px 0;">
 
