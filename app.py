@@ -287,7 +287,7 @@ def sobre():
 
         <h3>🗺️ Localização</h3>
 
-        <a href="https://maps.app.goo.gl/k9we8ZFzk3uqkj9A9" target="_blank">
+        <a href="https://https://www.google.com/maps/place/Dourados+Alojamentos,+E.I/@-25.4033605,32.8068776,17z/data=!4m14!1m7!3m6!1s0x1ee6df0047b833a7:0x80ea2da52529f9d2!2sDourados+Alojamentos,+E.I!8m2!3d-25.4033605!4d32.8068776!16s%2Fg%2F11xdwj829s!3m5!1s0x1ee6df0047b833a7:0x80ea2da52529f9d2!8m2!3d-25.4033605!4d32.8068776!16s%2Fg%2F11xdwj829s?entry=ttu&g_ep=EgoyMDI2MDQxNS4wIKXMDSoASAFQAw%3D%3D" target="_blank">
             <button style="
                 width:100%;
                 padding:12px;
