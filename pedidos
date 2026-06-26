@@ -189,36 +189,12 @@ def pedido():
     nome = request.form.get("nome", "Cliente")
     pedido_raw = request.form.get("pedido", "")
 
-    total = 0
-    items_text = ""
-
-    try:
-        items = json.loads(pedido_raw) if pedido_raw else []
-
-        linhas = []
-
-        for item in items:
-            price = float(item.get("price", 0))
-            qty = int(item.get("qty", 1))
-
-            total += price * qty
-            linhas.append(f"{item.get('name')} x{qty}")
-
-        items_text = " | ".join(linhas)
-
-    except:
-        items_text = pedido_raw
-
-novo = pd.DataFrame([{
-    "id": str(uuid.uuid4()),   # 👈 NOVO (IMPORTANTE)
-    "nome": nome,
-    "pedido": items_text,
-    "total": total,
-    "hora": hora_mocambique(),
-    "status": "Recebido"
-}])
-
-    save_excel(Config.ORDERS_FILE, novo)
+    total = add_order(
+        Config.ORDERS_FILE,
+        nome,
+        pedido_raw,
+        hora_mocambique()
+    )
 
     return render_template(
         "pedido_sucesso.html",
@@ -268,24 +244,12 @@ def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
-    df = load_excel(Config.ORDERS_FILE)
+    stats = get_dashboard_stats(Config.ORDERS_FILE)
 
-    if df.empty:
-        stats = {
-            "total_pedidos": 0,
-            "total_receita": 0,
-            "pendentes": 0,
-            "entregues": 0
-        }
-        pedidos = []
-    else:
-        stats = {
-            "total_pedidos": len(df),
-            "total_receita": float(df["total"].sum()),
-            "pendentes": len(df[df["status"] == "Recebido"]),
-            "entregues": len(df[df["status"] == "Entregue"])
-        }
-        pedidos = df.tail(10).to_dict(orient="records")
+    pedidos = get_last_orders(
+        Config.ORDERS_FILE,
+        quantidade=10
+    )
 
     return render_template(
         "admin/dashboard.html",
