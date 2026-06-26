@@ -198,38 +198,25 @@ def pedido():
 @app.route("/chamar")
 def chamar():
 
-import uuid
+    nova_chamada = {
+        "id": gerar_id(),
+        "nome": "Mesa",
+        "contacto": "",
+        "tipo": "chamada",
+        "descricao": "🙋 Chamada de garçom",
+        "quantidade": 1,
+        "data": "",
+        "observacoes": "",
+        "hora": hora_mocambique(),
+        "status": "Nova chamada"
+    }
 
-nova_reserva = {
-
-    "id": gerar_id(),
-
-    "nome": request.form.get("nome"),
-
-    "contacto": request.form.get("contacto"),
-
-    "tipo": request.form.get("tipo"),
-
-    "descricao": request.form.get("descricao"),
-
-    "quantidade": request.form.get("quantidade"),
-
-    "data": request.form.get("data"),
-
-    "observacoes": request.form.get("observacoes"),
-
-    "hora": hora_mocambique(),
-
-    "status": "Pendente"
-}
-
-add_reservation(
-    Config.RESERVATIONS_FILE,
-    nova_reserva
-)
+    add_reservation(
+        Config.RESERVATIONS_FILE,
+        nova_chamada
+    )
 
     flash("Garçom chamado com sucesso!", "success")
-
     return redirect(url_for("menu_pt"))
 
 
