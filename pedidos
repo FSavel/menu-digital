@@ -231,7 +231,13 @@ def mudar_status(pedido_id, status):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
-    atualizar_status_por_id(pedido_id, status)
+    update_order_status(
+        Config.ORDERS_FILE,
+        pedido_id,
+        status
+    )
+
+    flash("Status atualizado com sucesso!", "success")
 
     return redirect(url_for("admin_dashboard"))
 
