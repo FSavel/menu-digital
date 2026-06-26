@@ -4,31 +4,311 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Menu Digital</title>
+<title>{{ config.NOME_RESTAURANTE }}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Arial;margin:0;background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') center/cover fixed;}
-.overlay{background:rgba(0,0,0,0.6);min-height:100vh;padding-bottom:40px;}
-.header{color:white;text-align:center;padding:20px;font-size:24px;font-weight:bold;}
-.category{background:rgba(0,0,0,0.75);color:white;padding:10px;margin:15px;border-left:5px solid #27ae60;}
-.card{background:white;margin:10px 15px;border-radius:12px;cursor:pointer;display:flex;}
-.card img{width:90px;height:90px;object-fit:cover;}
-.card-body{padding:10px;display:flex;justify-content:space-between;width:100%;}
-.price{color:#27ae60;font-weight:bold;}
 
-.cart{background:white;margin:15px;padding:15px;border-radius:12px;}
-.item{display:flex;justify-content:space-between;margin:5px 0;}
+/* =========================
+   RESET / BASE
+========================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-button{width:100%;padding:10px;margin-top:10px;border:none;border-radius:8px;}
-.btn-send{background:#27ae60;color:white;}
-.btn-clear{background:#e74c3c;color:white;}
+html{
+    scroll-behavior:smooth;
+}
 
-.extra-buttons{margin:15px;}
-.extra-buttons button{margin-top:10px;color:white;}
-.btn-reserva{background:#f39c12;}
-.btn-waiter{background:#2980b9;}
+body{
+    font-family:'Poppins', sans-serif;
+    background:#111;
+    color:#fff;
+    overflow-x:hidden;
+}
 
-.total{font-weight:bold;margin-top:10px;}
+/* =========================
+   LAYOUT
+========================= */
+.overlay{
+    min-height:100vh;
+    padding-bottom:120px;
+}
+
+/* =========================
+   ANIMAÇÃO
+========================= */
+.fade{
+    animation:fadeIn .25s ease-in;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(6px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* =========================
+   BANNER
+========================= */
+.banner{
+    width:100%;
+    height:240px;
+    background:url("https://images.unsplash.com/photo-1504674900247-0877df9cc836") center/cover;
+    position:relative;
+}
+
+.banner::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+}
+
+.topo{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.logo{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.nome{
+    font-size:26px;
+    font-weight:700;
+}
+
+.subtitulo{
+    font-size:14px;
+    color:#ddd;
+}
+
+/* =========================
+   SEARCH
+========================= */
+.search-area{
+    padding:15px;
+}
+
+.search{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    font-size:14px;
+}
+
+/* =========================
+   CATEGORIAS
+========================= */
+.categories{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding:10px 15px;
+}
+
+.cat-btn{
+    white-space:nowrap;
+    padding:8px 14px;
+    border:none;
+    border-radius:20px;
+    background:#222;
+    color:#fff;
+    cursor:pointer;
+}
+
+/* =========================
+   MENU
+========================= */
+.menu{
+    padding:15px;
+}
+
+.category{
+    margin:15px 0 10px;
+    padding:8px;
+    border-left:4px solid #27ae60;
+    background:#1a1a1a;
+    font-weight:bold;
+}
+
+/* =========================
+   CARD
+========================= */
+.card{
+    background:#fff;
+    color:#222;
+    border-radius:15px;
+    margin-bottom:15px;
+    overflow:hidden;
+}
+
+.card img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+}
+
+.card-body{
+    padding:12px;
+}
+
+.produto{
+    font-size:18px;
+    font-weight:600;
+}
+
+.descricao{
+    font-size:13px;
+    color:#666;
+    margin-top:5px;
+}
+
+.preco{
+    margin-top:10px;
+    font-size:18px;
+    font-weight:bold;
+    color:#27ae60;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+.controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+}
+
+.qty{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.qty button{
+    width:32px;
+    height:32px;
+    border:none;
+    border-radius:50%;
+    background:#27ae60;
+    color:#fff;
+    cursor:pointer;
+}
+
+/* =========================
+   CART FLOAT
+========================= */
+.cart{
+    position:fixed;
+    right:15px;
+    bottom:15px;
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    background:#27ae60;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:26px;
+    cursor:pointer;
+}
+
+.badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    background:red;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:12px;
+}
+
+/* =========================
+   CART PANEL
+========================= */
+.cart-panel{
+    position:fixed;
+    right:-100%;
+    top:0;
+    width:100%;
+    max-width:400px;
+    height:100%;
+    background:#fff;
+    color:#222;
+    transition:.3s;
+    display:flex;
+    flex-direction:column;
+}
+
+.cart-panel.open{
+    right:0;
+}
+
+.cart-header{
+    background:#27ae60;
+    color:#fff;
+    padding:15px;
+    font-weight:bold;
+}
+
+.cart-body{
+    flex:1;
+    padding:10px;
+    overflow-y:auto;
+}
+
+.cart-item{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid #eee;
+}
+
+.cart-footer{
+    padding:10px;
+}
+
+.total{
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.btn{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    margin-top:5px;
+}
+
+.btn-primary{background:#27ae60;color:#fff;}
+.btn-danger{background:#e74c3c;color:#fff;}
+
 </style>
 </head>
 
@@ -36,87 +316,170 @@ button{width:100%;padding:10px;margin-top:10px;border:none;border-radius:8px;}
 
 <div class="overlay">
 
-<div class="header">
-🍽️ Menu Digital <br>
-<small>Clique nos pratos para adicionar ao pedido</small>
+<!-- BANNER -->
+<div class="banner">
+    <div class="topo">
+        <div class="logo">🍽️</div>
+        <div class="nome">{{ config.NOME_RESTAURANTE }}</div>
+        <div class="subtitulo">Menu Digital</div>
+    </div>
 </div>
 
+<!-- SEARCH -->
+<div class="search-area">
+    <input id="searchInput" class="search" placeholder="Procurar pratos..." onkeyup="filtrarMenu()">
+</div>
+
+<!-- CATEGORIAS -->
+<div class="categories">
+{% for cat in categorias %}
+    <button class="cat-btn" onclick="scrollToCategory('{{ cat }}')">{{ cat }}</button>
+{% endfor %}
+</div>
+
+<!-- MENU -->
+<div class="menu">
+
 {% for cat, items in menu | groupby('Categoria') %}
-<div class="category">{{ cat }}</div>
+
+<div class="category" id="{{ cat }}">{{ cat }}</div>
 
 {% for item in items %}
-<div class="card" onclick="addItem('{{ item.ID }}','{{ item.Produto_PT }}',{{ item.Preço }})">
+
+<div class="card fade">
 
 {% if item.Imagem %}
 <img src="{{ item.Imagem }}">
 {% endif %}
 
 <div class="card-body">
-<div>{{ item.Produto_PT }}</div>
-<div class="price">{{ item.Preço }} MZN</div>
+
+<div class="produto">{{ item.Produto_PT }}</div>
+
+{% if item.Descricao %}
+<div class="descricao">{{ item.Descricao }}</div>
+{% endif %}
+
+<div class="preco">{{ item.Preço }} MZN</div>
+
+<div class="controls">
+    <div class="qty">
+        <button onclick="minusItem('{{ item.ID }}')">-</button>
+        <span id="qty-{{ item.ID }}">0</span>
+        <button onclick="addItem('{{ item.ID }}','{{ item.Produto_PT }}',{{ item.Preço }})">+</button>
+    </div>
 </div>
 
 </div>
+</div>
+
 {% endfor %}
 {% endfor %}
 
-<div class="cart">
-<h3>🛒 O Seu Pedido</h3>
+</div>
 
-<input type="text" id="nome" placeholder="O seu nome">
+<!-- CART BUTTON -->
+<div class="cart" onclick="toggleCart()">🛒
+<div class="badge" id="cartCount">0</div>
+</div>
 
-<div id="cart"></div>
+<!-- CART PANEL -->
+<div class="cart-panel" id="cartPanel">
+
+<div class="cart-header">O seu pedido</div>
+
+<div class="cart-body" id="cartBody"></div>
+
+<div class="cart-footer">
 
 <div class="total">Total: <span id="total">0</span> MZN</div>
 
-<form action="/pedido" method="post" onsubmit="prepareOrder()">
-<input type="hidden" name="pedido" id="pedido">
-<input type="hidden" name="nome" id="nome_hidden">
-<button class="btn-send">Enviar Pedido</button>
-</form>
+<button class="btn btn-primary" onclick="prepareOrder()">Finalizar</button>
+<button class="btn btn-danger" onclick="clearCart()">Limpar</button>
 
-<button class="btn-clear" onclick="clearCart()">Limpar</button>
+</div>
 </div>
 
-<div class="extra-buttons">
-<a href="/reserva"><button class="btn-reserva">📦 Reservas</button></a>
-<a href="/chamar"><button class="btn-waiter">🙋 Chamar Empregado</button></a>
+<!-- FORM -->
+<form action="/pedido" method="post" id="orderForm">
+<input type="hidden" name="pedido" id="pedido">
+<input type="hidden" name="nome" id="nome_hidden">
+</form>
+
+<!-- INPUT NOME -->
+<div style="padding:10px;">
+<input id="nome" placeholder="O seu nome" style="width:100%;padding:10px;border-radius:8px;">
 </div>
 
 </div>
 
 <script>
-let cart=[]; let total=0;
+
+let cart = [];
 
 function addItem(id,name,price){
-    let item=cart.find(i=>i.id===id);
-    if(item){item.qty+=1;}
+    let item = cart.find(i=>i.id===id);
+    if(item){item.qty++;}
     else{cart.push({id,name,price,qty:1});}
-    updateCart();
+    updateCartUI();
 }
 
-function updateCart(){
-    let div=document.getElementById("cart");
-    div.innerHTML=""; total=0;
+function minusItem(id){
+    let item = cart.find(i=>i.id===id);
+    if(!item) return;
+    item.qty--;
+    if(item.qty<=0) cart = cart.filter(i=>i.id!==id);
+    updateCartUI();
+}
 
-    cart.forEach((i,index)=>{
+function updateCartUI(){
+    let body=document.getElementById("cartBody");
+    let count=document.getElementById("cartCount");
+
+    body.innerHTML="";
+    let total=0,qty=0;
+
+    cart.forEach(i=>{
         total+=i.price*i.qty;
-        div.innerHTML+=`<div class="item">
-        ${i.name} x${i.qty}
-        <button onclick="removeItem(${index})">X</button>
+        qty+=i.qty;
+
+        body.innerHTML+=`
+        <div class="cart-item">
+            <div>${i.name} x${i.qty}</div>
+            <div>${i.price*i.qty} MZN</div>
         </div>`;
     });
 
     document.getElementById("total").innerText=total;
+    count.innerText=qty;
 }
 
-function removeItem(i){cart.splice(i,1);updateCart();}
-function clearCart(){cart=[];updateCart();}
+function toggleCart(){
+    document.getElementById("cartPanel").classList.toggle("open");
+}
+
+function clearCart(){
+    cart=[];
+    updateCartUI();
+}
 
 function prepareOrder(){
     document.getElementById("pedido").value=JSON.stringify(cart);
     document.getElementById("nome_hidden").value=document.getElementById("nome").value;
+    document.getElementById("orderForm").submit();
 }
+
+function scrollToCategory(cat){
+    document.getElementById(cat)?.scrollIntoView({behavior:"smooth"});
+}
+
+function filtrarMenu(){
+    let v=document.getElementById("searchInput").value.toLowerCase();
+    document.querySelectorAll(".card").forEach(c=>{
+        c.style.display=c.innerText.toLowerCase().includes(v)?"block":"none";
+    });
+}
+
 </script>
 
 </body>
