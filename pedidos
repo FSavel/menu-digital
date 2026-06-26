@@ -1,0 +1,335 @@
+# ======================================================
+# IMPORTS
+# ======================================================
+from flask import Flask, render_template, request, redirect, url_for, flash
+import pandas as pd
+from datetime import datetime
+import pytz
+import os
+import json
+import uuid
+
+from config import Config
+
+app = Flask(__name__)
+# ======================================================
+# SESSÃO / LOGIN ADMIN
+# ======================================================
+from flask import session, flash
+
+app.secret_key = "restaurante_secret_key"
+
+ADMIN_USERNAME = Config.ADMIN_USERNAME
+ADMIN_PASSWORD = Config.ADMIN_PASSWORD
+
+
+# ======================================================
+# FUNÇÃO DE PROTEÇÃO (DECORADOR SIMPLES)
+# ======================================================
+def admin_required():
+    return session.get("admin_logged_in") is True
+
+
+# ======================================================
+# LOGIN ADMIN
+# ======================================================
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+
+    if request.method == "GET":
+        return render_template("admin/login.html")
+
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        session["admin_logged_in"] = True
+        flash("Login efetuado com sucesso!", "success")
+        return redirect(url_for("pedidos"))
+
+    flash("Credenciais inválidas!", "danger")
+    return redirect(url_for("admin_login"))
+
+
+# ======================================================
+# LOGOUT ADMIN
+# ======================================================
+@app.route("/admin/logout")
+def admin_logout():
+
+    session.pop("admin_logged_in", None)
+    flash("Sessão terminada!", "info")
+    return redirect(url_for("admin_login"))
+
+# ======================================================
+# UTIL: HORA MOÇAMBIQUE
+# ======================================================
+def hora_mocambique():
+    tz = pytz.timezone("Africa/Maputo")
+    agora = datetime.now(tz)
+
+    meses = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+
+    return f"{agora.day} {meses[agora.month]}, {agora.strftime('%H:%M')}"
+
+
+# ======================================================
+# UTIL: CARREGAR EXCEL
+# ======================================================
+def load_excel(file_path):
+    if os.path.exists(file_path):
+        return pd.read_excel(file_path)
+    return pd.DataFrame()
+
+
+# ======================================================
+# UTIL: SALVAR EXCEL (GENÉRICO)
+# ======================================================
+def save_excel(file_path, new_df):
+    df = load_excel(file_path)
+
+    if df.empty:
+        df = new_df
+    else:
+        df = pd.concat([df, new_df], ignore_index=True)
+
+    df.to_excel(file_path, index=False)
+
+
+# ======================================================
+# MENU
+# ======================================================
+def carregar_menu():
+    try:
+        df = pd.read_excel(Config.MENU_FILE)
+        return df.to_dict(orient="records")
+    except:
+        return []
+
+
+# ======================================================
+# HOME
+# ======================================================
+@app.route("/")
+def home():
+    return render_template("idioma.html", config=Config)
+
+
+# ======================================================
+# MENU PT
+# ======================================================
+@app.route("/menu_pt")
+def menu_pt():
+    return render_template(
+        "menu_pt.html",
+        menu=carregar_menu(),
+        config=Config
+    )
+
+
+# ======================================================
+# MENU EN
+# ======================================================
+@app.route("/menu_en")
+def menu_en():
+    return render_template(
+        "menu_en.html",
+        menu=carregar_menu(),
+        config=Config
+    )
+
+
+# ======================================================
+# CRIAR PEDIDO
+# ======================================================
+@app.route("/pedido", methods=["POST"])
+def pedido():
+
+    nome = request.form.get("nome", "Cliente")
+    pedido_raw = request.form.get("pedido", "")
+
+    total = 0
+    items_text = ""
+
+    try:
+        items = json.loads(pedido_raw) if pedido_raw else []
+
+        linhas = []
+
+        for item in items:
+            price = float(item.get("price", 0))
+            qty = int(item.get("qty", 1))
+
+            total += price * qty
+            linhas.append(f"{item.get('name')} x{qty}")
+
+        items_text = " | ".join(linhas)
+
+    except:
+        items_text = pedido_raw
+
+novo = pd.DataFrame([{
+    "id": str(uuid.uuid4()),   # 👈 NOVO (IMPORTANTE)
+    "nome": nome,
+    "pedido": items_text,
+    "total": total,
+    "hora": hora_mocambique(),
+    "status": "Recebido"
+}])
+
+    save_excel(Config.ORDERS_FILE, novo)
+
+    return render_template(
+        "pedido_sucesso.html",
+        total=total,
+        config=Config
+    )
+
+
+# ======================================================
+# CHAMAR GARÇOM
+# ======================================================
+@app.route("/chamar")
+def chamar():
+
+    novo = pd.DataFrame([{
+        "nome": "Mesa",
+        "pedido": "🙋 Chamada de garçom",
+        "hora": hora_mocambique(),
+        "status": "Nova chamada"
+    }])
+
+    save_excel(Config.CALLS_FILE, novo)
+
+    flash("Garçom chamado com sucesso!", "success")
+
+    return redirect(url_for("menu_pt"))
+
+# ======================================================
+# DASHBOARD ADMIN
+# ======================================================
+@app.route("/admin/dashboard")
+def admin_dashboard():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    df = load_excel(Config.ORDERS_FILE)
+
+    if df.empty:
+        stats = {
+            "total_pedidos": 0,
+            "total_receita": 0,
+            "pendentes": 0,
+            "entregues": 0
+        }
+        pedidos = []
+    else:
+        stats = {
+            "total_pedidos": len(df),
+            "total_receita": float(df["total"].sum()),
+            "pendentes": len(df[df["status"] == "Recebido"]),
+            "entregues": len(df[df["status"] == "Entregue"])
+        }
+        pedidos = df.tail(10).to_dict(orient="records")
+
+    return render_template(
+        "admin/dashboard.html",
+        stats=stats,
+        pedidos=pedidos,
+        config=Config
+    )
+    
+# ======================================================
+# PAINEL PEDIDOS (COZINHA)
+# ======================================================
+@app.route("/pedidos")
+def pedidos():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    df = load_excel(Config.ORDERS_FILE)
+
+    pedidos = df.to_dict(orient="records") if not df.empty else []
+    total_dia = df["total"].fillna(0).sum() if not df.empty else 0
+
+    return render_template(
+        "pedidos.html",
+        pedidos=pedidos,
+        total_dia=total_dia,
+        config=Config
+    )
+
+
+# ======================================================
+# MARCAR COMO ENTREGUE
+# ======================================================
+@app.route("/entregar/<int:id>")
+def entregar(id):
+
+    df = load_excel(Config.ORDERS_FILE)
+
+    if not df.empty and 0 <= id < len(df):
+        df.at[id, "status"] = "Entregue"
+        df.to_excel(Config.ORDERS_FILE, index=False)
+
+    return redirect(url_for("pedidos"))
+
+
+# ======================================================
+# RESERVAS
+# ======================================================
+@app.route("/reserva", methods=["GET", "POST"])
+def reserva():
+
+    if request.method == "GET":
+        return render_template("reserva.html", config=Config)
+
+    novo = pd.DataFrame([{
+        "nome": request.form.get("nome"),
+        "contacto": request.form.get("contacto"),
+        "tipo": request.form.get("tipo"),
+        "descricao": request.form.get("descricao"),
+        "quantidade": request.form.get("quantidade"),
+        "data": request.form.get("data"),
+        "observacoes": request.form.get("observacoes"),
+        "hora": hora_mocambique(),
+        "status": "Pendente"
+    }])
+
+    save_excel(Config.RESERVATIONS_FILE, novo)
+
+    return render_template(
+        "pedido_sucesso.html",
+        total="Reserva enviada",
+        config=Config
+    )
+
+
+# ======================================================
+# SOBRE
+# ======================================================
+@app.route("/sobre")
+def sobre():
+    return render_template("sobre.html", config=Config)
+
+
+# ======================================================
+# HEALTH CHECK (🔥 FASE 2 PREPARAÇÃO SAAS)
+# ======================================================
+@app.route("/health")
+def health():
+    return {"status": "ok", "system": "restaurant-app", "version": "2.0"}
+
+
+# ======================================================
+# RUN
+# ======================================================
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
