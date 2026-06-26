@@ -232,24 +232,6 @@ add_reservation(
 
     return redirect(url_for("menu_pt"))
 
-# ======================================================
-# MUDAR STATUS POR ID (ADMIN)
-# ======================================================
-@app.route("/admin/pedido/status/<pedido_id>/<status>")
-def mudar_status(pedido_id, status):
-
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
-
-    update_order_status(
-        Config.ORDERS_FILE,
-        pedido_id,
-        status
-    )
-
-    flash("Status atualizado com sucesso!", "success")
-
-    return redirect(url_for("admin_dashboard"))
 
 # ======================================================
 # DASHBOARD ADMIN
@@ -273,6 +255,30 @@ def admin_dashboard():
         pedidos=pedidos,
         config=Config
     )
+
+
+# ======================================================
+# MUDAR STATUS POR ID (ADMIN)
+# ======================================================
+@app.route("/admin/pedido/status/<pedido_id>/<status>")
+def mudar_status(pedido_id, status):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    sucesso = update_order_status(
+        Config.ORDERS_FILE,
+        pedido_id,
+        status
+    )
+
+    if sucesso:
+        flash("Status atualizado com sucesso!", "success")
+    else:
+        flash("Erro ao atualizar status!", "danger")
+
+    return redirect(url_for("admin_dashboard"))
+
     
 # ======================================================
 # PAINEL PEDIDOS (COZINHA)
