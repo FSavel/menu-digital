@@ -27,6 +27,16 @@ from services.order_service import (
 app = Flask(__name__)
 
 # ======================================================
+# MENU SERVICE
+# ======================================================
+from services.menu_service import (
+    load_menu,
+    search_menu,
+    filter_category,
+    get_product
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
@@ -141,12 +151,7 @@ def atualizar_status_por_id(pedido_id, novo_status):
 # MENU
 # ======================================================
 def carregar_menu():
-    try:
-        df = pd.read_excel(Config.MENU_FILE)
-        return df.to_dict(orient="records")
-    except:
-        return []
-
+    return load_menu(Config.MENU_FILE)
 
 # ======================================================
 # HOME
