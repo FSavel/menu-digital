@@ -37,6 +37,16 @@ from services.menu_service import (
 )
 
 # ======================================================
+# RESERVATION SERVICE
+# ======================================================
+from services.reservation_service import (
+    add_reservation,
+    get_reservations,
+    update_reservation_status,
+    delete_reservation
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
@@ -214,14 +224,35 @@ def pedido():
 @app.route("/chamar")
 def chamar():
 
-    novo = pd.DataFrame([{
-        "nome": "Mesa",
-        "pedido": "🙋 Chamada de garçom",
-        "hora": hora_mocambique(),
-        "status": "Nova chamada"
-    }])
+import uuid
 
-    save_excel(Config.CALLS_FILE, novo)
+nova_reserva = {
+
+    "id": str(uuid.uuid4()),
+
+    "nome": request.form.get("nome"),
+
+    "contacto": request.form.get("contacto"),
+
+    "tipo": request.form.get("tipo"),
+
+    "descricao": request.form.get("descricao"),
+
+    "quantidade": request.form.get("quantidade"),
+
+    "data": request.form.get("data"),
+
+    "observacoes": request.form.get("observacoes"),
+
+    "hora": hora_mocambique(),
+
+    "status": "Pendente"
+}
+
+add_reservation(
+    Config.RESERVATIONS_FILE,
+    nova_reserva
+)
 
     flash("Garçom chamado com sucesso!", "success")
 
