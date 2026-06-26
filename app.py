@@ -4,6 +4,7 @@ from datetime import datetime
 import pytz
 import os
 import json
+from config import config
 
 app = Flask(__name__)
 
