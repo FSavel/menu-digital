@@ -267,10 +267,11 @@ def pedidos():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
-    df = load_excel(Config.ORDERS_FILE)
+    pedidos = get_orders(Config.ORDERS_FILE)
 
-    pedidos = df.to_dict(orient="records") if not df.empty else []
-    total_dia = df["total"].fillna(0).sum() if not df.empty else 0
+    total_dia = get_total_sales(
+        Config.ORDERS_FILE
+    )
 
     return render_template(
         "pedidos.html",
