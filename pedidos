@@ -11,6 +11,17 @@ import json
 from config import Config
 
 # ======================================================
+# HELPERS
+# ======================================================
+from utils.helpers import (
+    hora_mocambique,
+    load_excel,
+    save_excel,
+    gerar_id,
+    moeda
+)
+
+# ======================================================
 # SERVICES
 # ======================================================
 from services.order_service import (
@@ -95,43 +106,6 @@ def admin_logout():
     flash("Sessão terminada!", "info")
     return redirect(url_for("admin_login"))
 
-# ======================================================
-# UTIL: HORA MOÇAMBIQUE
-# ======================================================
-def hora_mocambique():
-    tz = pytz.timezone("Africa/Maputo")
-    agora = datetime.now(tz)
-
-    meses = {
-        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
-        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
-        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
-    }
-
-    return f"{agora.day} {meses[agora.month]}, {agora.strftime('%H:%M')}"
-
-
-# ======================================================
-# UTIL: CARREGAR EXCEL
-# ======================================================
-def load_excel(file_path):
-    if os.path.exists(file_path):
-        return pd.read_excel(file_path)
-    return pd.DataFrame()
-
-
-# ======================================================
-# UTIL: SALVAR EXCEL (GENÉRICO)
-# ======================================================
-def save_excel(file_path, new_df):
-    df = load_excel(file_path)
-
-    if df.empty:
-        df = new_df
-    else:
-        df = pd.concat([df, new_df], ignore_index=True)
-
-    df.to_excel(file_path, index=False)
 
 # ======================================================
 # ATUALIZAR STATUS POR ID (PROFISSIONAL)
@@ -228,7 +202,7 @@ import uuid
 
 nova_reserva = {
 
-    "id": str(uuid.uuid4()),
+    "id": gerar_id(),
 
     "nome": request.form.get("nome"),
 
@@ -329,17 +303,20 @@ def pedidos():
 @app.route("/cozinha")
 def cozinha():
 
-    df = load_excel(Config.ORDERS_FILE)
+    from services.order_service import get_orders
 
-    if df.empty:
-        return render_template("cozinha.html", pedidos=[])
+    pedidos = get_orders(Config.ORDERS_FILE)
 
-    # ordenar por mais recentes primeiro
-    df = df.iloc[::-1]
+    # ordenar do mais recente para o mais antigo
+    pedidos = list(reversed(pedidos))
 
-    pedidos = df.to_dict(orient="records")
+    return render_template(
+        "cozinha.html",
+        pedidos=pedidos,
+        config=Config
+    )
 
-    return render_template("cozinha.html", pedidos=pedidos, config=Config)
+
 # ======================================================
 # MARCAR COMO ENTREGUE
 # ======================================================
