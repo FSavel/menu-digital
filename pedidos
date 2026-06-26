@@ -7,11 +7,25 @@ from datetime import datetime
 import pytz
 import os
 import json
-import uuid
 
 from config import Config
 
+# ======================================================
+# SERVICES
+# ======================================================
+from services.order_service import (
+    add_order,
+    get_orders,
+    get_last_orders,
+    get_dashboard_stats,
+    update_order_status,
+    get_order_by_id,
+    delete_order,
+    get_total_sales
+)
+
 app = Flask(__name__)
+
 # ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
@@ -99,6 +113,29 @@ def save_excel(file_path, new_df):
 
     df.to_excel(file_path, index=False)
 
+# ======================================================
+# ATUALIZAR STATUS POR ID (PROFISSIONAL)
+# ======================================================
+def atualizar_status_por_id(pedido_id, novo_status):
+
+    df = load_excel(Config.ORDERS_FILE)
+
+    if df.empty:
+        return False
+
+    if "id" not in df.columns:
+        return False
+
+    # localizar linha pelo ID
+    index = df[df["id"] == pedido_id].index
+
+    if len(index) == 0:
+        return False
+
+    df.at[index[0], "status"] = novo_status
+    df.to_excel(Config.ORDERS_FILE, index=False)
+
+    return True
 
 # ======================================================
 # MENU
@@ -210,6 +247,19 @@ def chamar():
     return redirect(url_for("menu_pt"))
 
 # ======================================================
+# MUDAR STATUS POR ID (ADMIN)
+# ======================================================
+@app.route("/admin/pedido/status/<pedido_id>/<status>")
+def mudar_status(pedido_id, status):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    atualizar_status_por_id(pedido_id, status)
+
+    return redirect(url_for("admin_dashboard"))
+
+# ======================================================
 # DASHBOARD ADMIN
 # ======================================================
 @app.route("/admin/dashboard")
@@ -266,6 +316,23 @@ def pedidos():
     )
 
 
+# ======================================================
+# COZINHA (TEMPO REAL)
+# ======================================================
+@app.route("/cozinha")
+def cozinha():
+
+    df = load_excel(Config.ORDERS_FILE)
+
+    if df.empty:
+        return render_template("cozinha.html", pedidos=[])
+
+    # ordenar por mais recentes primeiro
+    df = df.iloc[::-1]
+
+    pedidos = df.to_dict(orient="records")
+
+    return render_template("cozinha.html", pedidos=pedidos, config=Config)
 # ======================================================
 # MARCAR COMO ENTREGUE
 # ======================================================
