@@ -7,6 +7,8 @@ from datetime import datetime
 import pytz
 import os
 import json
+from flask import jsonify
+from functools import wraps
 
 from config import Config
 
@@ -20,7 +22,13 @@ from utils.helpers import (
     gerar_id,
     moeda
 )
-
+def admin_required_json(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get("admin_logged_in"):
+            return jsonify({"error": "unauthorized"}), 401
+        return f(*args, **kwargs)
+    return wrapper
 # ======================================================
 # SERVICES
 # ======================================================
@@ -292,6 +300,42 @@ def admin_dashboard():
         config=Config
     )
 
+@app.route("/api/cozinha/pedidos")
+@admin_required_json
+def api_cozinha_pedidos():
+
+    pedidos = get_orders(Config.ORDERS_FILE)
+
+    # ordenar do mais recente para o mais antigo
+    pedidos = list(reversed(pedidos))
+
+    return jsonify({
+        "success": True,
+        "pedidos": pedidos
+    })
+
+
+@app.route("/api/pedido/status", methods=["POST"])
+def api_update_status():
+
+    if not session.get("admin_logged_in"):
+        return {"error": "unauthorized"}, 401
+
+    data = request.json
+    pedido_id = data.get("id")
+    novo_status = data.get("status")
+
+    sucesso = update_order_status(
+        Config.ORDERS_FILE,
+        pedido_id,
+        novo_status
+    )
+
+    return {
+        "success": sucesso,
+        "id": pedido_id,
+        "status": novo_status
+    }
 
 # ======================================================
 # MUDAR STATUS POR ID (ADMIN)
@@ -302,18 +346,18 @@ def mudar_status(pedido_id, status):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
-    sucesso = update_order_status(
+    success = update_order_status(
         Config.ORDERS_FILE,
         pedido_id,
         status
     )
 
-    if sucesso:
-        flash("Status atualizado com sucesso!", "success")
+    if success:
+        flash(f"Status atualizado para {status}", "success")
     else:
-        flash("Erro ao atualizar status!", "danger")
+        flash("Erro ao atualizar status", "danger")
 
-    return redirect(url_for("admin_dashboard"))
+    return redirect(url_for("cozinha"))
 
     
 # ======================================================
