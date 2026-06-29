@@ -33,11 +33,18 @@ class Config:
     ADMIN_USERNAME = "admin"
     ADMIN_PASSWORD = "admin123"
 
-    # ---------- FICHEIROS ----------
-    MENU_FILE = "data/menu.xlsx"
-    ORDERS_FILE = "data/pedidos.xlsx"
-    RESERVATIONS_FILE = "data/reservas.xlsx"
-    CALLS_FILE = "data/chamadas.xlsx"
+# ======================================================
+# FICHEIROS
+# ======================================================
+
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MENU_FILE = os.path.join(BASE_DIR, "data", "menu.xlsx")
+ORDERS_FILE = os.path.join(BASE_DIR, "data", "pedidos.xlsx")
+RESERVATIONS_FILE = os.path.join(BASE_DIR, "data", "reservas.xlsx")
+CALLS_FILE = os.path.join(BASE_DIR, "data", "chamadas.xlsx")
 
     # ---------- STATUS PEDIDOS ----------
     STATUS_PEDIDO = [
