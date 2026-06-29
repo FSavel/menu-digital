@@ -345,23 +345,19 @@ def pedidos():
 @app.route("/cozinha")
 def cozinha():
 
-    pedidos = kitchen_orders(
-        Config.ORDERS_FILE
-    )
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
 
-    stats = kitchen_stats(
-        Config.ORDERS_FILE
-    )
+    pedidos = get_orders(Config.ORDERS_FILE)
+
+    # ordenar do mais recente para o mais antigo
+    pedidos = list(reversed(pedidos))
 
     return render_template(
-
         "cozinha.html",
-
         pedidos=pedidos,
-
-        stats=stats,
-
-        config=Config
+        config=Config,
+        refresh_time=Config.COZINHA_REFRESH
     )
 
 
