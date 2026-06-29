@@ -77,6 +77,18 @@ from services.call_service import (
 )
 
 # ======================================================
+# KITCHEN SERVICE
+# ======================================================
+from services.kitchen_service import (
+    kitchen_orders,
+    kitchen_stats,
+    received_orders,
+    preparing_orders,
+    ready_orders,
+    delivered_orders
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
