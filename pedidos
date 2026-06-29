@@ -58,6 +58,15 @@ from services.reservation_service import (
 )
 
 # ======================================================
+# ADMIN SERVICE
+# ======================================================
+from services.admin_service import (
+    dashboard,
+    statistics,
+    recent_orders
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
