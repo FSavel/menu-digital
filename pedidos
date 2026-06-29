@@ -67,6 +67,16 @@ from services.admin_service import (
 )
 
 # ======================================================
+# CALL SERVICE
+# ======================================================
+from services.call_service import (
+    add_call,
+    get_calls,
+    delete_call,
+    total_calls
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
