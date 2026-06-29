@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        .header {
+            padding: 15px;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background: #1e1e1e;
+        }
+
+        .status {
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .Recebido { background: orange; }
+        .Entregue { background: green; }
+        .Pronto { background: #2ecc71; }
+        .Em { background: #3498db; }
+
+        a {
+            color: white;
+            text-decoration: none;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .total {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h3>📦 Pedidos</h3>
+    <a href="/admin/dashboard">⬅ Dashboard</a>
+</div>
+
+<div class="container">
+
+    <table>
+        <tr>
+            <th>Cliente</th>
+            <th>Pedido</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+
+        {% for p in pedidos %}
+        <tr>
+            <td>{{ p.nome }}</td>
+            <td>{{ p.pedido }}</td>
+            <td>{{ p.total }}</td>
+            <td>
+                <span class="status {{ p.status }}">
+                    {{ p.status }}
+                </span>
+            </td>
+            <td>
+
+                <a href="/admin/pedido/status/{{ p.id }}/Recebido">Recebido</a>
+                <a href="/admin/pedido/status/{{ p.id }}/Em%20Preparação">Prep</a>
+                <a href="/admin/pedido/status/{{ p.id }}/Pronto">Pronto</a>
+                <a href="/admin/pedido/status/{{ p.id }}/Entregue">OK</a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="total">
+        💰 Total do dia: {{ total_dia }}
+    </div>
+
+</div>
+
+</body>
+</html>
