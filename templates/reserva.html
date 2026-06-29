@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Reserva</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            width: 100%;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>📅 Fazer Reserva</h2>
+
+    <form method="POST">
+
+        <input name="nome" placeholder="Nome" required>
+        <input name="contacto" placeholder="Contacto" required>
+        <input name="data" type="date" required>
+
+        <textarea name="descricao" placeholder="Descrição"></textarea>
+
+        <button type="submit">Reservar</button>
+
+    </form>
+</div>
+
+</body>
+</html>

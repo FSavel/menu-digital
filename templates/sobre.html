@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Sobre</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>🍽️ Sobre o Restaurante</h2>
+    <p>{{ config.NOME_RESTAURANTE }}</p>
+    <p>{{ config.SLOGAN }}</p>
+    <p>Desenvolvido por {{ config.DESENVOLVEDOR }}</p>
+</div>
+
+</body>
+</html>
