@@ -89,6 +89,22 @@ from services.kitchen_service import (
 )
 
 # ======================================================
+# TABLE SERVICE
+# ======================================================
+from services.table_service import (
+    get_tables,
+    get_table,
+    add_table,
+    update_table_status,
+    assign_customer,
+    assign_order,
+    free_table,
+    table_stats,
+    free_tables,
+    occupied_tables
+)
+
+# ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
 from flask import session, flash
