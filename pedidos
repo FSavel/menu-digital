@@ -217,25 +217,27 @@ def pedido():
 @app.route("/chamar")
 def chamar():
 
-    nova_chamada = {
+    chamada = {
+
         "id": gerar_id(),
-        "nome": "Mesa",
-        "contacto": "",
-        "tipo": "chamada",
-        "descricao": "🙋 Chamada de garçom",
-        "quantidade": 1,
-        "data": "",
-        "observacoes": "",
+
+        "mesa": request.args.get("mesa", "Não informada"),
+
         "hora": hora_mocambique(),
-        "status": "Nova chamada"
+
+        "status": "Nova"
     }
 
-    add_reservation(
-        Config.RESERVATIONS_FILE,
-        nova_chamada
+    add_call(
+        Config.CALLS_FILE,
+        chamada
     )
 
-    flash("Garçom chamado com sucesso!", "success")
+    flash(
+        "Garçom chamado com sucesso!",
+        "success"
+    )
+
     return redirect(url_for("menu_pt"))
 
 
