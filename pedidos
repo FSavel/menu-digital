@@ -329,16 +329,22 @@ def pedidos():
 @app.route("/cozinha")
 def cozinha():
 
-    from services.order_service import get_orders
+    pedidos = kitchen_orders(
+        Config.ORDERS_FILE
+    )
 
-    pedidos = get_orders(Config.ORDERS_FILE)
-
-    # ordenar do mais recente para o mais antigo
-    pedidos = list(reversed(pedidos))
+    stats = kitchen_stats(
+        Config.ORDERS_FILE
+    )
 
     return render_template(
+
         "cozinha.html",
+
         pedidos=pedidos,
+
+        stats=stats,
+
         config=Config
     )
 
