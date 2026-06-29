@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #111;
+            color: white;
+        }
+
+        .header {
+            padding: 20px;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 0;
+            color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            background: #1e1e1e;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .recebido { background: orange; }
+        .em { background: #3498db; }
+        .pronto { background: #2ecc71; }
+        .entregue { background: green; }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 5px 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-orange { background: orange; }
+        .btn-blue { background: #3498db; }
+        .btn-green { background: #2ecc71; }
+        .btn-red { background: red; }
+
+        a {
+            text-decoration: none;
+        }
+
+        .logout {
+            background: red;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>📊 Dashboard Admin</h2>
+    <a class="logout" href="/admin/logout">Sair</a>
+</div>
+
+<div class="container">
+
+    <!-- CARDS -->
+    <div class="cards">
+
+        <div class="card">
+            <h2>{{ stats.total_pedidos }}</h2>
+            <p>Total Pedidos</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ stats.total_receita }}</h2>
+            <p>Receita (MZN)</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ stats.pendentes }}</h2>
+            <p>Pendentes</p>
+        </div>
+
+        <div class="card">
+            <h2>{{ stats.entregues }}</h2>
+            <p>Entregues</p>
+        </div>
+
+    </div>
+
+    <!-- TABELA -->
+    <h3 style="margin-top:30px;">Últimos Pedidos</h3>
+
+    <table>
+        <tr>
+            <th>Cliente</th>
+            <th>Pedido</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+
+        {% for p in pedidos %}
+        <tr>
+            <td>{{ p.nome }}</td>
+            <td>{{ p.pedido }}</td>
+            <td>{{ p.total }}</td>
+
+            <td>
+                <span class="status {{ p.status|lower }}">
+                    {{ p.status }}
+                </span>
+            </td>
+
+            <td>
+
+                <div class="actions">
+
+                    <a href="/admin/pedido/status/{{ p.id }}/Recebido">
+                        <button class="btn btn-orange">Recebido</button>
+                    </a>
+
+                    <a href="/admin/pedido/status/{{ p.id }}/Em%20Preparação">
+                        <button class="btn btn-blue">Em Prep</button>
+                    </a>
+
+                    <a href="/admin/pedido/status/{{ p.id }}/Pronto">
+                        <button class="btn btn-green">Pronto</button>
+                    </a>
+
+                    <a href="/admin/pedido/status/{{ p.id }}/Entregue">
+                        <button class="btn btn-red">Entregue</button>
+                    </a>
+
+                </div>
+
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>

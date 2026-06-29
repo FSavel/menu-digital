@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Cozinha em Tempo Real</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        .header {
+            padding: 15px;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .pedido {
+            background: #1e1e1e;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border-left: 5px solid orange;
+            transition: 0.3s;
+        }
+
+        .pedido:hover {
+            transform: scale(1.01);
+        }
+
+        /* 🔥 NOVO PEDIDO (piscante) */
+        .novo {
+            animation: blink 1s infinite;
+            border-left: 5px solid #f39c12;
+        }
+
+        @keyframes blink {
+            0% { background: #1e1e1e; }
+            50% { background: #2c2c2c; }
+            100% { background: #1e1e1e; }
+        }
+
+        .nome {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .recebido { background: orange; }
+        .em { background: #3498db; }
+        .pronto { background: #2ecc71; }
+        .entregue { background: #7f8c8d; }
+
+        .btns {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 6px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .b1 { background: orange; color: black; }
+        .b2 { background: #3498db; color: white; }
+        .b3 { background: #2ecc71; color: white; }
+        .b4 { background: #7f8c8d; color: white; }
+
+        .tempo {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔔 SOM -->
+<audio id="somPedido">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+<div class="header">
+    <h3>🍽️ Cozinha em Tempo Real</h3>
+    <span id="hora">--:--</span>
+</div>
+
+<div class="container" id="lista"></div>
+
+<script>
+
+let ultimosIds = new Set();
+
+function tempoDecorrido(horaStr) {
+    try {
+        const agora = new Date();
+        const partes = horaStr.split(",")[1]?.trim();
+        if (!partes) return "";
+
+        const [h, m] = partes.split(":");
+        const pedidoTime = new Date();
+        pedidoTime.setHours(h, m, 0);
+
+        const diff = Math.floor((agora - pedidoTime) / 60000);
+
+        if (diff < 1) return "Agora mesmo";
+        return diff + " min";
+    } catch {
+        return "";
+    }
+}
+
+async function carregarPedidos() {
+
+    try {
+        const res = await fetch("/api/cozinha/pedidos");
+        const data = await res.json();
+
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+
+        let novosDetectados = false;
+
+        data.pedidos.forEach(p => {
+
+            const isNovo = !ultimosIds.has(p.id);
+
+            if (isNovo) {
+                novosDetectados = true;
+                ultimosIds.add(p.id);
+            }
+
+            let statusClass = "recebido";
+
+            if (p.status.includes("Preparação")) statusClass = "em";
+            if (p.status.includes("Pronto")) statusClass = "pronto";
+            if (p.status.includes("Entregue")) statusClass = "entregue";
+
+            const div = document.createElement("div");
+            div.className = "pedido " + (isNovo ? "novo" : "");
+
+            div.innerHTML = `
+                <div class="nome">${p.nome}</div>
+                <div>${p.pedido}</div>
+
+                <div class="status ${statusClass}">
+                    ${p.status}
+                </div>
+
+                <div class="tempo">
+                    🕒 ${p.hora} | ⏱️ ${tempoDecorrido(p.hora)}
+                </div>
+
+                <div class="btns">
+                    <button class="b1" onclick="mudarStatus('${p.id}', 'Recebido')">Recebido</button>
+                    <button class="b2" onclick="mudarStatus('${p.id}', 'Em Preparação')">Preparação</button>
+                    <button class="b3" onclick="mudarStatus('${p.id}', 'Pronto')">Pronto</button>
+                    <button class="b4" onclick="mudarStatus('${p.id}', 'Entregue')">Entregue</button>
+                </div>
+            `;
+
+            lista.appendChild(div);
+        });
+
+        // 🔔 SOM quando chega novo pedido
+        if (novosDetectados) {
+            document.getElementById("somPedido").play();
+        }
+
+        document.getElementById("hora").innerText =
+            new Date().toLocaleTimeString();
+
+    } catch (err) {
+        console.log("Erro cozinha:", err);
+    }
+}
+
+async function mudarStatus(id, status) {
+
+    await fetch("/api/pedido/status", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: id,
+            status: status
+        })
+    });
+
+    carregarPedidos();
+}
+
+// auto refresh
+setInterval(carregarPedidos, 3000);
+carregarPedidos();
+
+</script>
+
+</body>
+</html>
