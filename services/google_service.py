@@ -1,17 +1,15 @@
 # ======================================================
-# GOOGLE SHEETS SERVICE
+# GOOGLE SHEETS SERVICE (PRODUÇÃO)
 # ======================================================
 
 import os
 import json
-import gspread
 import pandas as pd
-
+import gspread
 from google.oauth2.service_account import Credentials
 
-
 # ======================================================
-# SCOPES
+# SCOPES (permissões Google Sheets)
 # ======================================================
 
 SCOPES = [
@@ -19,141 +17,143 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive"
 ]
 
+# ======================================================
+# CARREGAR CREDENCIAIS (ENVIRONMENT VARIABLE)
+# ======================================================
+
+def get_credentials():
+
+    creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+
+    if not creds_json:
+        raise Exception("GOOGLE_CREDENTIALS_JSON não definida no ambiente")
+
+    try:
+        creds_dict = json.loads(creds_json)
+
+        credentials = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=SCOPES
+        )
+
+        return credentials
+
+    except Exception as e:
+        raise Exception(f"Erro ao carregar credenciais Google: {e}")
+
 
 # ======================================================
-# NOME DO GOOGLE SHEET
-# ======================================================
-
-GOOGLE_SHEET = "Menu Digital"
-
-
-# ======================================================
-# CLIENTE GOOGLE
+# CLIENT GOOGLE SHEETS
 # ======================================================
 
 def get_client():
 
-    credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    credentials = get_credentials()
 
-    if not credentials_json:
-        raise Exception(
-            "Environment Variable GOOGLE_CREDENTIALS_JSON não encontrada."
-        )
+    client = gspread.authorize(credentials)
 
-    credentials_dict = json.loads(credentials_json)
-
-    credentials = Credentials.from_service_account_info(
-        credentials_dict,
-        scopes=SCOPES
-    )
-
-    return gspread.authorize(credentials)
+    return client
 
 
 # ======================================================
-# ABRIR GOOGLE SHEET
+# ABRIR SHEET POR NOME
 # ======================================================
 
-def get_spreadsheet():
+def open_sheet(sheet_name, worksheet_index=0):
 
     client = get_client()
 
-    return client.open(GOOGLE_SHEET)
+    sheet = client.open(sheet_name)
+
+    worksheet = sheet.get_worksheet(worksheet_index)
+
+    return worksheet
 
 
 # ======================================================
-# OBTER WORKSHEET
+# LER DADOS (PRINCIPAL)
 # ======================================================
 
-def get_worksheet(nome_folha):
-
-    spreadsheet = get_spreadsheet()
+def read_sheet(sheet_name):
 
     try:
-        return spreadsheet.worksheet(nome_folha)
+        worksheet = open_sheet(sheet_name)
 
-    except gspread.WorksheetNotFound:
+        data = worksheet.get_all_records()
 
-        worksheet = spreadsheet.add_worksheet(
-            title=nome_folha,
-            rows=1000,
-            cols=30
-        )
+        if not data:
+            return pd.DataFrame()
 
-        return worksheet
+        df = pd.DataFrame(data)
 
+        return df
 
-# ======================================================
-# LER FOLHA
-# ======================================================
-
-def read_sheet(nome_folha):
-
-    worksheet = get_worksheet(nome_folha)
-
-    dados = worksheet.get_all_records()
-
-    if not dados:
+    except Exception as e:
+        print(f"[Google Sheets] Erro ao ler sheet {sheet_name}: {e}")
         return pd.DataFrame()
 
-    return pd.DataFrame(dados)
+
+# ======================================================
+# ESCREVER DADOS (SUBSTITUI TABELA)
+# ======================================================
+
+def write_sheet(sheet_name, df):
+
+    try:
+        worksheet = open_sheet(sheet_name)
+
+        worksheet.clear()
+
+        if df.empty:
+            return True
+
+        # converter DataFrame para lista
+        data = [df.columns.values.tolist()] + df.values.tolist()
+
+        worksheet.update(data)
+
+        return True
+
+    except Exception as e:
+        print(f"[Google Sheets] Erro ao escrever sheet {sheet_name}: {e}")
+        return False
 
 
 # ======================================================
-# ESCREVER DATAFRAME
+# ADICIONAR UMA LINHA (UTIL PARA PEDIDOS / RESERVAS)
 # ======================================================
 
-def write_sheet(nome_folha, dataframe):
+def append_row(sheet_name, row_dict):
 
-    worksheet = get_worksheet(nome_folha)
+    try:
+        worksheet = open_sheet(sheet_name)
 
-    worksheet.clear()
+        row = list(row_dict.values())
 
-    worksheet.update(
-        [list(dataframe.columns)] +
-        dataframe.fillna("").values.tolist()
-    )
+        worksheet.append_row(row)
 
+        return True
 
-# ======================================================
-# ADICIONAR LINHA
-# ======================================================
-
-def append_row(nome_folha, linha):
-
-    worksheet = get_worksheet(nome_folha)
-
-    worksheet.append_row(linha)
+    except Exception as e:
+        print(f"[Google Sheets] Erro ao adicionar linha: {e}")
+        return False
 
 
 # ======================================================
-# ATUALIZAR CÉLULA
+# UTILITÁRIO: VERIFICAR CONEXÃO
 # ======================================================
 
-def update_cell(nome_folha, row, col, valor):
+def test_connection(sheet_name):
 
-    worksheet = get_worksheet(nome_folha)
+    try:
+        df = read_sheet(sheet_name)
+        return {
+            "status": "ok",
+            "rows": len(df)
+        }
 
-    worksheet.update_cell(row, col, valor)
-
-
-# ======================================================
-# OBTER TODAS AS LINHAS
-# ======================================================
-
-def get_records(nome_folha):
-
-    worksheet = get_worksheet(nome_folha)
-
-    return worksheet.get_all_records()
-
-
-# ======================================================
-# LIMPAR FOLHA
-# ======================================================
-
-def clear_sheet(nome_folha):
-
-    worksheet = get_worksheet(nome_folha)
-
-    worksheet.clear()
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
