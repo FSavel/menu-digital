@@ -2,3 +2,7 @@ flask
 pandas
 openpyxl
 pytz
+gspread
+google-auth
+pip install gspread
+pip install google-auth
