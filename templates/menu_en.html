@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="category">
+    🍽️ Digital Menu
+</div>
+
+{% for cat, items in menu | groupby('Categoria') %}
+
+    <div class="category">
+        {{ cat }}
+    </div>
+
+    {% for item in items %}
+
+    <div class="card"
+         onclick="addToCart('{{ item.ID }}', '{{ item.Produto_EN }}', {{ item.Preço }})">
+
+        {% if item.Imagem %}
+        <img src="{{ item.Imagem }}" alt="{{ item.Produto_EN }}">
+        {% endif %}
+
+        <div>
+            <strong>{{ item.Produto_EN }}</strong><br>
+            <small>{{ item.Preço }} {{ config.MOEDA }}</small>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+{% endfor %}
+
+
+<!-- CART -->
+<div class="cart">
+
+    <h3>🛒 Your Order</h3>
+
+    <input type="text" id="nome" placeholder="Your name">
+
+    <div id="cart-items"></div>
+
+    <p><strong>Total: <span id="total">0</span> {{ config.MOEDA }}</strong></p>
+
+    <form action="/pedido" method="POST" onsubmit="prepareOrder()">
+
+        <input type="hidden" name="nome" id="nome_hidden">
+        <input type="hidden" name="pedido" id="pedido_hidden">
+
+        <button type="submit" class="btn-primary">
+            Send Order
+        </button>
+
+    </form>
+
+    <button onclick="clearCart()" class="btn-danger">
+        Clear Cart
+    </button>
+
+</div>
+
+
+<!-- EXTRAS -->
+<div style="margin-top:20px; text-align:center;">
+
+    <a href="/reserva">
+        <button class="btn-warning">📦 Reservations</button>
+    </a>
+
+    <a href="/chamar">
+        <button class="btn-dark">🙋 Call Waiter</button>
+    </a>
+
+</div>
+
+
+<!-- JS (igual ao PT) -->
+<script>
+
+let cart = [];
+
+function addToCart(id, name, price) {
+
+    let existing = cart.find(i => i.id === id);
+
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({
+            id: id,
+            name: name,
+            price: price,
+            qty: 1
+        });
+    }
+
+    renderCart();
+}
+
+function renderCart() {
+
+    let container = document.getElementById("cart-items");
+    container.innerHTML = "";
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+
+        total += item.price * item.qty;
+
+        container.innerHTML += `
+            <div class="item">
+                ${item.name} x${item.qty}
+                <button onclick="removeItem(${index})" class="btn-danger">X</button>
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total;
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+}
+
+function clearCart() {
+    cart = [];
+    renderCart();
+}
+
+function prepareOrder() {
+    document.getElementById("pedido_hidden").value = JSON.stringify(cart);
+    document.getElementById("nome_hidden").value = document.getElementById("nome").value;
+}
+
+</script>
+
+{% endblock %}
