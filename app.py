@@ -10,6 +10,7 @@ from flask import jsonify
 from functools import wraps
 
 from config import Config
+from services.config_service import load_config
 
 # ======================================================
 # HELPERS
@@ -177,7 +178,13 @@ def carregar_menu():
 # ======================================================
 @app.route("/")
 def home():
-    return render_template("idioma.html", config=Config)
+
+    config = load_config()
+
+    return render_template(
+        "idioma.html",
+        config=config
+    )
 
 
 # ======================================================
@@ -185,24 +192,28 @@ def home():
 # ======================================================
 @app.route("/menu_pt")
 def menu_pt():
+
+    config = load_config()
+
     return render_template(
         "menu_pt.html",
         menu=carregar_menu(),
-        config=Config
+        config=config
     )
-
 
 # ======================================================
 # MENU EN
 # ======================================================
 @app.route("/menu_en")
 def menu_en():
+
+    config = load_config()
+
     return render_template(
         "menu_en.html",
         menu=carregar_menu(),
-        config=Config
+        config=config
     )
-
 
 # ======================================================
 # CRIAR PEDIDO
@@ -223,7 +234,7 @@ def pedido():
     return render_template(
         "pedido_sucesso.html",
         total=total,
-        config=Config
+        config=load_config()
     )
 
 
@@ -405,7 +416,10 @@ return redirect(url_for("pedidos"))
 def reserva():
 
     if request.method == "GET":
-        return render_template("reserva.html", config=Config)
+        return render_template(
+        "reserva.html",
+        config=load_config()
+    )
 
 from services.reservation_service import add_reservation
 
@@ -427,7 +441,7 @@ add_reservation(novo)
     return render_template(
         "pedido_sucesso.html",
         total="Reserva enviada",
-        config=Config
+        config=load_config()
     )
 
 
@@ -436,7 +450,11 @@ add_reservation(novo)
 # ======================================================
 @app.route("/sobre")
 def sobre():
-    return render_template("sobre.html", config=Config)
+
+    return render_template(
+        "sobre.html",
+        config=load_config()
+    )
 
 
 # ======================================================
