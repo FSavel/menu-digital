@@ -8,6 +8,7 @@ import os
 import json
 from flask import jsonify
 from functools import wraps
+from languages import LANGUAGES
 
 from config import Config
 from services.config_service import load_config
@@ -42,6 +43,12 @@ from services.order_service import (
 )
 
 app = Flask(__name__)
+def get_language(lang):
+
+    if lang not in LANGUAGES:
+        lang = "pt"
+
+    return LANGUAGES[lang]
 
 # ======================================================
 # MENU SERVICE
@@ -188,31 +195,19 @@ def home():
 
 
 # ======================================================
-# MENU PT
+# MENU PT & ENG
 # ======================================================
-@app.route("/menu_pt")
-def menu_pt():
+@app.route("/menu/<lang>")
+def menu(lang):
 
-    config = load_config()
+    texts = get_language(lang)
 
     return render_template(
-        "menu_pt.html",
+        "menu.html",
         menu=carregar_menu(),
-        config=config
-    )
-
-# ======================================================
-# MENU EN
-# ======================================================
-@app.route("/menu_en")
-def menu_en():
-
-    config = load_config()
-
-    return render_template(
-        "menu_en.html",
-        menu=carregar_menu(),
-        config=config
+        config=Config,
+        texts=texts,
+        lang=lang
     )
 
 # ======================================================
