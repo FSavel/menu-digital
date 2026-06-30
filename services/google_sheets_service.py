@@ -21,6 +21,13 @@ SCOPES = [
 
 
 # ======================================================
+# NOME DO GOOGLE SHEET
+# ======================================================
+
+GOOGLE_SHEET = "Menu Digital"
+
+
+# ======================================================
 # CLIENTE GOOGLE
 # ======================================================
 
@@ -30,7 +37,7 @@ def get_client():
 
     if not credentials_json:
         raise Exception(
-            "GOOGLE_CREDENTIALS_JSON não encontrada nas Environment Variables."
+            "Environment Variable GOOGLE_CREDENTIALS_JSON não encontrada."
         )
 
     credentials_dict = json.loads(credentials_json)
@@ -44,52 +51,67 @@ def get_client():
 
 
 # ======================================================
-# ABRIR SHEET
+# ABRIR GOOGLE SHEET
 # ======================================================
 
-def open_sheet(sheet_name):
+def get_spreadsheet():
 
     client = get_client()
 
-    return client.open(sheet_name)
+    return client.open(GOOGLE_SHEET)
 
 
 # ======================================================
-# LER UMA FOLHA
+# OBTER WORKSHEET
 # ======================================================
 
-def read_sheet(sheet_name, worksheet_name=None):
+def get_worksheet(nome_folha):
 
-    spreadsheet = open_sheet(sheet_name)
+    spreadsheet = get_spreadsheet()
 
-    if worksheet_name:
-        worksheet = spreadsheet.worksheet(worksheet_name)
-    else:
-        worksheet = spreadsheet.sheet1
+    try:
+        return spreadsheet.worksheet(nome_folha)
 
-    records = worksheet.get_all_records()
+    except gspread.WorksheetNotFound:
 
-    return pd.DataFrame(records)
+        worksheet = spreadsheet.add_worksheet(
+            title=nome_folha,
+            rows=1000,
+            cols=30
+        )
+
+        return worksheet
+
+
+# ======================================================
+# LER FOLHA
+# ======================================================
+
+def read_sheet(nome_folha):
+
+    worksheet = get_worksheet(nome_folha)
+
+    dados = worksheet.get_all_records()
+
+    if not dados:
+        return pd.DataFrame()
+
+    return pd.DataFrame(dados)
 
 
 # ======================================================
 # ESCREVER DATAFRAME
 # ======================================================
 
-def write_sheet(sheet_name, dataframe, worksheet_name=None):
+def write_sheet(nome_folha, dataframe):
 
-    spreadsheet = open_sheet(sheet_name)
-
-    if worksheet_name:
-        worksheet = spreadsheet.worksheet(worksheet_name)
-    else:
-        worksheet = spreadsheet.sheet1
+    worksheet = get_worksheet(nome_folha)
 
     worksheet.clear()
 
     worksheet.update(
-        [dataframe.columns.values.tolist()] +
-        dataframe.values.tolist()
+        [list(dataframe.columns)] +
+        dataframe.fillna("").values.tolist()
     )
 
 
@@ -97,13 +119,41 @@ def write_sheet(sheet_name, dataframe, worksheet_name=None):
 # ADICIONAR LINHA
 # ======================================================
 
-def append_row(sheet_name, row, worksheet_name=None):
+def append_row(nome_folha, linha):
 
-    spreadsheet = open_sheet(sheet_name)
+    worksheet = get_worksheet(nome_folha)
 
-    if worksheet_name:
-        worksheet = spreadsheet.worksheet(worksheet_name)
-    else:
-        worksheet = spreadsheet.sheet1
+    worksheet.append_row(linha)
 
-    worksheet.append_row(row)
+
+# ======================================================
+# ATUALIZAR CÉLULA
+# ======================================================
+
+def update_cell(nome_folha, row, col, valor):
+
+    worksheet = get_worksheet(nome_folha)
+
+    worksheet.update_cell(row, col, valor)
+
+
+# ======================================================
+# OBTER TODAS AS LINHAS
+# ======================================================
+
+def get_records(nome_folha):
+
+    worksheet = get_worksheet(nome_folha)
+
+    return worksheet.get_all_records()
+
+
+# ======================================================
+# LIMPAR FOLHA
+# ======================================================
+
+def clear_sheet(nome_folha):
+
+    worksheet = get_worksheet(nome_folha)
+
+    worksheet.clear()
