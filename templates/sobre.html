@@ -18,6 +18,19 @@
             background: #1e1e1e;
             padding: 20px;
             border-radius: 10px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        iframe {
+            width: 100%;
+            height: 250px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .contact {
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -25,10 +38,25 @@
 <body>
 
 <div class="box">
+
     <h2>🍽️ Sobre o Restaurante</h2>
-    <p>{{ config.NOME_RESTAURANTE }}</p>
+
+    <p><strong>{{ config.NOME_RESTAURANTE }}</strong></p>
     <p>{{ config.SLOGAN }}</p>
-    <p>Desenvolvido por {{ config.DESENVOLVEDOR }}</p>
+
+    <div class="contact">
+        <p>📞 {{ config.TELEFONE }}</p>
+        <p>📧 {{ config.EMAIL }}</p>
+        <p>👨‍💻 {{ config.DESENVOLVEDOR }}</p>
+    </div>
+
+    <h3>📍 Localização</h3>
+
+    <iframe
+        src="{{ config.GOOGLE_MAPS }}"
+        allowfullscreen>
+    </iframe>
+
 </div>
 
 </body>
