@@ -10,7 +10,7 @@ from services.google_service import read_sheet
 # CONFIGURAÇÃO
 # ======================================================
 
-SHEET_NAME = "Menu Digital"
+SHEET_NAME = "Menu"
 
 
 # ======================================================
