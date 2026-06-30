@@ -79,14 +79,14 @@ body {
    CARDS (MENU / PEDIDOS)
 ========================= */
 .card {
-    background: var(--card);
-    color: #000;
-    border-radius: 12px;
-    margin: 10px 0;
-    padding: 15px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    cursor: pointer;
     transition: 0.2s;
 }
 
@@ -264,4 +264,15 @@ button:hover {
         margin-top: 20px;
     }
 
+}
+
+.cart {
+    position: fixed;
+    right: 10px;
+    top: 120px;
+    width: 300px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
