@@ -190,7 +190,7 @@ def atualizar_status_por_id(pedido_id, novo_status):
 # MENU
 # ======================================================
 def carregar_menu():
-    return load_menu(Config.MENU_FILE)
+    return load_menu()
 
 # ======================================================
 # HOME
