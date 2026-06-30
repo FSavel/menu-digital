@@ -1,152 +1,109 @@
 # ======================================================
-# GOOGLE SHEETS SERVICE (FASE 3 - SaaS CORE)
+# GOOGLE SHEETS SERVICE
 # ======================================================
 
+import os
+import json
 import gspread
+import pandas as pd
+
 from google.oauth2.service_account import Credentials
-from datetime import datetime
-import uuid
-
-from config import Config
 
 
 # ======================================================
-# AUTENTICAÇÃO
+# SCOPES
 # ======================================================
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+
+# ======================================================
+# CLIENTE GOOGLE
+# ======================================================
+
 def get_client():
 
-    scope = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
-    ]
+    credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
-    creds = Credentials.from_service_account_file(
-        Config.GOOGLE_CREDENTIALS_FILE,
-        scopes=scope
+    if not credentials_json:
+        raise Exception(
+            "GOOGLE_CREDENTIALS_JSON não encontrada nas Environment Variables."
+        )
+
+    credentials_dict = json.loads(credentials_json)
+
+    credentials = Credentials.from_service_account_info(
+        credentials_dict,
+        scopes=SCOPES
     )
 
-    return gspread.authorize(creds)
+    return gspread.authorize(credentials)
 
 
 # ======================================================
 # ABRIR SHEET
 # ======================================================
+
 def open_sheet(sheet_name):
 
     client = get_client()
-    sheet = client.open(Config.NOME_PLANILHA).worksheet(sheet_name)
 
-    return sheet
-
-
-# ======================================================
-# GERAR ID
-# ======================================================
-def gerar_id():
-    return str(uuid.uuid4())
+    return client.open(sheet_name)
 
 
 # ======================================================
-# LER TODOS OS DADOS
+# LER UMA FOLHA
 # ======================================================
-def get_all(sheet_name):
 
-    sheet = open_sheet(sheet_name)
-    data = sheet.get_all_records()
+def read_sheet(sheet_name, worksheet_name=None):
 
-    return data
+    spreadsheet = open_sheet(sheet_name)
+
+    if worksheet_name:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    else:
+        worksheet = spreadsheet.sheet1
+
+    records = worksheet.get_all_records()
+
+    return pd.DataFrame(records)
+
+
+# ======================================================
+# ESCREVER DATAFRAME
+# ======================================================
+
+def write_sheet(sheet_name, dataframe, worksheet_name=None):
+
+    spreadsheet = open_sheet(sheet_name)
+
+    if worksheet_name:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    else:
+        worksheet = spreadsheet.sheet1
+
+    worksheet.clear()
+
+    worksheet.update(
+        [dataframe.columns.values.tolist()] +
+        dataframe.values.tolist()
+    )
 
 
 # ======================================================
 # ADICIONAR LINHA
 # ======================================================
-def append_row(sheet_name, row: dict):
 
-    sheet = open_sheet(sheet_name)
+def append_row(sheet_name, row, worksheet_name=None):
 
-    sheet.append_row(list(row.values()))
+    spreadsheet = open_sheet(sheet_name)
 
-    return True
+    if worksheet_name:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    else:
+        worksheet = spreadsheet.sheet1
 
-
-# ======================================================
-# MENU
-# ======================================================
-def get_menu():
-
-    return get_all(Config.ABA_MENU)
-
-
-# ======================================================
-# PEDIDOS - CRIAR
-# ======================================================
-def create_order(nome, pedido, total, hora):
-
-    new_order = {
-        "id": gerar_id(),
-        "nome": nome,
-        "pedido": pedido,
-        "total": total,
-        "hora": hora,
-        "status": "Recebido"
-    }
-
-    append_row(Config.ABA_PEDIDOS, new_order)
-
-    return new_order["id"]
-
-
-# ======================================================
-# PEDIDOS - LISTAR
-# ======================================================
-def get_orders():
-
-    return get_all(Config.ABA_PEDIDOS)
-
-
-# ======================================================
-# ATUALIZAR STATUS
-# ======================================================
-def update_status(order_id, new_status):
-
-    sheet = open_sheet(Config.ABA_PEDIDOS)
-    records = sheet.get_all_records()
-
-    for i, row in enumerate(records, start=2):  # linha 1 = header
-        if str(row.get("id")) == str(order_id):
-            sheet.update_cell(i, 5, new_status)  # coluna status
-            return True
-
-    return False
-
-
-# ======================================================
-# RESERVAS
-# ======================================================
-def create_reservation(data: dict):
-
-    data["id"] = gerar_id()
-    data["hora"] = datetime.now().isoformat()
-    data["status"] = "Pendente"
-
-    append_row(Config.ABA_RESERVAS, data)
-
-    return data["id"]
-
-
-# ======================================================
-# CHAMADAS
-# ======================================================
-def create_call(nome="Mesa"):
-
-    call = {
-        "id": gerar_id(),
-        "nome": nome,
-        "pedido": "Chamada de garçom",
-        "hora": datetime.now().isoformat(),
-        "status": "Nova chamada"
-    }
-
-    append_row(Config.ABA_CHAMADAS, call)
-
-    return call["id"]
+    worksheet.append_row(row)
