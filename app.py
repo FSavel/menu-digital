@@ -2,7 +2,6 @@
 # IMPORTS
 # ======================================================
 from flask import Flask, render_template, request, redirect, url_for, flash
-import pandas as pd
 from datetime import datetime
 import pytz
 import os
@@ -17,8 +16,6 @@ from config import Config
 # ======================================================
 from utils.helpers import (
     hora_mocambique,
-    load_excel,
-    save_excel,
     gerar_id,
     moeda
 )
@@ -166,25 +163,8 @@ def admin_logout():
 # ATUALIZAR STATUS POR ID (PROFISSIONAL)
 # ======================================================
 def atualizar_status_por_id(pedido_id, novo_status):
-
-    df = load_excel(Config.ORDERS_FILE)
-
-    if df.empty:
-        return False
-
-    if "id" not in df.columns:
-        return False
-
-    # localizar linha pelo ID
-    index = df[df["id"] == pedido_id].index
-
-    if len(index) == 0:
-        return False
-
-    df.at[index[0], "status"] = novo_status
-    df.to_excel(Config.ORDERS_FILE, index=False)
-
-    return True
+    from services.order_service import update_order_status
+    return update_order_status(pedido_id, novo_status)
 
 # ======================================================
 # MENU
@@ -411,13 +391,11 @@ def cozinha():
 @app.route("/entregar/<int:id>")
 def entregar(id):
 
-    df = load_excel(Config.ORDERS_FILE)
+from services.order_service import update_order_status
 
-    if not df.empty and 0 <= id < len(df):
-        df.at[id, "status"] = "Entregue"
-        df.to_excel(Config.ORDERS_FILE, index=False)
+update_order_status(id, "Entregue")
 
-    return redirect(url_for("pedidos"))
+return redirect(url_for("pedidos"))
 
 
 # ======================================================
@@ -429,19 +407,22 @@ def reserva():
     if request.method == "GET":
         return render_template("reserva.html", config=Config)
 
-    novo = pd.DataFrame([{
-        "nome": request.form.get("nome"),
-        "contacto": request.form.get("contacto"),
-        "tipo": request.form.get("tipo"),
-        "descricao": request.form.get("descricao"),
-        "quantidade": request.form.get("quantidade"),
-        "data": request.form.get("data"),
-        "observacoes": request.form.get("observacoes"),
-        "hora": hora_mocambique(),
-        "status": "Pendente"
-    }])
+from services.reservation_service import add_reservation
 
-    save_excel(Config.RESERVATIONS_FILE, novo)
+novo = {
+    "id": gerar_id(),
+    "nome": request.form.get("nome"),
+    "contacto": request.form.get("contacto"),
+    "tipo": request.form.get("tipo", ""),
+    "descricao": request.form.get("descricao", ""),
+    "quantidade": request.form.get("quantidade", ""),
+    "data": request.form.get("data"),
+    "observacoes": request.form.get("observacoes", ""),
+    "hora": hora_mocambique(),
+    "status": "Pendente"
+}
+
+add_reservation(novo)
 
     return render_template(
         "pedido_sucesso.html",
@@ -471,4 +452,4 @@ def health():
 # ======================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)
