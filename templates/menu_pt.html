@@ -47,7 +47,7 @@
 
     <h3>🛒 O Seu Pedido</h3>
 
-    <input type="text" id="nome" placeholder="O seu nome">
+    <input type="text" id="nome" placeholder="O seu nome" required>
 
     <div id="cart-items"></div>
 
@@ -62,7 +62,7 @@
         <input type="hidden" name="nome" id="nome_hidden">
         <input type="hidden" name="pedido" id="pedido_hidden">
 
-        <button type="submit" class="btn-primary">
+        <button type="submit" class="btn-primary" onclick="return prepareOrder()">
             Enviar Pedido
         </button>
 
@@ -150,10 +150,22 @@ function clearCart() {
 
 function prepareOrder() {
 
-    document.getElementById("pedido_hidden").value = JSON.stringify(cart);
-    document.getElementById("nome_hidden").value =
-        document.getElementById("nome").value;
+    if (cart.length === 0) {
+        alert("O carrinho está vazio!");
+        return false;
+    }
 
+    let nome = document.getElementById("nome").value;
+
+    if (!nome) {
+        alert("Por favor insira o seu nome");
+        return false;
+    }
+
+    document.getElementById("pedido_hidden").value = JSON.stringify(cart);
+    document.getElementById("nome_hidden").value = nome;
+
+    return true;
 }
 
 </script>
