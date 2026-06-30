@@ -3,29 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config.RESTAURANT_NAME }} | Sistema Digital</title>
+    <title>{{ config.NOME_RESTAURANTE }} | Sistema Digital</title>
 
-    <!-- =========================
-         CSS GLOBAL
-    ========================== -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <!-- =========================
-         FONT (opcional)
-    ========================== -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
 
-<!-- =========================
-     HEADER GLOBAL
-========================== -->
 <header class="topbar">
 
     <div class="logo">
-        🍽️ {{ config.RESTAURANT_NAME }}
+        🍽️ {{ config.NOME_RESTAURANTE }}
     </div>
 
     <div class="slogan">
@@ -41,46 +31,27 @@
 
 </header>
 
-
-<!-- =========================
-     MENSAGENS FLASH
-========================== -->
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-container">
             {% for category, message in messages %}
-                <div class="flash {{ category }}">
-                    {{ message }}
-                </div>
+                <div class="flash {{ category }}">{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}
 {% endwith %}
 
-
-<!-- =========================
-     CONTEÚDO DAS PÁGINAS
-========================== -->
 <main class="container">
-
-    {% block content %}
-    <!-- conteúdo das páginas aqui -->
-    {% endblock %}
-
+    {% block content %}{% endblock %}
 </main>
 
-
-<!-- =========================
-     FOOTER GLOBAL
-========================== -->
 <footer class="footer">
 
-    <p>📍 {{ config.RESTAURANT_NAME }} - Sistema Digital</p>
-    <p>📞 {{ config.PHONE }} | 📧 {{ config.EMAIL }}</p>
-    <p>👨‍💻 {{ config.DEVELOPER }}</p>
+    <p>📍 {{ config.NOME_RESTAURANTE }} - Sistema Digital</p>
+    <p>📞 {{ config.TELEFONE }} | 📧 {{ config.EMAIL }}</p>
+    <p>👨‍💻 {{ config.DESENVOLVEDOR }}</p>
 
 </footer>
-
 
 </body>
 </html>
