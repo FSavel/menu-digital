@@ -1,103 +1,153 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt">
 
-{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho | {{ config.NOME_RESTAURANTE }}</title>
 
-<div class="cart-container">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <div class="cart-header">
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f0f0f;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
 
-        <h1>
-            {% if session.get("lang","pt")=="pt" %}
-                🛒 O seu Pedido
-            {% else %}
-                🛒 Your Order
-            {% endif %}
-        </h1>
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
 
-        <p>
-            {% if session.get("lang","pt")=="pt" %}
-                Confirme os produtos antes de enviar.
-            {% else %}
-                Please review your order before submitting.
-            {% endif %}
-        </p>
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e1e1e;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
 
-    </div>
+        .total {
+            font-size: 20px;
+            margin-top: 20px;
+            text-align: right;
+        }
 
-    <div id="cart-items">
+        button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
 
-        <div class="empty-cart">
+        .empty {
+            text-align: center;
+            margin-top: 50px;
+            color: #aaa;
+        }
+    </style>
+</head>
 
-            {% if session.get("lang","pt")=="pt" %}
-                O carrinho está vazio.
-            {% else %}
-                Your cart is empty.
-            {% endif %}
+<body>
 
-        </div>
+<div class="container">
 
-    </div>
+    <h2>🛒 O teu carrinho</h2>
 
-    <div class="cart-summary">
+    <div id="cart-items"></div>
 
-        <div class="summary-row">
+    <div class="total" id="total"></div>
 
-            <span>
-
-                {% if session.get("lang","pt")=="pt" %}
-                    Total
-                {% else %}
-                    Total
-                {% endif %}
-
-            </span>
-
-            <strong id="cart-total">
-                0 MT
-            </strong>
-
-        </div>
-
-    </div>
-
-    <form id="checkout-form" method="POST" action="/pedido">
-
-        <input
-            type="text"
-            name="nome"
-            placeholder="{% if session.get('lang','pt')=='pt' %}Nome{% else %}Name{% endif %}"
-            required>
-
-        <input
-            type="text"
-            name="mesa"
-            placeholder="{% if session.get('lang','pt')=='pt' %}Mesa{% else %}Table{% endif %}"
-            required>
-
-        <textarea
-            name="observacoes"
-            placeholder="{% if session.get('lang','pt')=='pt' %}Observações{% else %}Notes{% endif %}">
-        </textarea>
-
-        <input
-            type="hidden"
-            name="pedido"
-            id="pedido-hidden">
-
-        <button type="submit" class="checkout-btn">
-
-            {% if session.get("lang","pt")=="pt" %}
-                Confirmar Pedido
-            {% else %}
-                Confirm Order
-            {% endif %}
-
-        </button>
-
-    </form>
+    <button onclick="sendOrder()">Confirmar Pedido</button>
 
 </div>
 
-<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+<script>
 
-{% endblock %}
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function renderCart() {
+
+    let container = document.getElementById("cart-items");
+    let totalDiv = document.getElementById("total");
+
+    container.innerHTML = "";
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p class='empty'>Carrinho vazio</p>";
+        totalDiv.innerHTML = "";
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+
+        total += item.preco * item.quantidade;
+
+        container.innerHTML += `
+            <div class="item">
+                <div>
+                    <strong>${item.nome}</strong><br>
+                    ${item.quantidade} x ${item.preco} MT
+                </div>
+
+                <button onclick="removeItem(${index})">❌</button>
+            </div>
+        `;
+    });
+
+    totalDiv.innerHTML = "Total: " + total + " MT";
+}
+
+function removeItem(index) {
+
+    cart.splice(index, 1);
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    renderCart();
+}
+
+function sendOrder() {
+
+    if (cart.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
+
+    fetch("/pedido", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            cart: cart
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        localStorage.removeItem("cart");
+
+        window.location.href = "/pedido-sucesso";
+
+    });
+
+}
+
+renderCart();
+
+</script>
+
+</body>
+</html>
