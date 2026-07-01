@@ -240,7 +240,7 @@ def menu_en():
         menu=load_menu(),
         lang="en",
         config=Config
-    ))
+    )
 
 # ======================================================
 # CRIAR PEDIDO
