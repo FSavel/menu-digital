@@ -248,21 +248,25 @@ def menu_en():
 @app.route("/pedido", methods=["POST"])
 def pedido():
 
-    nome = request.form.get("nome", "Cliente")
-    pedido_raw = request.form.get("pedido", "")
+    data = request.get_json()
+    cart = data.get("cart", [])
 
-    total = add_order(
+    total = 0
+
+    for item in cart:
+        total += item["preco"] * item["quantidade"]
+
+    add_order(
         Config.ORDERS_FILE,
-        nome,
-        pedido_raw,
+        "Cliente",
+        cart,
         hora_mocambique()
     )
 
-    return render_template(
-        "pedido_sucesso.html",
-        total=total,
-        config=load_config()
-    )
+    return {
+        "success": True,
+        "total": total
+    }
 
 
 # ======================================================
