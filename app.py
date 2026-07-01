@@ -249,10 +249,10 @@ def pedido():
     data = request.get_json()
     cart = data.get("cart", [])
 
-total = sum(
-    item.get("preco", 0) * item.get("quantidade", 1)
-    for item in cart
-)
+    total = sum(
+        item.get("preco", 0) * item.get("quantidade", 1)
+        for item in cart
+    )
 
     add_order(
         Config.ORDERS_FILE,
@@ -465,7 +465,7 @@ def reserva():
         "status": "Pendente"
     }
 
-    add_reservation(Config.RESERVATIONS_FILE, novo)
+    add_reservation(novo)
 
     return render_template(
         "pedido_sucesso.html",
