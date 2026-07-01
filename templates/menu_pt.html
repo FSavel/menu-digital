@@ -2,170 +2,84 @@
 
 {% block content %}
 
-<!-- =========================
-     TÍTULO
-========================= -->
-<div class="category">
-    🍽️ Menu Digital - Português
+<div class="menu-header">
+
+    <h1>🍽️ Menu</h1>
+
+    <p>Escolha os seus pratos favoritos.</p>
+
 </div>
 
-<!-- =========================
-     MENU LISTA
-========================= -->
 
-{% for cat, items in menu | groupby('Categoria') %}
+<div class="cards">
 
-    <div class="category">
-        {{ cat }}
-    </div>
+{% for item in menu %}
 
-    {% for item in items %}
+<div class="food-card" onclick="adicionar('{{ item.ID }}')">
 
-    <div class="card"
-         onclick="addToCart({{ item.ID }}, {{ item.Produto_PT | tojson }}, {{ item.Preço }})">
+    <div class="food-image">
 
         {% if item.Imagem %}
-        <img src="{{ item.Imagem }}" alt="{{ item.Produto_PT }}">
+            <img src="{{ item.Imagem }}">
+        {% else %}
+            🍽️
         {% endif %}
-
-        <div>
-            <strong>{{ item.Produto_PT }}</strong><br>
-            <small>{{ item.Preço }} {{ config.MOEDA }}</small>
-        </div>
 
     </div>
 
-    {% endfor %}
+
+    <div class="food-info">
+
+        <h3>{{ item.Produto_PT }}</h3>
+
+        <p>{{ item.Descrição_PT }}</p>
+
+    </div>
+
+
+    <div class="food-price">
+
+        {{ item.Preço }} MT
+
+    </div>
+
+</div>
 
 {% endfor %}
 
+</div>
 
-<!-- =========================
-     CART
-========================= -->
-<div class="cart">
 
-    <h3>🛒 O Seu Pedido</h3>
+<div id="cart-button">
 
-    <input type="text" id="nome" placeholder="O seu nome" required>
+🛒
 
-    <div id="cart-items"></div>
+<span id="cart-count">
 
-    <p>
-        <strong>
-            Total: <span id="total">0</span> {{ config.MOEDA }}
-        </strong>
-    </p>
+0
 
-    <form action="/pedido" method="POST" onsubmit="prepareOrder()">
-
-        <input type="hidden" name="nome" id="nome_hidden">
-        <input type="hidden" name="pedido" id="pedido_hidden">
-
-        <button type="submit" class="btn-primary" onclick="return prepareOrder()">
-            Enviar Pedido
-        </button>
-
-    </form>
-
-    <button onclick="clearCart()" class="btn-danger">
-        Limpar Carrinho
-    </button>
+</span>
 
 </div>
 
 
-<!-- =========================
-     EXTRAS
-========================= -->
-<div style="margin-top:20px; text-align:center;">
 
-    <a href="/reserva">
-        <button class="btn-warning">📦 Reservas</button>
-    </a>
-
-    <a href="/chamar">
-        <button class="btn-dark">🙋 Chamar Empregado</button>
-    </a>
-
-</div>
-
-
-<!-- =========================
-     JAVASCRIPT CART
-========================= -->
 <script>
 
-let cart = [];
+let carrinho=[];
 
-function addToCart(id, name, price) {
+function adicionar(id){
 
-    let existing = cart.find(i => i.id === id);
+    carrinho.push(id);
 
-    if (existing) {
-        existing.qty += 1;
-    } else {
-        cart.push({
-            id: id,
-            name: name,
-            price: price,
-            qty: 1
-        });
-    }
+    document.getElementById("cart-count").innerHTML=carrinho.length;
 
-    renderCart();
-}
+    event.currentTarget.classList.add("bounce");
 
-function renderCart() {
+    setTimeout(()=>{
+        event.currentTarget.classList.remove("bounce");
+    },300);
 
-    let container = document.getElementById("cart-items");
-    container.innerHTML = "";
-
-    let total = 0;
-
-    cart.forEach((item, index) => {
-
-        total += item.price * item.qty;
-
-        container.innerHTML += `
-            <div class="item">
-                ${item.name} x${item.qty}
-                <button onclick="removeItem(${index})" class="btn-danger">X</button>
-            </div>
-        `;
-    });
-
-    document.getElementById("total").innerText = total;
-}
-
-function removeItem(index) {
-    cart.splice(index, 1);
-    renderCart();
-}
-
-function clearCart() {
-    cart = [];
-    renderCart();
-}
-
-function prepareOrder() {
-
-    if (cart.length === 0) {
-        alert("O carrinho está vazio!");
-        return false;
-    }
-
-    let nome = document.getElementById("nome").value;
-
-    if (!nome) {
-        alert("Por favor insira o seu nome");
-        return false;
-    }
-
-    document.getElementById("pedido_hidden").value = JSON.stringify(cart);
-    document.getElementById("nome_hidden").value = nome;
-
-    return true;
 }
 
 </script>
