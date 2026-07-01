@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="menu-header">
+
+    <h1>
+        🍽️
+        {% if lang=="pt" %}
+            Menu
+        {% else %}
+            Menu
+        {% endif %}
+    </h1>
+
+    <p>
+
+        {% if lang=="pt" %}
+            Escolha os seus pratos favoritos.
+        {% else %}
+            Choose your favourite dishes.
+        {% endif %}
+
+    </p>
+
+</div>
+
+
+<div class="menu-grid">
+
+{% for item in menu %}
+
+<div class="menu-card">
+
+    <div class="imagem">
+
+        {% if item.Imagem %}
+        <img src="{{ item.Imagem }}">
+        {% else %}
+        <img src="{{ url_for('static',
+            filename='img/default-food.jpg') }}">
+        {% endif %}
+
+    </div>
+
+    <div class="conteudo">
+
+        <h3>
+
+            {% if lang=="pt" %}
+                {{ item.Produto_PT }}
+            {% else %}
+                {{ item.Produto_EN }}
+            {% endif %}
+
+        </h3>
+
+        <p>
+
+            {% if lang=="pt" %}
+                {{ item.Descrição_PT }}
+            {% else %}
+                {{ item.Descrição_EN }}
+            {% endif %}
+
+        </p>
+
+    </div>
+
+    <div class="rodape">
+
+        <span class="preco">
+
+            {{ item.Preço }}
+
+        </span>
+
+        <button
+            class="btn-add"
+            onclick="adicionarCarrinho('{{ item.ID }}')">
+
+            {% if lang=="pt" %}
+                Adicionar
+            {% else %}
+                Add
+            {% endif %}
+
+        </button>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<script>
+
+function adicionarCarrinho(id){
+
+    let botao=event.target;
+
+    botao.classList.add("added");
+
+    setTimeout(()=>{
+        botao.classList.remove("added");
+    },400);
+
+    console.log(id);
+
+}
+
+</script>
+
+{% endblock %}
