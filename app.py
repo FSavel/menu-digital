@@ -207,18 +207,30 @@ def set_language(lang):
 # ======================================================
 # MENU PT & ENG
 # ======================================================
-@app.route("/menu/<lang>")
-def menu(lang):
+@app.route("/menu_pt")
+def menu_pt():
 
-    texts = get_language(lang)
+    session["lang"]="pt"
 
     return render_template(
         "menu.html",
-        menu=carregar_menu(),
-        config=Config,
-        texts=texts,
-        lang=lang
+        menu=load_menu(),
+        lang="pt",
+        config=Config
     )
+
+
+@app.route("/menu_en")
+def menu_en():
+
+    session["lang"]="en"
+
+    return render_template(
+        "menu.html",
+        menu=load_menu(),
+        lang="en",
+        config=Config
+    ))
 
 # ======================================================
 # CRIAR PEDIDO
