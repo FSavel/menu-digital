@@ -1,258 +1,100 @@
-// =========================================
-// DOURADOS
-// CART.JS
-// =========================================
-
-// Carrinho guardado no navegador
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-// =========================================
-// GUARDAR
-// =========================================
-function saveCart() {
+// ==========================================
+// ADICIONAR ITEM AO CARRINHO
+// ==========================================
+function addToCart(name, price) {
 
-    localStorage.setItem(
-        "cart",
-        JSON.stringify(cart)
-    );
+    let existing = cart.find(item => item.name === name);
 
-}
-
-// =========================================
-// ADICIONAR
-// =========================================
-function addToCart(id, nome, preco) {
-
-    preco = Number(preco);
-
-    let item = cart.find(p => p.id == id);
-
-    if (item) {
-
-        item.quantidade++;
-
+    if (existing) {
+        existing.qty += 1;
     } else {
-
         cart.push({
-
-            id: id,
-            nome: nome,
-            preco: preco,
-            quantidade: 1
-
+            name: name,
+            price: price,
+            qty: 1
         });
-
     }
 
     saveCart();
 
-updateHiddenField();
-
-updateFloatingCart();
-
+    // animação simples de feedback
+    showToast("Adicionado ao carrinho 🛒");
 }
 
-// =========================================
-// REMOVER
-// =========================================
-function removeItem(id) {
+// ==========================================
+// REMOVER / ALTERAR
+// ==========================================
+function changeQty(index, value) {
+    cart[index].qty += value;
 
-    cart = cart.filter(p => p.id != id);
-
-    saveCart();
-
-    renderCart();
-
-}
-
-// =========================================
-// +
-// =========================================
-function increase(id) {
-
-    let item = cart.find(p => p.id == id);
-
-    if (!item) return;
-
-    item.quantidade++;
-
-    saveCart();
-
-    renderCart();
-
-}
-
-// =========================================
-// -
-// =========================================
-function decrease(id) {
-
-    let item = cart.find(p => p.id == id);
-
-    if (!item) return;
-
-    item.quantidade--;
-
-    if (item.quantidade <= 0) {
-
-        removeItem(id);
-
-        return;
-
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
     }
 
     saveCart();
-
-    renderCart();
-
 }
 
-// =========================================
-// TOTAL
-// =========================================
-function totalCart() {
+function removeItem(index) {
+    cart.splice(index, 1);
+    saveCart();
+}
 
-    let total = 0;
+// ==========================================
+// GUARDAR
+// ==========================================
+function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCounter();
+}
+
+// ==========================================
+// CONTADOR FLUTUANTE
+// ==========================================
+function updateCartCounter() {
+
+    let totalItems = 0;
 
     cart.forEach(item => {
-
-        total += item.preco * item.quantidade;
-
+        totalItems += item.qty;
     });
 
-    return total;
+    const counter = document.getElementById("cart-counter");
 
-}
-
-// =========================================
-// RENDER
-// =========================================
-function renderCart() {
-
-    let lista = document.getElementById("cart-items");
-
-    if (!lista) return;
-
-    lista.innerHTML = "";
-
-    if (cart.length == 0) {
-
-        lista.innerHTML =
-        "<p>🛒 Carrinho vazio.</p>";
-
-        let total = document.getElementById("cart-total");
-
-        if(total){
-
-            total.innerHTML = "0 MT";
-
-        }
-
-        updateHiddenField();
-
-        return;
-
+    if (counter) {
+        counter.innerText = totalItems;
     }
-
-    cart.forEach(item => {
-
-        lista.innerHTML += `
-
-        <div class="cart-item">
-
-            <div>
-
-                <strong>${item.nome}</strong>
-
-                <br>
-
-                ${item.preco} MT
-
-            </div>
-
-            <div>
-
-                <button onclick="decrease('${item.id}')">-</button>
-
-                ${item.quantidade}
-
-                <button onclick="increase('${item.id}')">+</button>
-
-                <button onclick="removeItem('${item.id}')">
-
-                    🗑
-
-                </button>
-
-            </div>
-
-        </div>
-
-        `;
-
-    });
-
-    let total = document.getElementById("cart-total");
-
-    if(total){
-
-        total.innerHTML = totalCart() + " MT";
-
-    }
-
-    updateHiddenField();
-
 }
 
-// =========================================
-// HIDDEN FIELD
-// =========================================
-function updateHiddenField() {
+// ==========================================
+// TOAST (FEEDBACK VISUAL)
+// ==========================================
+function showToast(message) {
 
-    let campo = document.getElementById("pedido-hidden");
+    let toast = document.createElement("div");
 
-    if (!campo) return;
+    toast.innerText = message;
 
-    campo.value = JSON.stringify(cart);
+    toast.style.position = "fixed";
+    toast.style.bottom = "80px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.background = "#27ae60";
+    toast.style.color = "white";
+    toast.style.padding = "10px 15px";
+    toast.style.borderRadius = "8px";
+    toast.style.zIndex = "9999";
+    toast.style.fontSize = "14px";
 
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 1500);
 }
 
-// =========================================
-// CONTADOR
-// =========================================
-function cartCount() {
-
-    return cart.reduce(
-
-        (a,b)=>a+b.quantidade,
-
-        0
-
-    );
-
-}
-
-// =========================================
-// INICIAR
-// =========================================
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    function(){
-
-        renderCart();
-
-    }
-
-);
-
-function updateFloatingCart(){
-
-    let badge = document.getElementById("cart-counter");
-
-    if(!badge) return;
-
-    badge.innerHTML = cartCount();
-
-}
+// ==========================================
+// INIT
+// ==========================================
+updateCartCounter();
