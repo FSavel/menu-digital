@@ -1,59 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Escolher Idioma</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #0f0f0f;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+{% block content %}
 
-        .box {
-            text-align: center;
-            background: #1e1e1e;
-            padding: 40px;
-            border-radius: 12px;
-            width: 300px;
-        }
+<div class="language-page">
 
-        h1 {
-            margin-bottom: 20px;
-        }
+    <div class="welcome-card">
 
-        a {
-            display: block;
-            margin: 10px 0;
-            padding: 12px;
-            background: #27ae60;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-        }
+        <h1 class="restaurant-title">
+            🍽 Dourados
+        </h1>
 
-        a:hover {
-            background: #2ecc71;
-        }
-    </style>
-</head>
+        <p class="welcome">
+            Bem-vindo ao Dourados
+        </p>
 
-<body>
+        <p class="welcome-en">
+            Welcome to Dourados
+        </p>
 
-<div class="box">
-    <h1>🍽️ {{ config.NOME_RESTAURANTE }}</h1>
-    <p>{{ config.SLOGAN }}</p>
+        <div class="language-buttons">
 
-    <a href="/menu_pt">🇵🇹 Português</a>
-    <a href="/menu_en">🇬🇧 English</a>
+            <a class="language-btn" href="/set_language/pt">
+                🇵🇹 Português
+            </a>
+
+            <a class="language-btn" href="/set_language/en">
+                🇬🇧 English
+            </a>
+
+        </div>
+
+    </div>
+
 </div>
 
-</body>
-</html>
+{% endblock %}
