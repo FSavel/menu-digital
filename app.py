@@ -185,12 +185,9 @@ def carregar_menu():
 # ======================================================
 @app.route("/")
 def home():
-
-    config = load_config()
-
     return render_template(
         "idioma.html",
-        config=config
+        config=Config
     )
 
 
