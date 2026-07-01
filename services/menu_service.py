@@ -2,7 +2,7 @@
 # MENU SERVICE (GOOGLE SHEETS ONLY)
 # ======================================================
 
-import pandas as pd
+import logging
 from services.google_service import read_sheet
 
 # ======================================================
@@ -23,14 +23,13 @@ def load_menu():
         if df.empty:
             return []
 
-        # limpar dados
         df = df.dropna(how="all")
         df = df.fillna("")
 
         return df.to_dict(orient="records")
 
     except Exception as e:
-        print("[Menu Service] Erro ao carregar menu:", e)
+        logging.error(f"[Menu Service] Erro ao carregar menu: {e}")
         return []
 
 
@@ -56,12 +55,12 @@ def search_menu(texto):
         desc_pt = str(item.get("Descrição_PT", "")).lower()
         desc_en = str(item.get("Descrição_EN", "")).lower()
 
-        if (
-            texto in nome_pt
-            or texto in nome_en
-            or texto in desc_pt
-            or texto in desc_en
-        ):
+        if any([
+            texto in nome_pt,
+            texto in nome_en,
+            texto in desc_pt,
+            texto in desc_en
+        ]):
             resultado.append(item)
 
     return resultado
