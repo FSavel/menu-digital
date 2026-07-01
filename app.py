@@ -12,7 +12,6 @@ from languages import LANGUAGES
 from flask import session
 
 from config import Config
-from services.config_service import load_config
 
 # ======================================================
 # HELPERS
@@ -121,7 +120,6 @@ from services.table_service import (
 # ======================================================
 # SESSÃO / LOGIN ADMIN
 # ======================================================
-from flask import session, flash
 
 app.secret_key = "restaurante_secret_key"
 
@@ -433,11 +431,13 @@ def cozinha():
 @app.route("/entregar/<int:id>")
 def entregar(id):
 
-from services.order_service import update_order_status
+    update_order_status(
+        Config.ORDERS_FILE,
+        id,
+        "Entregue"
+    )
 
-update_order_status(id, "Entregue")
-
-return redirect(url_for("pedidos"))
+    return redirect(url_for("pedidos"))
 
 
 # ======================================================
@@ -448,33 +448,30 @@ def reserva():
 
     if request.method == "GET":
         return render_template(
-        "reserva.html",
-        config=load_config()
-    )
+            "reserva.html",
+            config=Config
+        )
 
-from services.reservation_service import add_reservation
+    novo = {
+        "id": gerar_id(),
+        "nome": request.form.get("nome"),
+        "contacto": request.form.get("contacto"),
+        "tipo": request.form.get("tipo", ""),
+        "descricao": request.form.get("descricao", ""),
+        "quantidade": request.form.get("quantidade", ""),
+        "data": request.form.get("data"),
+        "observacoes": request.form.get("observacoes", ""),
+        "hora": hora_mocambique(),
+        "status": "Pendente"
+    }
 
-novo = {
-    "id": gerar_id(),
-    "nome": request.form.get("nome"),
-    "contacto": request.form.get("contacto"),
-    "tipo": request.form.get("tipo", ""),
-    "descricao": request.form.get("descricao", ""),
-    "quantidade": request.form.get("quantidade", ""),
-    "data": request.form.get("data"),
-    "observacoes": request.form.get("observacoes", ""),
-    "hora": hora_mocambique(),
-    "status": "Pendente"
-}
-
-add_reservation(novo)
+    add_reservation(novo)
 
     return render_template(
         "pedido_sucesso.html",
         total="Reserva enviada",
-        config=load_config()
+        config=Config
     )
-
 
 # ======================================================
 # SOBRE
@@ -484,7 +481,7 @@ def sobre():
 
     return render_template(
         "sobre.html",
-        config=load_config()
+        config=Config
     )
 
 
