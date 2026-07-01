@@ -9,6 +9,7 @@ import json
 from flask import jsonify
 from functools import wraps
 from languages import LANGUAGES
+from flask import session
 
 from config import Config
 from services.config_service import load_config
@@ -189,7 +190,19 @@ def home():
         "idioma.html",
         config=Config
     )
+    
+@app.route("/set_language/<lang>")
+def set_language(lang):
 
+    if lang not in ["pt", "en"]:
+        lang = "pt"
+
+    session["lang"] = lang
+
+    if lang == "en":
+        return redirect(url_for("menu_en"))
+
+    return redirect(url_for("menu_pt"))
 
 # ======================================================
 # MENU PT & ENG
