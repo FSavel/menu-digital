@@ -6,10 +6,11 @@ import os
 import json
 import pandas as pd
 import gspread
+import logging
 from google.oauth2.service_account import Credentials
 
 # ======================================================
-# SCOPES (permissões Google Sheets)
+# CONFIGURAÇÃO
 # ======================================================
 
 SCOPES = [
@@ -17,8 +18,10 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive"
 ]
 
+SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_ID")
+
 # ======================================================
-# CARREGAR CREDENCIAIS (ENVIRONMENT VARIABLE)
+# CREDENCIAIS
 # ======================================================
 
 def get_credentials():
@@ -26,52 +29,42 @@ def get_credentials():
     creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
     if not creds_json:
-        raise Exception("GOOGLE_CREDENTIALS_JSON não definida no ambiente")
+        raise Exception("GOOGLE_CREDENTIALS_JSON não definida")
 
     try:
         creds_dict = json.loads(creds_json)
 
-        credentials = Credentials.from_service_account_info(
+        return Credentials.from_service_account_info(
             creds_dict,
             scopes=SCOPES
         )
 
-        return credentials
-
     except Exception as e:
-        raise Exception(f"Erro ao carregar credenciais Google: {e}")
-
+        raise Exception(f"Erro credenciais Google: {e}")
 
 # ======================================================
-# CLIENT GOOGLE SHEETS
+# CLIENT
 # ======================================================
 
 def get_client():
-
-    credentials = get_credentials()
-
-    client = gspread.authorize(credentials)
-
-    return client
-
+    return gspread.authorize(get_credentials())
 
 # ======================================================
-# ABRIR SHEET POR NOME
+# ABRIR SHEET
 # ======================================================
 
 def open_sheet(sheet_name, worksheet_index=0):
 
     client = get_client()
 
-    sheet = client.open(sheet_name)
+    sheet = client.open_by_key(SPREADSHEET_ID)
 
     worksheet = sheet.get_worksheet(worksheet_index)
 
     return worksheet
 
-
 # ======================================================
-# LER DADOS (PRINCIPAL)
+# LER
 # ======================================================
 
 def read_sheet(sheet_name):
@@ -84,17 +77,14 @@ def read_sheet(sheet_name):
         if not data:
             return pd.DataFrame()
 
-        df = pd.DataFrame(data)
-
-        return df
+        return pd.DataFrame(data)
 
     except Exception as e:
-        print(f"[Google Sheets] Erro ao ler sheet {sheet_name}: {e}")
+        logging.error(f"[Google Sheets] erro leitura {sheet_name}: {e}")
         return pd.DataFrame()
 
-
 # ======================================================
-# ESCREVER DADOS (SUBSTITUI TABELA)
+# ESCREVER
 # ======================================================
 
 def write_sheet(sheet_name, df):
@@ -107,7 +97,6 @@ def write_sheet(sheet_name, df):
         if df.empty:
             return True
 
-        # converter DataFrame para lista
         data = [df.columns.values.tolist()] + df.values.tolist()
 
         worksheet.update(data)
@@ -115,12 +104,11 @@ def write_sheet(sheet_name, df):
         return True
 
     except Exception as e:
-        print(f"[Google Sheets] Erro ao escrever sheet {sheet_name}: {e}")
+        logging.error(f"[Google Sheets] erro escrita {sheet_name}: {e}")
         return False
 
-
 # ======================================================
-# ADICIONAR UMA LINHA (UTIL PARA PEDIDOS / RESERVAS)
+# APPEND (SEGURO)
 # ======================================================
 
 def append_row(sheet_name, row_dict):
@@ -128,25 +116,27 @@ def append_row(sheet_name, row_dict):
     try:
         worksheet = open_sheet(sheet_name)
 
-        row = list(row_dict.values())
+        headers = worksheet.row_values(1)
+
+        row = [row_dict.get(col, "") for col in headers]
 
         worksheet.append_row(row)
 
         return True
 
     except Exception as e:
-        print(f"[Google Sheets] Erro ao adicionar linha: {e}")
+        logging.error(f"[Google Sheets] erro append: {e}")
         return False
 
-
 # ======================================================
-# UTILITÁRIO: VERIFICAR CONEXÃO
+# TESTE
 # ======================================================
 
 def test_connection(sheet_name):
 
     try:
         df = read_sheet(sheet_name)
+
         return {
             "status": "ok",
             "rows": len(df)
