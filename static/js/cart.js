@@ -46,7 +46,9 @@ function addToCart(id, nome, preco) {
 
     saveCart();
 
-    renderCart();
+updateHiddenField();
+
+updateFloatingCart();
 
 }
 
