@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
+    <title>Cart | Dourados</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrinho | {{ config.NOME_RESTAURANTE }}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
@@ -14,12 +13,17 @@
             background: #0f0f0f;
             color: white;
             margin: 0;
-            padding: 20px;
+        }
+
+        header {
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            background: #111;
         }
 
         .container {
-            max-width: 800px;
-            margin: auto;
+            padding: 15px;
         }
 
         .item {
@@ -27,126 +31,153 @@
             justify-content: space-between;
             align-items: center;
             background: #1e1e1e;
-            padding: 12px;
+            padding: 10px;
             margin-bottom: 10px;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
-        .total {
-            font-size: 20px;
-            margin-top: 20px;
+        .item-name {
+            flex: 2;
+        }
+
+        .item-price {
+            flex: 1;
             text-align: right;
         }
 
+        .qty {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+        }
+
         button {
-            background: #e67e22;
-            color: white;
+            background: #27ae60;
             border: none;
-            padding: 12px;
+            padding: 5px 10px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .remove {
+            background: red;
+        }
+
+        .total {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .checkout {
             width: 100%;
-            margin-top: 20px;
-            border-radius: 8px;
+            padding: 15px;
+            background: orange;
+            border: none;
             font-size: 16px;
+            color: black;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         .empty {
             text-align: center;
             margin-top: 50px;
-            color: #aaa;
+            opacity: 0.6;
         }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+<header>
+    🛒 DOURADOS - Carrinho
+</header>
 
-    <h2>🛒 O teu carrinho</h2>
+<div class="container">
 
     <div id="cart-items"></div>
 
-    <div class="total" id="total"></div>
+    <div class="total">
+        Total: <span id="total">0</span> MT
+    </div>
 
-    <button onclick="sendOrder()">Confirmar Pedido</button>
+    <form method="POST" action="/pedido">
+
+        <input type="hidden" name="pedido" id="pedido-data">
+        <input type="hidden" name="nome" value="Cliente QR">
+
+        <button class="checkout" type="submit">
+            Confirmar Pedido
+        </button>
+
+    </form>
 
 </div>
 
 <script>
-
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function renderCart() {
-
     let container = document.getElementById("cart-items");
-    let totalDiv = document.getElementById("total");
+    let total = 0;
 
     container.innerHTML = "";
 
     if (cart.length === 0) {
         container.innerHTML = "<p class='empty'>Carrinho vazio</p>";
-        totalDiv.innerHTML = "";
-        return;
     }
-
-    let total = 0;
 
     cart.forEach((item, index) => {
 
-        total += item.preco * item.quantidade;
+        total += item.price * item.qty;
 
         container.innerHTML += `
             <div class="item">
-                <div>
-                    <strong>${item.nome}</strong><br>
-                    ${item.quantidade} x ${item.preco} MT
+                <div class="item-name">${item.name}</div>
+
+                <div class="qty">
+                    <button onclick="changeQty(${index}, -1)">-</button>
+                    ${item.qty}
+                    <button onclick="changeQty(${index}, 1)">+</button>
                 </div>
 
-                <button onclick="removeItem(${index})">❌</button>
+                <div class="item-price">${item.price} MT</div>
+
+                <button class="remove" onclick="removeItem(${index})">X</button>
             </div>
         `;
     });
 
-    totalDiv.innerHTML = "Total: " + total + " MT";
+    document.getElementById("total").innerText = total;
+
+    document.getElementById("pedido-data").value = JSON.stringify(cart);
 }
 
-function removeItem(index) {
+function changeQty(i, val) {
+    cart[i].qty += val;
 
-    cart.splice(index, 1);
+    if (cart[i].qty <= 0) {
+        cart.splice(i, 1);
+    }
 
+    save();
+}
+
+function removeItem(i) {
+    cart.splice(i, 1);
+    save();
+}
+
+function save() {
     localStorage.setItem("cart", JSON.stringify(cart));
-
     renderCart();
 }
 
-function sendOrder() {
-
-    if (cart.length === 0) {
-        alert("Carrinho vazio!");
-        return;
-    }
-
-    fetch("/pedido", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            cart: cart
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        localStorage.removeItem("cart");
-
-        window.location.href = "/pedido-sucesso";
-
-    });
-
-}
-
 renderCart();
-
 </script>
 
 </body>
