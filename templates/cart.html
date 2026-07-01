@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="cart-container">
+
+    <div class="cart-header">
+
+        <h1>
+            {% if session.get("lang","pt")=="pt" %}
+                🛒 O seu Pedido
+            {% else %}
+                🛒 Your Order
+            {% endif %}
+        </h1>
+
+        <p>
+            {% if session.get("lang","pt")=="pt" %}
+                Confirme os produtos antes de enviar.
+            {% else %}
+                Please review your order before submitting.
+            {% endif %}
+        </p>
+
+    </div>
+
+    <div id="cart-items">
+
+        <div class="empty-cart">
+
+            {% if session.get("lang","pt")=="pt" %}
+                O carrinho está vazio.
+            {% else %}
+                Your cart is empty.
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <div class="cart-summary">
+
+        <div class="summary-row">
+
+            <span>
+
+                {% if session.get("lang","pt")=="pt" %}
+                    Total
+                {% else %}
+                    Total
+                {% endif %}
+
+            </span>
+
+            <strong id="cart-total">
+                0 MT
+            </strong>
+
+        </div>
+
+    </div>
+
+    <form id="checkout-form" method="POST" action="/pedido">
+
+        <input
+            type="text"
+            name="nome"
+            placeholder="{% if session.get('lang','pt')=='pt' %}Nome{% else %}Name{% endif %}"
+            required>
+
+        <input
+            type="text"
+            name="mesa"
+            placeholder="{% if session.get('lang','pt')=='pt' %}Mesa{% else %}Table{% endif %}"
+            required>
+
+        <textarea
+            name="observacoes"
+            placeholder="{% if session.get('lang','pt')=='pt' %}Observações{% else %}Notes{% endif %}">
+        </textarea>
+
+        <input
+            type="hidden"
+            name="pedido"
+            id="pedido-hidden">
+
+        <button type="submit" class="checkout-btn">
+
+            {% if session.get("lang","pt")=="pt" %}
+                Confirmar Pedido
+            {% else %}
+                Confirm Order
+            {% endif %}
+
+        </button>
+
+    </form>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+
+{% endblock %}
