@@ -249,10 +249,10 @@ def pedido():
     data = request.get_json()
     cart = data.get("cart", [])
 
-    total = 0
-
-    for item in cart:
-        total += item["preco"] * item["quantidade"]
+total = sum(
+    item.get("preco", 0) * item.get("quantidade", 1)
+    for item in cart
+)
 
     add_order(
         Config.ORDERS_FILE,
@@ -428,12 +428,12 @@ def cozinha():
 # ======================================================
 # MARCAR COMO ENTREGUE
 # ======================================================
-@app.route("/entregar/<int:id>")
-def entregar(id):
+@app.route("/entregar/<pedido_id>")
+def entregar(pedido_id):
 
     update_order_status(
         Config.ORDERS_FILE,
-        id,
+        pedido_id,
         "Entregue"
     )
 
@@ -465,7 +465,7 @@ def reserva():
         "status": "Pendente"
     }
 
-    add_reservation(novo)
+    add_reservation(Config.RESERVATIONS_FILE, novo)
 
     return render_template(
         "pedido_sucesso.html",
