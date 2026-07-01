@@ -244,3 +244,13 @@ document.addEventListener(
     }
 
 );
+
+function updateFloatingCart(){
+
+    let badge = document.getElementById("cart-counter");
+
+    if(!badge) return;
+
+    badge.innerHTML = cartCount();
+
+}
