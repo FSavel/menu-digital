@@ -118,3 +118,20 @@ def get_total_sales(file_path=None):
     except Exception as e:
         print("[Order Service] erro total vendas:", e)
         return 0
+
+def get_dashboard_stats(sheet):
+    import pandas as pd
+    import os
+
+    if not os.path.exists(sheet):
+        return {
+            "total_pedidos": 0,
+            "total_dia": 0
+        }
+
+    df = pd.read_excel(sheet)
+
+    return {
+        "total_pedidos": len(df),
+        "total_dia": df["total"].sum() if "total" in df.columns else 0
+    }
