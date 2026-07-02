@@ -1,81 +1,78 @@
 # ======================================================
-# RESERVATION SERVICE
+# RESERVATION SERVICE (GOOGLE SHEETS ONLY)
 # ======================================================
 
-import pandas as pd
-import os
+from services.google_service import read_sheet, append_row, write_sheet
+
+# Nome da aba no Google Sheets
+SHEET_NAME = "Reservas"
 
 # ======================================================
-# GET RESERVAS
+# CARREGAR RESERVAS
 # ======================================================
-def get_reservations(file_path):
+def get_reservations():
 
-    if not os.path.exists(file_path):
+    try:
+        df = read_sheet(SHEET_NAME)
+
+        if df.empty:
+            return []
+
+        return df.to_dict(orient="records")
+
+    except Exception as e:
+        print("[Reservation Service] erro ao carregar reservas:", e)
         return []
 
-    df = pd.read_excel(file_path)
-
-    return df.to_dict(orient="records")
-
 
 # ======================================================
-# ADICIONAR RESERVA (CORRIGIDO)
+# ADICIONAR RESERVA
 # ======================================================
-def add_reservation(file_path, reservation):
+def add_reservation(reservation):
 
-    novo = pd.DataFrame([reservation])
+    try:
+        return append_row(SHEET_NAME, reservation)
 
-    if os.path.exists(file_path):
-
-        df = pd.read_excel(file_path)
-        df = pd.concat([df, novo], ignore_index=True)
-
-    else:
-        df = novo
-
-    df.to_excel(file_path, index=False)
-
-
-# ======================================================
-# UPDATE STATUS
-# ======================================================
-def update_reservation_status(file_path, reservation_id, novo_status):
-
-    if not os.path.exists(file_path):
+    except Exception as e:
+        print("[Reservation Service] erro ao adicionar reserva:", e)
         return False
 
-    df = pd.read_excel(file_path)
 
-    if "id" not in df.columns:
+# ======================================================
+# ALTERAR STATUS
+# ======================================================
+def update_reservation_status(reservation_id, novo_status):
+
+    try:
+        df = read_sheet(SHEET_NAME)
+
+        if df.empty or "id" not in df.columns:
+            return False
+
+        df.loc[df["id"].astype(str) == str(reservation_id), "status"] = novo_status
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Reservation Service] erro ao atualizar status:", e)
         return False
-
-    mask = df["id"].astype(str) == str(reservation_id)
-
-    if not mask.any():
-        return False
-
-    df.loc[mask, "status"] = novo_status
-
-    df.to_excel(file_path, index=False)
-
-    return True
 
 
 # ======================================================
-# DELETE RESERVATION
+# APAGAR RESERVA
 # ======================================================
-def delete_reservation(file_path, reservation_id):
+def delete_reservation(reservation_id):
 
-    if not os.path.exists(file_path):
+    try:
+        df = read_sheet(SHEET_NAME)
+
+        if df.empty or "id" not in df.columns:
+            return False
+
+        df = df[df["id"].astype(str) != str(reservation_id)]
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Reservation Service] erro ao apagar reserva:", e)
         return False
-
-    df = pd.read_excel(file_path)
-
-    if "id" not in df.columns:
-        return False
-
-    df = df[df["id"].astype(str) != str(reservation_id)]
-
-    df.to_excel(file_path, index=False)
-
-    return True
