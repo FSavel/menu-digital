@@ -119,7 +119,7 @@
 </div>
 
 <script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let cart = getCart();
 
 function renderCart() {
     let container = document.getElementById("cart-items");
@@ -175,6 +175,7 @@ function removeItem(i) {
 function save() {
     localStorage.setItem("cart", JSON.stringify(cart));
     renderCart();
+    syncCartUI();
 }
 
 renderCart();
