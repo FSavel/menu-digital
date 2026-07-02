@@ -185,3 +185,26 @@ function checkout() {
         showToast("Erro de ligação ao servidor");
     });
 }
+
+function updateCartUI() {
+
+    const counter = document.getElementById("cart-counter");
+
+    if (!counter) return;
+
+    let totalItems = 0;
+
+    cart.forEach(item => {
+        totalItems += item.qty;
+    });
+
+    counter.innerText = totalItems;
+
+    // efeito visual "crescer carrinho"
+    if (totalItems > 0) {
+        counter.style.transform = "scale(1.3)";
+        setTimeout(() => {
+            counter.style.transform = "scale(1)";
+        }, 200);
+    }
+}
