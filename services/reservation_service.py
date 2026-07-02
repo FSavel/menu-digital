@@ -7,10 +7,11 @@ from services.google_service import read_sheet, append_row, write_sheet
 # Nome da aba no Google Sheets
 SHEET_NAME = "Reservas"
 
+
 # ======================================================
-# CARREGAR RESERVAS
+# LISTAR RESERVAS
 # ======================================================
-def get_reservations():
+def get_reservations(file_path=None):
 
     try:
         df = read_sheet(SHEET_NAME)
@@ -21,14 +22,14 @@ def get_reservations():
         return df.to_dict(orient="records")
 
     except Exception as e:
-        print("[Reservation Service] erro ao carregar reservas:", e)
+        print("[Reservation Service] erro ao listar reservas:", e)
         return []
 
 
 # ======================================================
 # ADICIONAR RESERVA
 # ======================================================
-def add_reservation(reservation):
+def add_reservation(file, reservation):
 
     try:
         return append_row(SHEET_NAME, reservation)
@@ -39,40 +40,49 @@ def add_reservation(reservation):
 
 
 # ======================================================
-# ALTERAR STATUS
+# ATUALIZAR STATUS
 # ======================================================
-def update_reservation_status(reservation_id, novo_status):
+def update_reservation_status(file_path, reservation_id, novo_status):
 
     try:
         df = read_sheet(SHEET_NAME)
 
-        if df.empty or "id" not in df.columns:
+        if df.empty:
             return False
 
-        df.loc[df["id"].astype(str) == str(reservation_id), "status"] = novo_status
+        df["id"] = df["id"].astype(str)
+
+        mask = df["id"] == str(reservation_id)
+
+        if not mask.any():
+            return False
+
+        df.loc[mask, "status"] = novo_status
 
         return write_sheet(SHEET_NAME, df)
 
     except Exception as e:
-        print("[Reservation Service] erro ao atualizar status:", e)
+        print("[Reservation Service] erro update status:", e)
         return False
 
 
 # ======================================================
 # APAGAR RESERVA
 # ======================================================
-def delete_reservation(reservation_id):
+def delete_reservation(file_path, reservation_id):
 
     try:
         df = read_sheet(SHEET_NAME)
 
-        if df.empty or "id" not in df.columns:
+        if df.empty:
             return False
 
-        df = df[df["id"].astype(str) != str(reservation_id)]
+        df["id"] = df["id"].astype(str)
+
+        df = df[df["id"] != str(reservation_id)]
 
         return write_sheet(SHEET_NAME, df)
 
     except Exception as e:
-        print("[Reservation Service] erro ao apagar reserva:", e)
+        print("[Reservation Service] erro delete:", e)
         return False
