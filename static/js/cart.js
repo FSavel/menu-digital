@@ -5,22 +5,21 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 // ==========================================
 function addToCart(name, price) {
 
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
     let existing = cart.find(item => item.name === name);
 
     if (existing) {
         existing.qty += 1;
     } else {
-        cart.push({
-            name: name,
-            price: price,
-            qty: 1
-        });
+        cart.push({ name, price, qty: 1 });
     }
 
-    saveCart();
+    localStorage.setItem("cart", JSON.stringify(cart));
 
-    // animação simples de feedback
-    showToast("Adicionado ao carrinho 🛒");
+    renderCart();
+    updateCartCounter();
+    showToast("Adicionado 🛒");
 }
 
 // ==========================================
