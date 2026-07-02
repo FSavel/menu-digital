@@ -120,14 +120,8 @@
                 {{ p.cliente }}
                 <span class="new-badge">NOVO</span>
             </div>
-
-            <div class="items">
-                {{ p.itens }}
-            </div>
-
-            <div class="hora">
-                {{ p.hora }}
-            </div>
+            <div class="items">{{ p.itens }}</div>
+            <div class="hora">{{ p.hora }}</div>
 
             <div class="actions">
                 <a class="btn prep" href="/admin/pedido/status/{{ p.id }}/Preparando">
@@ -144,7 +138,6 @@
 
         {% for p in pedidos if p.status == "Preparando" %}
         <div class="card">
-
             <div class="cliente">{{ p.cliente }}</div>
             <div class="items">{{ p.itens }}</div>
             <div class="hora">{{ p.hora }}</div>
@@ -164,7 +157,6 @@
 
         {% for p in pedidos if p.status == "Pronto" %}
         <div class="card">
-
             <div class="cliente">{{ p.cliente }}</div>
             <div class="items">{{ p.itens }}</div>
             <div class="hora">{{ p.hora }}</div>
@@ -185,11 +177,7 @@
     <source src="/static/sound/alert.mp3" type="audio/mpeg">
 </audio>
 
-<!-- AUTO REFRESH + ALERTA INTELIGENTE -->
-<script>
-
-let lastData = [];
-
+<!-- JS LIMPO E FUNCIONAL -->
 <script>
 
 let lastHash = "";
@@ -200,16 +188,14 @@ function loadOrders() {
         .then(res => res.json())
         .then(data => {
 
-            const pedidos = data.pedidos;
+            const pedidos = data.pedidos || [];
 
             const newHash = JSON.stringify(pedidos);
 
-            if (newHash === lastHash) {
-                return;
-            }
+            if (newHash === lastHash) return;
 
-            // ALERTA DE NOVO PEDIDO
-            if (lastHash !== "" && pedidos.length > JSON.parse(lastHash || "[]").length) {
+            // ALERTA SOM (novo pedido)
+            if (lastHash !== "") {
                 const audio = document.getElementById("alertSound");
                 if (audio) audio.play();
             }
@@ -222,7 +208,6 @@ function loadOrders() {
             console.error("Erro cozinha:", err);
         });
 }
-
 
 function renderBoard(pedidos) {
 
@@ -249,20 +234,11 @@ function renderBoard(pedidos) {
             </div>
         </div>`;
 
-        if (p.status === "Recebido") {
-            recebido.innerHTML += card;
-        }
-
-        if (p.status === "Preparando") {
-            preparando.innerHTML += card;
-        }
-
-        if (p.status === "Pronto") {
-            pronto.innerHTML += card;
-        }
+        if (p.status === "Recebido") recebido.innerHTML += card;
+        if (p.status === "Preparando") preparando.innerHTML += card;
+        if (p.status === "Pronto") pronto.innerHTML += card;
     });
 }
-
 
 // INIT
 setInterval(loadOrders, 4000);
@@ -270,44 +246,5 @@ loadOrders();
 
 </script>
 
-    function renderBoard(pedidos) {
-
-    const recebido = document.querySelector(".column:nth-child(1)");
-    const preparando = document.querySelector(".column:nth-child(2)");
-    const pronto = document.querySelector(".column:nth-child(3)");
-
-    recebido.innerHTML = "<h2>🆕 Recebido</h2>";
-    preparando.innerHTML = "<h2>👨‍🍳 A Preparar</h2>";
-    pronto.innerHTML = "<h2>✅ Pronto</h2>";
-
-    pedidos.forEach(p => {
-
-        const card = `
-        <div class="card">
-            <div class="cliente">${p.cliente || "Cliente"}</div>
-            <div class="items">${JSON.stringify(p.itens || p.cart || [])}</div>
-            <div class="hora">${p.hora || ""}</div>
-
-            <div class="actions">
-                <a class="btn prep" href="/admin/pedido/status/${p.id}/Preparando">Preparar</a>
-                <a class="btn ready" href="/admin/pedido/status/${p.id}/Pronto">Pronto</a>
-                <a class="btn done" href="/admin/pedido/status/${p.id}/Entregue">Entregar</a>
-            </div>
-        </div>`;
-
-        if (p.status === "Recebido") {
-            recebido.innerHTML += card;
-        }
-
-        if (p.status === "Preparando") {
-            preparando.innerHTML += card;
-        }
-
-        if (p.status === "Pronto") {
-            pronto.innerHTML += card;
-        }
-    });
-}
-    
 </body>
 </html>
