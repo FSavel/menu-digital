@@ -1,144 +1,116 @@
-import os
-import pandas as pd
+# ======================================================
+# TABLE SERVICE (GOOGLE SHEETS ONLY)
+# ======================================================
+
+from services.google_service import read_sheet, write_sheet, append_row
+
+# Nome da aba no Google Sheets
+SHEET_NAME = "Mesas"
 
 
 # ======================================================
-# CARREGAR MESAS
+# LISTAR MESAS
 # ======================================================
-def load_tables(file_path):
+def get_tables(file_path=None):
 
-    if os.path.exists(file_path):
-        return pd.read_excel(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    return pd.DataFrame()
+        if df.empty:
+            return []
 
+        return df.to_dict(orient="records")
 
-# ======================================================
-# GUARDAR MESAS
-# ======================================================
-def save_tables(file_path, df):
-
-    df.to_excel(file_path, index=False)
-
-
-# ======================================================
-# LISTAR TODAS AS MESAS
-# ======================================================
-def get_tables(file_path):
-
-    df = load_tables(file_path)
-
-    if df.empty:
+    except Exception as e:
+        print("[Table Service] erro ao listar mesas:", e)
         return []
-
-    return df.to_dict(orient="records")
 
 
 # ======================================================
 # OBTER UMA MESA
 # ======================================================
-def get_table(file_path, table_id):
+def get_table(table_id):
 
-    df = load_tables(file_path)
+    try:
+        tables = get_tables()
 
-    if df.empty:
+        for table in tables:
+            if str(table.get("id")) == str(table_id):
+                return table
+
         return None
 
-    if "id" not in df.columns:
+    except Exception as e:
+        print("[Table Service] erro get_table:", e)
         return None
-
-    mesa = df[df["id"] == table_id]
-
-    if mesa.empty:
-        return None
-
-    return mesa.iloc[0].to_dict()
 
 
 # ======================================================
 # ADICIONAR MESA
 # ======================================================
-def add_table(file_path, mesa):
+def add_table(file, table):
 
-    df = load_tables(file_path)
+    try:
+        return append_row(SHEET_NAME, table)
 
-    novo = pd.DataFrame([mesa])
-
-    if df.empty:
-        df = novo
-    else:
-        df = pd.concat([df, novo], ignore_index=True)
-
-    save_tables(file_path, df)
+    except Exception as e:
+        print("[Table Service] erro ao adicionar mesa:", e)
+        return False
 
 
 # ======================================================
-# ALTERAR ESTADO
+# ATUALIZAR STATUS DA MESA
 # ======================================================
-def update_table_status(file_path, table_id, novo_estado):
+def update_table_status(file_path, table_id, status):
 
-    df = load_tables(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    if df.empty:
+        if df.empty:
+            return False
+
+        df["id"] = df["id"].astype(str)
+
+        mask = df["id"] == str(table_id)
+
+        if not mask.any():
+            return False
+
+        df.loc[mask, "status"] = status
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Table Service] erro update status:", e)
         return False
-
-    if "id" not in df.columns:
-        return False
-
-    index = df[df["id"] == table_id].index
-
-    if len(index) == 0:
-        return False
-
-    df.at[index[0], "estado"] = novo_estado
-
-    save_tables(file_path, df)
-
-    return True
-
-
-# ======================================================
-# ASSOCIAR CLIENTE
-# ======================================================
-def assign_customer(file_path, table_id, cliente):
-
-    df = load_tables(file_path)
-
-    if df.empty:
-        return False
-
-    index = df[df["id"] == table_id].index
-
-    if len(index) == 0:
-        return False
-
-    df.at[index[0], "cliente"] = cliente
-
-    save_tables(file_path, df)
-
-    return True
 
 
 # ======================================================
-# ASSOCIAR PEDIDO
+# ATRIBUIR CLIENTE
 # ======================================================
-def assign_order(file_path, table_id, pedido_id):
+def assign_customer(file_path, table_id, customer_name):
 
-    df = load_tables(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    if df.empty:
+        if df.empty:
+            return False
+
+        df["id"] = df["id"].astype(str)
+
+        mask = df["id"] == str(table_id)
+
+        if not mask.any():
+            return False
+
+        df.loc[mask, "cliente"] = customer_name
+        df.loc[mask, "status"] = "Ocupada"
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Table Service] erro assign customer:", e)
         return False
-
-    index = df[df["id"] == table_id].index
-
-    if len(index) == 0:
-        return False
-
-    df.at[index[0], "pedido_id"] = pedido_id
-
-    save_tables(file_path, df)
-
-    return True
 
 
 # ======================================================
@@ -146,80 +118,51 @@ def assign_order(file_path, table_id, pedido_id):
 # ======================================================
 def free_table(file_path, table_id):
 
-    df = load_tables(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    if df.empty:
+        if df.empty:
+            return False
+
+        df["id"] = df["id"].astype(str)
+
+        mask = df["id"] == str(table_id)
+
+        if not mask.any():
+            return False
+
+        df.loc[mask, "cliente"] = ""
+        df.loc[mask, "status"] = "Livre"
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Table Service] erro free table:", e)
         return False
-
-    index = df[df["id"] == table_id].index
-
-    if len(index) == 0:
-        return False
-
-    df.at[index[0], "estado"] = "Livre"
-    df.at[index[0], "cliente"] = ""
-    df.at[index[0], "pedido_id"] = ""
-
-    save_tables(file_path, df)
-
-    return True
 
 
 # ======================================================
 # ESTATÍSTICAS
 # ======================================================
-def table_stats(file_path):
+def table_stats(file_path=None):
 
-    df = load_tables(file_path)
+    try:
+        tables = get_tables()
 
-    if df.empty:
+        total = len(tables)
+        ocupadas = len([t for t in tables if t.get("status") == "Ocupada"])
+        livres = len([t for t in tables if t.get("status") == "Livre"])
 
         return {
-
-            "total": 0,
-            "livres": 0,
-            "ocupadas": 0,
-            "reservadas": 0,
-            "limpeza": 0
-
+            "total": total,
+            "ocupadas": ocupadas,
+            "livres": livres
         }
 
-    return {
-
-        "total": len(df),
-
-        "livres": len(df[df["estado"] == "Livre"]),
-
-        "ocupadas": len(df[df["estado"] == "Ocupada"]),
-
-        "reservadas": len(df[df["estado"] == "Reservada"]),
-
-        "limpeza": len(df[df["estado"] == "Limpeza"])
-
-    }
-
-
-# ======================================================
-# LISTAR MESAS LIVRES
-# ======================================================
-def free_tables(file_path):
-
-    df = load_tables(file_path)
-
-    if df.empty:
-        return []
-
-    return df[df["estado"] == "Livre"].to_dict(orient="records")
-
-
-# ======================================================
-# LISTAR MESAS OCUPADAS
-# ======================================================
-def occupied_tables(file_path):
-
-    df = load_tables(file_path)
-
-    if df.empty:
-        return []
-
-    return df[df["estado"] == "Ocupada"].to_dict(orient="records")
+    except Exception as e:
+        print("[Table Service] erro stats:", e)
+        return {
+            "total": 0,
+            "ocupadas": 0,
+            "livres": 0
+        }
