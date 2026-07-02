@@ -77,7 +77,10 @@
 
         <button
             class="btn-add"
-            onclick="adicionarCarrinho('{{ item.ID }}')">
+            onclick="addToCart(
+    '{{ item.Produto_PT }}',
+    {{ item.Preço }}
+)"
 
             {% if lang=="pt" %}
                 Adicionar
