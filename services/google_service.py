@@ -1,5 +1,5 @@
 # ======================================================
-# GOOGLE SHEETS SERVICE (PRODUÇÃO)
+# GOOGLE SHEETS SERVICE (PRODUÇÃO LIMPA)
 # ======================================================
 
 import os
@@ -10,7 +10,7 @@ import logging
 from google.oauth2.service_account import Credentials
 
 # ======================================================
-# CONFIGURAÇÃO
+# SCOPES
 # ======================================================
 
 SCOPES = [
@@ -18,7 +18,12 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive"
 ]
 
+# ======================================================
+# SPREADSHEET ID (IMPORTANTE - RENDER ENV)
+# ======================================================
+
 SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_ID")
+
 
 # ======================================================
 # CREDENCIAIS
@@ -29,7 +34,7 @@ def get_credentials():
     creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
     if not creds_json:
-        raise Exception("GOOGLE_CREDENTIALS_JSON não definida")
+        raise Exception("GOOGLE_CREDENTIALS_JSON não definida no ambiente")
 
     try:
         creds_dict = json.loads(creds_json)
@@ -40,7 +45,8 @@ def get_credentials():
         )
 
     except Exception as e:
-        raise Exception(f"Erro credenciais Google: {e}")
+        raise Exception(f"Erro ao carregar credenciais Google: {e}")
+
 
 # ======================================================
 # CLIENT
@@ -49,22 +55,27 @@ def get_credentials():
 def get_client():
     return gspread.authorize(get_credentials())
 
+
 # ======================================================
-# ABRIR SHEET
+# ABRIR WORKSHEET CORRETO
 # ======================================================
 
-def open_sheet(sheet_name, worksheet_index=0):
+def open_sheet(sheet_name):
+
+    if not SPREADSHEET_ID:
+        raise Exception("GOOGLE_SHEETS_ID não definida no ambiente")
 
     client = get_client()
 
-    sheet = client.open_by_key(SPREADSHEET_ID)
+    spreadsheet = client.open_by_key(SPREADSHEET_ID)
 
-    worksheet = sheet.get_worksheet(worksheet_index)
+    worksheet = spreadsheet.worksheet(sheet_name)
 
     return worksheet
 
+
 # ======================================================
-# LER
+# LER DADOS
 # ======================================================
 
 def read_sheet(sheet_name):
@@ -83,8 +94,9 @@ def read_sheet(sheet_name):
         logging.error(f"[Google Sheets] erro leitura {sheet_name}: {e}")
         return pd.DataFrame()
 
+
 # ======================================================
-# ESCREVER
+# ESCREVER DADOS
 # ======================================================
 
 def write_sheet(sheet_name, df):
@@ -107,8 +119,9 @@ def write_sheet(sheet_name, df):
         logging.error(f"[Google Sheets] erro escrita {sheet_name}: {e}")
         return False
 
+
 # ======================================================
-# APPEND (SEGURO)
+# APPEND LINHA (SEGURO)
 # ======================================================
 
 def append_row(sheet_name, row_dict):
@@ -128,8 +141,9 @@ def append_row(sheet_name, row_dict):
         logging.error(f"[Google Sheets] erro append: {e}")
         return False
 
+
 # ======================================================
-# TESTE
+# TESTE DE CONEXÃO
 # ======================================================
 
 def test_connection(sheet_name):
