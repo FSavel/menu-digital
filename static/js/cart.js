@@ -98,3 +98,46 @@ function showToast(message) {
 // INIT
 // ==========================================
 updateCartCounter();
+
+function renderCart() {
+
+    const container = document.getElementById("cart-items");
+    const totalEl = document.getElementById("cart-total");
+
+    if (!container || !totalEl) return;
+
+    container.innerHTML = "";
+
+    let total = 0;
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Nenhum item ainda</p>";
+        totalEl.innerText = "0";
+        return;
+    }
+
+    cart.forEach((item, index) => {
+
+        total += item.price * item.qty;
+
+        const div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+            <div>
+                <strong>${item.name}</strong><br>
+                <small>${item.qty} x ${item.price}</small>
+            </div>
+
+            <div>
+                <button onclick="changeQty(${index}, 1)">+</button>
+                <button onclick="changeQty(${index}, -1)">-</button>
+                <button onclick="removeItem(${index})">🗑</button>
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+
+    totalEl.innerText = total.toFixed(2);
+}
