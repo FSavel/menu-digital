@@ -61,7 +61,12 @@ def admin_required_json(f):
 # ======================================================
 @app.route("/")
 def home():
-    return render_template("idioma.html", config=Config)
+    lang = session.get("lang", "pt")
+    return render_template(
+        "idioma.html",
+        config=Config,
+        lang=lang
+    )
 
 
 # ======================================================
