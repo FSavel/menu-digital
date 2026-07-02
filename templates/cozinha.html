@@ -190,6 +190,8 @@
 
 let lastData = [];
 
+let lastHash = "";
+
 function loadOrders() {
 
     fetch("/api/pedidos")
@@ -198,14 +200,26 @@ function loadOrders() {
 
             const pedidos = data.pedidos;
 
-            // DETECÇÃO DE NOVOS PEDIDOS
-            if (pedidos.length > lastData.length) {
-                document.getElementById("alertSound").play();
+            // cria “assinatura” dos dados
+            const newHash = JSON.stringify(pedidos);
+
+            // se não mudou nada, não faz nada
+            if (newHash === lastHash) {
+                return;
             }
 
-            lastData = pedidos;
+            lastHash = newHash;
+
+            // alerta de novo pedido
+            if (pedidos.length > 0) {
+                const audio = document.getElementById("alertSound");
+                if (audio) audio.play();
+            }
 
             renderBoard(pedidos);
+        })
+        .catch(err => {
+            console.error("Erro cozinha:", err);
         });
 }
     setInterval(loadOrders, 4000);
