@@ -1,14 +1,12 @@
 # ======================================================
 # RESERVATION SERVICE
-# Responsável pelas reservas
 # ======================================================
 
 import pandas as pd
 import os
 
-
 # ======================================================
-# CARREGAR RESERVAS
+# GET RESERVAS
 # ======================================================
 def get_reservations(file_path):
 
@@ -21,9 +19,9 @@ def get_reservations(file_path):
 
 
 # ======================================================
-# ADICIONAR RESERVA
+# ADICIONAR RESERVA (CORRIGIDO)
 # ======================================================
-def add_reservation(file, reservation):
+def add_reservation(file_path, reservation):
 
     novo = pd.DataFrame([reservation])
 
@@ -33,14 +31,13 @@ def add_reservation(file, reservation):
         df = pd.concat([df, novo], ignore_index=True)
 
     else:
-
         df = novo
 
     df.to_excel(file_path, index=False)
 
 
 # ======================================================
-# ALTERAR STATUS
+# UPDATE STATUS
 # ======================================================
 def update_reservation_status(file_path, reservation_id, novo_status):
 
@@ -65,7 +62,7 @@ def update_reservation_status(file_path, reservation_id, novo_status):
 
 
 # ======================================================
-# APAGAR RESERVA
+# DELETE RESERVATION
 # ======================================================
 def delete_reservation(file_path, reservation_id):
 
