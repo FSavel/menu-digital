@@ -188,38 +188,67 @@
 <!-- AUTO REFRESH + ALERTA INTELIGENTE -->
 <script>
 
-let lastCount = {{ pedidos|length }};
+let lastData = [];
 
-setInterval(() => {
+function loadOrders() {
 
-    fetch("/api/pedidos/count")
+    fetch("/api/pedidos")
         .then(res => res.json())
         .then(data => {
 
-            if (data.count > lastCount) {
+            const pedidos = data.pedidos;
 
+            // DETECÇÃO DE NOVOS PEDIDOS
+            if (pedidos.length > lastData.length) {
                 document.getElementById("alertSound").play();
-
-                // leve destaque visual (opcional)
-                document.body.style.border = "3px solid red";
-
-                setTimeout(() => {
-                    document.body.style.border = "none";
-                }, 1000);
             }
 
-            lastCount = data.count;
+            lastData = pedidos;
+
+            renderBoard(pedidos);
         });
-
-}, 5000);
-
-
-// refresh leve (mantém fallback)
-setInterval(() => {
-    location.reload();
-}, 15000);
-
+}
+    
 </script>
 
+    function renderBoard(pedidos) {
+
+    const recebido = document.querySelector(".column:nth-child(1)");
+    const preparando = document.querySelector(".column:nth-child(2)");
+    const pronto = document.querySelector(".column:nth-child(3)");
+
+    recebido.innerHTML = "<h2>🆕 Recebido</h2>";
+    preparando.innerHTML = "<h2>👨‍🍳 A Preparar</h2>";
+    pronto.innerHTML = "<h2>✅ Pronto</h2>";
+
+    pedidos.forEach(p => {
+
+        const card = `
+        <div class="card">
+            <div class="cliente">${p.cliente || "Cliente"}</div>
+            <div class="items">${JSON.stringify(p.itens || p.cart || [])}</div>
+            <div class="hora">${p.hora || ""}</div>
+
+            <div class="actions">
+                <a class="btn prep" href="/admin/pedido/status/${p.id}/Preparando">Preparar</a>
+                <a class="btn ready" href="/admin/pedido/status/${p.id}/Pronto">Pronto</a>
+                <a class="btn done" href="/admin/pedido/status/${p.id}/Entregue">Entregar</a>
+            </div>
+        </div>`;
+
+        if (p.status === "Recebido") {
+            recebido.innerHTML += card;
+        }
+
+        if (p.status === "Preparando") {
+            preparando.innerHTML += card;
+        }
+
+        if (p.status === "Pronto") {
+            pronto.innerHTML += card;
+        }
+    });
+}
+    
 </body>
 </html>
