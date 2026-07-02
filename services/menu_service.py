@@ -2,19 +2,15 @@
 # MENU SERVICE (GOOGLE SHEETS ONLY)
 # ======================================================
 
-import logging
 from services.google_service import read_sheet
 
-# ======================================================
-# CONFIGURAÇÃO
-# ======================================================
-
+# Nome da aba no Google Sheets
 SHEET_NAME = "Menu Digital"
 
-# ======================================================
-# CARREGAR MENU (PRINCIPAL)
-# ======================================================
 
+# ======================================================
+# CARREGAR MENU
+# ======================================================
 def load_menu():
 
     try:
@@ -29,14 +25,13 @@ def load_menu():
         return df.to_dict(orient="records")
 
     except Exception as e:
-        logging.error(f"[Menu Service] Erro ao carregar menu: {e}")
+        print("[Menu Service] erro ao carregar menu:", e)
         return []
 
 
 # ======================================================
 # PESQUISA DE PRODUTOS
 # ======================================================
-
 def search_menu(texto):
 
     menu = load_menu()
@@ -45,7 +40,6 @@ def search_menu(texto):
         return menu
 
     texto = texto.lower()
-
     resultado = []
 
     for item in menu:
@@ -55,12 +49,12 @@ def search_menu(texto):
         desc_pt = str(item.get("Descrição_PT", "")).lower()
         desc_en = str(item.get("Descrição_EN", "")).lower()
 
-        if any([
-            texto in nome_pt,
-            texto in nome_en,
-            texto in desc_pt,
-            texto in desc_en
-        ]):
+        if (
+            texto in nome_pt
+            or texto in nome_en
+            or texto in desc_pt
+            or texto in desc_en
+        ):
             resultado.append(item)
 
     return resultado
@@ -69,7 +63,6 @@ def search_menu(texto):
 # ======================================================
 # FILTRAR POR CATEGORIA
 # ======================================================
-
 def filter_category(categoria):
 
     menu = load_menu()
@@ -78,8 +71,7 @@ def filter_category(categoria):
         return menu
 
     return [
-        item
-        for item in menu
+        item for item in menu
         if item.get("Categoria") == categoria
     ]
 
@@ -87,7 +79,6 @@ def filter_category(categoria):
 # ======================================================
 # OBTER PRODUTO POR ID
 # ======================================================
-
 def get_product(produto_id):
 
     menu = load_menu()
