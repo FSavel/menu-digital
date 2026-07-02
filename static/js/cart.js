@@ -235,3 +235,6 @@ function renderCart() {
     totalEl.innerText = total + " MT";
 }
 renderCart();
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
