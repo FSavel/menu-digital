@@ -208,7 +208,8 @@ function loadOrders() {
             renderBoard(pedidos);
         });
 }
-    
+    setInterval(loadOrders, 4000);
+    loadOrders();
 </script>
 
     function renderBoard(pedidos) {
