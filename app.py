@@ -126,7 +126,9 @@ def pedido():
         "total": total
     })
 
-
+@app.route("/cart")
+def cart():
+    return render_template("cart.html")
 # ======================================================
 # CHAMAR GARÇOM
 # ======================================================
