@@ -1,5 +1,5 @@
 # ======================================================
-# GOOGLE SHEETS SERVICE (PRODUÇÃO LIMPA)
+# GOOGLE SHEETS SERVICE (PRODUÇÃO)
 # ======================================================
 
 import os
@@ -10,7 +10,7 @@ import logging
 from google.oauth2.service_account import Credentials
 
 # ======================================================
-# SCOPES
+# CONFIGURAÇÃO
 # ======================================================
 
 SCOPES = [
@@ -18,12 +18,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-# ======================================================
-# SPREADSHEET ID (IMPORTANTE - RENDER ENV)
-# ======================================================
-
 SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_ID")
-
 
 # ======================================================
 # CREDENCIAIS
@@ -34,7 +29,7 @@ def get_credentials():
     creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
     if not creds_json:
-        raise Exception("GOOGLE_CREDENTIALS_JSON não definida no ambiente")
+        raise Exception("GOOGLE_CREDENTIALS_JSON não definida")
 
     try:
         creds_dict = json.loads(creds_json)
@@ -45,7 +40,7 @@ def get_credentials():
         )
 
     except Exception as e:
-        raise Exception(f"Erro ao carregar credenciais Google: {e}")
+        raise Exception(f"Erro credenciais Google: {e}")
 
 
 # ======================================================
@@ -57,25 +52,25 @@ def get_client():
 
 
 # ======================================================
-# ABRIR WORKSHEET CORRETO
+# ABRIR SHEET
 # ======================================================
 
-def open_sheet(sheet_name):
+def open_sheet(sheet_name, worksheet_index=0):
 
     if not SPREADSHEET_ID:
         raise Exception("GOOGLE_SHEETS_ID não definida no ambiente")
 
     client = get_client()
 
-    spreadsheet = client.open_by_key(SPREADSHEET_ID)
+    sheet = client.open_by_key(SPREADSHEET_ID)
 
-    worksheet = spreadsheet.worksheet(sheet_name)
+    worksheet = sheet.get_worksheet(worksheet_index)
 
     return worksheet
 
 
 # ======================================================
-# LER DADOS
+# LER
 # ======================================================
 
 def read_sheet(sheet_name):
@@ -96,7 +91,7 @@ def read_sheet(sheet_name):
 
 
 # ======================================================
-# ESCREVER DADOS
+# ESCREVER
 # ======================================================
 
 def write_sheet(sheet_name, df):
@@ -121,7 +116,7 @@ def write_sheet(sheet_name, df):
 
 
 # ======================================================
-# APPEND LINHA (SEGURO)
+# APPEND (SEGURO)
 # ======================================================
 
 def append_row(sheet_name, row_dict):
@@ -143,7 +138,7 @@ def append_row(sheet_name, row_dict):
 
 
 # ======================================================
-# TESTE DE CONEXÃO
+# TESTE
 # ======================================================
 
 def test_connection(sheet_name):
