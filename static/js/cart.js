@@ -234,3 +234,4 @@ function renderCart() {
 
     totalEl.innerText = total + " MT";
 }
+renderCart();
