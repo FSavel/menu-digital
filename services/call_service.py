@@ -1,46 +1,42 @@
-import pandas as pd
-import os
-
-
 # ======================================================
-# CARREGAR CHAMADAS
+# CALL SERVICE (GOOGLE SHEETS ONLY)
 # ======================================================
-def load_calls(file_path):
 
-    if os.path.exists(file_path):
-        return pd.read_excel(file_path)
+from services.google_service import read_sheet, append_row, write_sheet
 
-    return pd.DataFrame()
+# Nome da aba no Google Sheets
+SHEET_NAME = "Chamadas"
 
 
 # ======================================================
 # ADICIONAR CHAMADA
 # ======================================================
-def add_call(file_path, chamada):
+def add_call(file, call):
 
-    df = load_calls(file_path)
+    try:
+        return append_row(SHEET_NAME, call)
 
-    novo = pd.DataFrame([chamada])
-
-    if df.empty:
-        df = novo
-    else:
-        df = pd.concat([df, novo], ignore_index=True)
-
-    df.to_excel(file_path, index=False)
+    except Exception as e:
+        print("[Call Service] erro ao adicionar chamada:", e)
+        return False
 
 
 # ======================================================
 # LISTAR CHAMADAS
 # ======================================================
-def get_calls(file_path):
+def get_calls(file_path=None):
 
-    df = load_calls(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    if df.empty:
+        if df.empty:
+            return []
+
+        return df.to_dict(orient="records")
+
+    except Exception as e:
+        print("[Call Service] erro ao carregar chamadas:", e)
         return []
-
-    return df.to_dict(orient="records")
 
 
 # ======================================================
@@ -48,26 +44,34 @@ def get_calls(file_path):
 # ======================================================
 def delete_call(file_path, call_id):
 
-    df = load_calls(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    if df.empty:
+        if df.empty or "id" not in df.columns:
+            return False
+
+        df = df[df["id"].astype(str) != str(call_id)]
+
+        return write_sheet(SHEET_NAME, df)
+
+    except Exception as e:
+        print("[Call Service] erro ao apagar chamada:", e)
         return False
-
-    if "id" not in df.columns:
-        return False
-
-    df = df[df["id"] != call_id]
-
-    df.to_excel(file_path, index=False)
-
-    return True
 
 
 # ======================================================
-# TOTAL CHAMADAS
+# TOTAL DE CHAMADAS
 # ======================================================
-def total_calls(file_path):
+def total_calls(file_path=None):
 
-    df = load_calls(file_path)
+    try:
+        df = read_sheet(SHEET_NAME)
 
-    return len(df)
+        if df.empty:
+            return 0
+
+        return len(df)
+
+    except Exception as e:
+        print("[Call Service] erro total chamadas:", e)
+        return 0
