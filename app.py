@@ -248,7 +248,18 @@ def cozinha():
         refresh_time=Config.AUTO_REFRESH_ADMIN
     )
 
+# ======================================================
+# Contador de pedidos
+# ======================================================
+@app.route("/api/pedidos/count")
+def pedidos_count():
 
+    pedidos = get_orders(Config.SHEET_ORDERS)
+
+    return {
+        "count": len(pedidos)
+    }
+    
 # ======================================================
 # UPDATE STATUS
 # ======================================================
