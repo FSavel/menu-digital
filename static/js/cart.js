@@ -47,6 +47,7 @@ function removeItem(index) {
 function saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCounter();
+    renderCart();
 }
 
 // ==========================================
@@ -140,4 +141,47 @@ function renderCart() {
     });
 
     totalEl.innerText = total.toFixed(2);
+}
+
+renderCart();
+updateCartCounter();
+
+function checkout() {
+
+    if (cart.length === 0) {
+        showToast("Carrinho vazio!");
+        return;
+    }
+
+    fetch("/pedido", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            cart: cart
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.success) {
+
+            showToast("Pedido enviado com sucesso 🍽️");
+
+            cart = [];
+
+            saveCart();
+
+            renderCart();
+
+        } else {
+            showToast("Erro ao enviar pedido");
+        }
+
+    })
+    .catch(err => {
+        console.error(err);
+        showToast("Erro de ligação ao servidor");
+    });
 }
