@@ -259,7 +259,17 @@ def pedidos_count():
     return {
         "count": len(pedidos)
     }
-    
+# ======================================================
+# Actualizacao de pedidos
+# ======================================================    
+@app.route("/api/pedidos")
+def api_pedidos():
+
+    pedidos = get_orders(Config.SHEET_ORDERS)
+
+    return {
+        "pedidos": pedidos
+    }    
 # ======================================================
 # UPDATE STATUS
 # ======================================================
