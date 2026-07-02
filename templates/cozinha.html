@@ -84,11 +84,13 @@
             border-radius: 5px;
             font-size: 12px;
             cursor: pointer;
+            text-decoration: none;
+            text-align: center;
         }
 
-        .prep { background: orange; }
-        .ready { background: #2ecc71; }
-        .done { background: #3498db; }
+        .prep { background: orange; color: black; }
+        .ready { background: #2ecc71; color: black; }
+        .done { background: #3498db; color: white; }
 
         .new-badge {
             background: red;
@@ -128,7 +130,9 @@
             </div>
 
             <div class="actions">
-                <a class="btn prep" href="/admin/pedido/status/{{ p.id }}/Preparando">Preparar</a>
+                <a class="btn prep" href="/admin/pedido/status/{{ p.id }}/Preparando">
+                    Preparar
+                </a>
             </div>
         </div>
         {% endfor %}
@@ -146,7 +150,9 @@
             <div class="hora">{{ p.hora }}</div>
 
             <div class="actions">
-                <a class="btn ready" href="/admin/pedido/status/{{ p.id }}/Pronto">Pronto</a>
+                <a class="btn ready" href="/admin/pedido/status/{{ p.id }}/Pronto">
+                    Pronto
+                </a>
             </div>
         </div>
         {% endfor %}
@@ -164,7 +170,9 @@
             <div class="hora">{{ p.hora }}</div>
 
             <div class="actions">
-                <a class="btn done" href="/admin/pedido/status/{{ p.id }}/Entregue">Entregar</a>
+                <a class="btn done" href="/admin/pedido/status/{{ p.id }}/Entregue">
+                    Entregar
+                </a>
             </div>
         </div>
         {% endfor %}
@@ -172,11 +180,45 @@
 
 </div>
 
-<!-- AUTO REFRESH -->
+<!-- SOM DE NOVO PEDIDO -->
+<audio id="alertSound">
+    <source src="/static/sound/alert.mp3" type="audio/mpeg">
+</audio>
+
+<!-- AUTO REFRESH + ALERTA INTELIGENTE -->
 <script>
-    setTimeout(() => {
-        window.location.reload();
-    }, 5000);
+
+let lastCount = {{ pedidos|length }};
+
+setInterval(() => {
+
+    fetch("/api/pedidos/count")
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.count > lastCount) {
+
+                document.getElementById("alertSound").play();
+
+                // leve destaque visual (opcional)
+                document.body.style.border = "3px solid red";
+
+                setTimeout(() => {
+                    document.body.style.border = "none";
+                }, 1000);
+            }
+
+            lastCount = data.count;
+        });
+
+}, 5000);
+
+
+// refresh leve (mantém fallback)
+setInterval(() => {
+    location.reload();
+}, 15000);
+
 </script>
 
 </body>
