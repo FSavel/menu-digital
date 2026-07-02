@@ -190,6 +190,8 @@
 
 let lastData = [];
 
+<script>
+
 let lastHash = "";
 
 function loadOrders() {
@@ -200,24 +202,19 @@ function loadOrders() {
 
             const pedidos = data.pedidos;
 
-            // cria “assinatura” dos dados
             const newHash = JSON.stringify(pedidos);
 
-            // se não mudou nada, não faz nada
             if (newHash === lastHash) {
                 return;
             }
 
-            lastHash = newHash;
-
-            // alerta de novo pedido
-            if (pedidos.length > lastHash.length || lastHash === "") {
-    const audio = document.getElementById("alertSound");
-    if (audio) audio.play();
-}
+            // ALERTA DE NOVO PEDIDO
+            if (lastHash !== "" && pedidos.length > JSON.parse(lastHash || "[]").length) {
                 const audio = document.getElementById("alertSound");
                 if (audio) audio.play();
             }
+
+            lastHash = newHash;
 
             renderBoard(pedidos);
         })
@@ -225,8 +222,52 @@ function loadOrders() {
             console.error("Erro cozinha:", err);
         });
 }
-    setInterval(loadOrders, 4000);
-    loadOrders();
+
+
+function renderBoard(pedidos) {
+
+    const recebido = document.querySelector(".column:nth-child(1)");
+    const preparando = document.querySelector(".column:nth-child(2)");
+    const pronto = document.querySelector(".column:nth-child(3)");
+
+    recebido.innerHTML = "<h2>🆕 Recebido</h2>";
+    preparando.innerHTML = "<h2>👨‍🍳 A Preparar</h2>";
+    pronto.innerHTML = "<h2>✅ Pronto</h2>";
+
+    pedidos.forEach(p => {
+
+        const card = `
+        <div class="card">
+            <div class="cliente">${p.cliente || "Cliente"}</div>
+            <div class="items">${JSON.stringify(p.itens || p.cart || [])}</div>
+            <div class="hora">${p.hora || ""}</div>
+
+            <div class="actions">
+                <a class="btn prep" href="/admin/pedido/status/${p.id}/Preparando">Preparar</a>
+                <a class="btn ready" href="/admin/pedido/status/${p.id}/Pronto">Pronto</a>
+                <a class="btn done" href="/admin/pedido/status/${p.id}/Entregue">Entregar</a>
+            </div>
+        </div>`;
+
+        if (p.status === "Recebido") {
+            recebido.innerHTML += card;
+        }
+
+        if (p.status === "Preparando") {
+            preparando.innerHTML += card;
+        }
+
+        if (p.status === "Pronto") {
+            pronto.innerHTML += card;
+        }
+    });
+}
+
+
+// INIT
+setInterval(loadOrders, 4000);
+loadOrders();
+
 </script>
 
     function renderBoard(pedidos) {
