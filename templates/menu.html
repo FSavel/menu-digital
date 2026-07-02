@@ -30,7 +30,10 @@
 
 {% for item in menu %}
 
-<div class="menu-card">
+<div class="menu-card" onclick="addToCart(
+    '{{ item.Produto_PT }}',
+    parseFloat('{{ item.Preço }}')
+)">
 
     <div class="imagem">
 
