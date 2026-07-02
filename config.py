@@ -1,43 +1,56 @@
 # ======================================================
-# CONFIGURAÇÃO DO SISTEMA (FASE 2)
+# CONFIGURAÇÃO DO SISTEMA (PRODUÇÃO)
 # ======================================================
 
 class Config:
 
-    # ---------- RESTAURANTE ----------
+    # ==================================================
+    # RESTAURANTE
+    # ==================================================
     NOME_RESTAURANTE = "Dourados"
     SLOGAN = "Experiência Digital Moderna"
 
     LOGO = "/static/img/logo.png"
     BANNER = "/static/img/banner.jpg"
 
-    # ---------- CORES ----------
+    # ==================================================
+    # CORES
+    # ==================================================
     COR_PRIMARIA = "#27ae60"
     COR_SECUNDARIA = "#111111"
     COR_DESTAQUE = "#f39c12"
     COR_FUNDO = "#101010"
     COR_CARD = "#FFFFFF"
 
-    # ---------- CONTACTOS ----------
+    # ==================================================
+    # CONTACTOS
+    # ==================================================
     TELEFONE = "+258878605154"
     EMAIL = "firminosavel@gmail.com"
     DESENVOLVEDOR = "Firmino S. Savel"
 
-    # ---------- LOCALIZAÇÃO ----------
-    GOOGLE_MAPS = "https://www.google.com/maps/place/Dourados+Alojamentos,+E.I/@-25.4033605,32.8068776"
+    GOOGLE_MAPS = "https://www.google.com/maps/place/Dourados"
 
-    # ---------- SISTEMA ----------
+    # ==================================================
+    # SISTEMA
+    # ==================================================
     VERSAO = "2.0"
     EMPRESA = "Lume Solutions"
     COPYRIGHT = "© 2026 Todos os direitos reservados."
 
-    # ---------- MOEDA ----------
+    # ==================================================
+    # MOEDA
+    # ==================================================
     MOEDA = "MZN"
 
-    # ---------- IDIOMAS ----------
-    IDIOMAS = ["Português", "English"]
+    # ==================================================
+    # IDIOMAS
+    # ==================================================
+    IDIOMAS = ["pt", "en"]
 
-    # ---------- PEDIDOS ----------
+    # ==================================================
+    # STATUS PEDIDOS
+    # ==================================================
     STATUS_PEDIDO = [
         "Recebido",
         "Em Preparação",
@@ -46,27 +59,32 @@ class Config:
         "Cancelado"
     ]
 
-    # ---------- RESERVAS ----------
+    # ==================================================
+    # STATUS RESERVAS
+    # ==================================================
     STATUS_RESERVA = [
         "Pendente",
         "Confirmada",
         "Concluída"
     ]
 
-    # ---------- ADMIN (FASE 2) ----------
+    # ==================================================
+    # ADMIN
+    # ==================================================
     ADMIN_USERNAME = "admin"
-    ADMIN_PASSWORD = "admin123"  # depois vamos securizar isto
+    ADMIN_PASSWORD = "admin123"
 
-    # ---------- FEATURES ----------
-    MOSTRAR_TOTAL_DIA = True
-    MOSTRAR_ESTATISTICAS = True
-
-    # ---------- AUTO REFRESH ----------
+    # ==================================================
+    # AUTO REFRESH
+    # ==================================================
     AUTO_REFRESH_ADMIN = 30
     AUTO_REFRESH_CLIENTE = 0
 
-    # ---------- DADOS ----------
-    MENU_FILE = "menu.xlsx"
-    ORDERS_FILE = "pedidos.xlsx"
-    RESERVATIONS_FILE = "reservas.xlsx"
-    CALLS_FILE = "chamadas.xlsx"
+    # ==================================================
+    # GOOGLE SHEETS (NOMES DAS ABAS)
+    # ==================================================
+    SHEET_MENU = "Menu Digital"
+    SHEET_ORDERS = "Pedidos"
+    SHEET_RESERVATIONS = "Reservas"
+    SHEET_CALLS = "Chamadas"
+    SHEET_TABLES = "Mesas"
