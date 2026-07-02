@@ -208,3 +208,30 @@ function updateCartUI() {
         }, 200);
     }
 }
+
+function renderCart() {
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    let container = document.getElementById("cart-items");
+    let totalEl = document.getElementById("cart-total");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+
+        total += item.price * item.qty;
+
+        container.innerHTML += `
+        <div class="item">
+            <span>${item.name} x${item.qty}</span>
+            <span>${item.price * item.qty} MT</span>
+        </div>`;
+    });
+
+    totalEl.innerText = total + " MT";
+}
