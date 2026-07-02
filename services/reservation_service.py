@@ -23,7 +23,7 @@ def get_reservations(file_path):
 # ======================================================
 # ADICIONAR RESERVA
 # ======================================================
-def add_reservation(file_path, reservation):
+def add_reservation(file, reservation):
 
     novo = pd.DataFrame([reservation])
 
