@@ -14,148 +14,80 @@
     </h1>
 
     <p>
-
         {% if lang=="pt" %}
             Escolha os seus pratos favoritos.
         {% else %}
             Choose your favourite dishes.
         {% endif %}
-
     </p>
 
 </div>
 
-
 <div class="menu-grid">
 
-{% for item in menu %}
+    {% for item in menu %}
 
-<div class="menu-card" onclick="addToCart(
-    '{{ item.Produto_PT }}',
-    parseFloat('{{ item.Preço }}')
-)">
+    <!-- CARD PRINCIPAL (clicável inteiro) -->
+    <div class="menu-card"
+         onclick="addToCart('{{ item.Produto_PT }}', parseFloat('{{ item.Preço }}'))">
 
-    <div class="imagem">
+        <!-- IMAGEM -->
+        <div class="imagem">
 
-        {% if item.Imagem %}
-        <img src="{{ item.Imagem }}">
-        {% else %}
-        <img src="{{ url_for('static',
-            filename='img/default-food.jpg') }}">
-        {% endif %}
+            {% if item.Imagem %}
+                <img src="{{ item.Imagem }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/default-food.jpg') }}">
+            {% endif %}
+
+        </div>
+
+        <!-- CONTEÚDO -->
+        <div class="conteudo">
+
+            <h3>
+                {% if lang=="pt" %}
+                    {{ item.Produto_PT }}
+                {% else %}
+                    {{ item.Produto_EN }}
+                {% endif %}
+            </h3>
+
+            <p>
+                {% if lang=="pt" %}
+                    {{ item.Descrição_PT }}
+                {% else %}
+                    {{ item.Descrição_EN }}
+                {% endif %}
+            </p>
+
+        </div>
+
+        <!-- RODAPÉ -->
+        <div class="rodape">
+
+            <span class="preco">
+                {{ item.Preço }}
+            </span>
+
+            <!-- BOTÃO OPCIONAL (não obrigatório, mas mantido) -->
+            <button class="btn-add"
+                onclick="event.stopPropagation(); addToCart('{{ item.Produto_PT }}', parseFloat('{{ item.Preço }}'))">
+
+                {% if lang=="pt" %}
+                    Adicionar
+                {% else %}
+                    Add
+                {% endif %}
+
+            </button>
+
+        </div>
 
     </div>
 
-    <div class="conteudo">
-
-        <h3>
-
-            {% if lang=="pt" %}
-                {{ item.Produto_PT }}
-            {% else %}
-                {{ item.Produto_EN }}
-            {% endif %}
-
-        </h3>
-
-        <p>
-
-            {% if lang=="pt" %}
-                {{ item.Descrição_PT }}
-            {% else %}
-                {{ item.Descrição_EN }}
-            {% endif %}
-
-        </p>
-
-    </div>
-
-    <div class="rodape">
-
-        <span class="preco">
-
-            {{ item.Preço }}
-
-        </span>
-
-        <button
-            class="btn-add"
-            onclick="addToCart(
-    '{{ item.Produto_PT }}',
-    {{ item.Preço }}
-)"
-
-            {% if lang=="pt" %}
-                Adicionar
-            {% else %}
-                Add
-            {% endif %}
-
-        </button>
-
-    </div>
+    {% endfor %}
 
 </div>
-
-{% endfor %}
-
-</div>
-
-<script>
-
-<script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-function addToCart(name, price) {
-
-    let existing = cart.find(item => item.name === name);
-
-    if (existing) {
-        existing.qty += 1;
-    } else {
-        cart.push({
-            name: name,
-            price: Number(price),
-            qty: 1
-        });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    updateCartCounter();
-    showToast("Adicionado 🛒");
-}
-
-function updateCartCounter() {
-    let counter = document.getElementById("cart-counter");
-    if (!counter) return;
-
-    let total = 0;
-    cart.forEach(i => total += i.qty);
-
-    counter.innerText = total;
-}
-
-function showToast(msg) {
-    let t = document.createElement("div");
-    t.innerText = msg;
-    t.style.position = "fixed";
-    t.style.bottom = "80px";
-    t.style.left = "50%";
-    t.style.transform = "translateX(-50%)";
-    t.style.background = "#27ae60";
-    t.style.color = "white";
-    t.style.padding = "10px";
-    t.style.borderRadius = "8px";
-    document.body.appendChild(t);
-
-    setTimeout(() => t.remove(), 1500);
-}
-
-updateCartCounter();
-    
-</script>
-
-</script>
 
 {% endblock %}
