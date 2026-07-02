@@ -157,9 +157,14 @@ def reserva():
         "status": "Pendente"
     }
 
+    # ✅ CORREÇÃO CRÍTICA: agora usa Google Sheets corretamente
     add_reservation(Config.SHEET_RESERVATIONS, novo)
 
-    return render_template("pedido_sucesso.html", total="Reserva enviada", config=Config)
+    return render_template(
+        "pedido_sucesso.html",
+        total="Reserva enviada",
+        config=Config
+    )
 
 
 # ======================================================
@@ -258,7 +263,11 @@ def api_update_status():
 # ======================================================
 @app.route("/health")
 def health():
-    return {"status": "ok", "system": "restaurant-app", "version": Config.VERSAO}
+    return {
+        "status": "ok",
+        "system": "restaurant-app",
+        "version": Config.VERSAO
+    }
 
 
 # ======================================================
