@@ -103,10 +103,16 @@ def pedido():
     data = request.get_json()
     cart = data.get("cart", [])
 
-    total = sum(
-        item.get("preco", 0) * item.get("quantidade", 1)
-        for item in cart
-    )
+    if not cart:
+        return jsonify({
+            "success": False,
+            "error": "Carrinho vazio"
+        }), 400
+
+    total = 0
+
+    for item in cart:
+        total += item.get("price", 0) * item.get("qty", 1)
 
     add_order(
         Config.SHEET_ORDERS,
