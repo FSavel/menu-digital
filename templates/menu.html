@@ -103,19 +103,58 @@
 
 <script>
 
-addToCart(name, price)
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    let botao=event.target;
+function addToCart(name, price) {
 
-    botao.classList.add("added");
+    let existing = cart.find(item => item.name === name);
 
-    setTimeout(()=>{
-        botao.classList.remove("added");
-    },400);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({
+            name: name,
+            price: Number(price),
+            qty: 1
+        });
+    }
 
-    console.log(id);
+    localStorage.setItem("cart", JSON.stringify(cart));
 
+    updateCartCounter();
+    showToast("Adicionado 🛒");
 }
+
+function updateCartCounter() {
+    let counter = document.getElementById("cart-counter");
+    if (!counter) return;
+
+    let total = 0;
+    cart.forEach(i => total += i.qty);
+
+    counter.innerText = total;
+}
+
+function showToast(msg) {
+    let t = document.createElement("div");
+    t.innerText = msg;
+    t.style.position = "fixed";
+    t.style.bottom = "80px";
+    t.style.left = "50%";
+    t.style.transform = "translateX(-50%)";
+    t.style.background = "#27ae60";
+    t.style.color = "white";
+    t.style.padding = "10px";
+    t.style.borderRadius = "8px";
+    document.body.appendChild(t);
+
+    setTimeout(() => t.remove(), 1500);
+}
+
+updateCartCounter();
+    
+</script>
 
 </script>
 
