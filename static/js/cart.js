@@ -238,3 +238,20 @@ renderCart();
 function getCart() {
     return JSON.parse(localStorage.getItem("cart")) || [];
 }
+
+function syncCartUI() {
+
+    let cart = getCart();
+
+    let totalItems = 0;
+
+    cart.forEach(item => {
+        totalItems += item.qty;
+    });
+
+    const counter = document.getElementById("cart-counter");
+
+    if (counter) {
+        counter.innerText = totalItems;
+    }
+}
