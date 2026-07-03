@@ -1,37 +1,143 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
 
-{% block content %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<div class="language-page">
+<title>Dourados</title>
 
-    <div class="welcome-card">
+<style>
 
-        <h1 class="restaurant-title">
-            🍽 Dourados
-        </h1>
+body{
 
-        <p class="welcome">
-            Bem-vindo ao Dourados
-        </p>
+    margin:0;
+    background:#101010;
+    color:white;
+    font-family:Arial, sans-serif;
 
-        <p class="welcome-en">
-            Welcome to Dourados
-        </p>
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-        <div class="language-buttons">
+    height:100vh;
 
-            <a class="language-btn" href="/set_language/pt">
-                🇵🇹 Português
-            </a>
+}
 
-            <a class="language-btn" href="/set_language/en">
-                🇬🇧 English
-            </a>
+.welcome-card{
 
-        </div>
+    text-align:center;
+    max-width:400px;
 
-    </div>
+}
+
+.restaurant-title{
+
+    font-size:60px;
+    margin-bottom:20px;
+
+}
+
+.welcome{
+
+    font-size:26px;
+    margin-bottom:5px;
+
+}
+
+.welcome-en{
+
+    opacity:.7;
+    margin-bottom:35px;
+
+}
+
+.language-buttons{
+
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+
+}
+
+.language-btn{
+
+    text-decoration:none;
+
+    background:#27ae60;
+
+    color:white;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    font-size:20px;
+
+    transition:.2s;
+
+}
+
+.language-btn:hover{
+
+    transform:scale(1.04);
+
+    background:#2ecc71;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="welcome-card">
+
+<h1 class="restaurant-title">
+
+🍽️
+
+</h1>
+
+<h2>
+
+Bem-vindo
+
+</h2>
+
+<h3>
+
+Welcome
+
+</h3>
+
+<p>
+
+Escolha a língua<br>
+
+Choose your language
+
+</p>
+
+<div class="language-buttons">
+
+<a class="language-btn" href="/set_language/pt">
+
+🇵🇹 Português
+
+</a>
+
+<a class="language-btn" href="/set_language/en">
+
+🇬🇧 English
+
+</a>
 
 </div>
 
-{% endblock %}
+</div>
+
+</body>
+
+</html>
