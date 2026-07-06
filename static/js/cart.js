@@ -1,22 +1,25 @@
 // =====================================================
-// DOURADOS - CART.JS
-// Versão 2.0
+// DOURADOS - CART.JS (VERSÃO LIMPA FINAL)
 // =====================================================
 
 // ================================
-// CARRINHO
+// ESTADO GLOBAL DO CARRINHO
 // ================================
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let cart = getCart();
 
 // ================================
-// GUARDAR
+// OBTÉM CARRINHO DO LOCALSTORAGE
+// ================================
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+
+// ================================
+// SALVAR CARRINHO
 // ================================
 function saveCart() {
-
     localStorage.setItem("cart", JSON.stringify(cart));
-
     updateCartCounter();
-
     renderCart();
 }
 
@@ -25,6 +28,8 @@ function saveCart() {
 // ================================
 function addToCart(name, price) {
 
+    cart = getCart(); // garante sincronização
+
     price = Number(price);
 
     const existing = cart.find(item => item.name === name);
@@ -32,19 +37,15 @@ function addToCart(name, price) {
     if (existing) {
         existing.qty++;
     } else {
-
         cart.push({
             name: name,
             price: price,
             qty: 1
         });
-
     }
 
     saveCart();
-
     animateCart();
-
     showToast("🛒 Produto adicionado");
 }
 
@@ -68,9 +69,7 @@ function changeQty(index, value) {
 // REMOVER ITEM
 // ================================
 function removeItem(index) {
-
     cart.splice(index, 1);
-
     saveCart();
 }
 
@@ -78,27 +77,22 @@ function removeItem(index) {
 // LIMPAR CARRINHO
 // ================================
 function clearCart() {
-
     cart = [];
-
     saveCart();
 }
 
 // ================================
-// CONTADOR
+// CONTADOR FLUTUANTE
 // ================================
 function updateCartCounter() {
 
     const counter = document.getElementById("cart-counter");
-
     if (!counter) return;
 
     let total = 0;
 
     cart.forEach(item => {
-
         total += item.qty;
-
     });
 
     counter.innerText = total;
@@ -112,21 +106,17 @@ function updateCartCounter() {
 function animateCart() {
 
     const counter = document.getElementById("cart-counter");
-
     if (!counter) return;
 
     counter.style.transform = "scale(1.35)";
 
     setTimeout(() => {
-
         counter.style.transform = "scale(1)";
-
-    },200);
-
+    }, 200);
 }
 
 // ================================
-// TOAST
+// TOAST (FEEDBACK VISUAL)
 // ================================
 function showToast(message) {
 
@@ -148,21 +138,15 @@ function showToast(message) {
 
     document.body.appendChild(toast);
 
-    setTimeout(() => {
-
-        toast.remove();
-
-    },1500);
-
+    setTimeout(() => toast.remove(), 1500);
 }
 
 // ================================
-// RENDER CARRINHO
+// RENDER DO CARRINHO (PÁGINA CART)
 // ================================
 function renderCart() {
 
     const container = document.getElementById("cart-items");
-
     if (!container) return;
 
     const totalEl =
@@ -172,75 +156,52 @@ function renderCart() {
     container.innerHTML = "";
 
     if (cart.length === 0) {
+        container.innerHTML = "<p class='empty'>Carrinho vazio</p>";
 
-        container.innerHTML =
-            "<p class='empty'>Carrinho vazio</p>";
-
-        if (totalEl)
-            totalEl.innerText = "0 MT";
-
+        if (totalEl) totalEl.innerText = "0 MT";
         return;
     }
 
     let total = 0;
 
-    cart.forEach((item,index)=>{
+    cart.forEach((item, index) => {
 
-        total += item.price * item.qty;
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
 
         container.innerHTML += `
+            <div class="item">
 
-        <div class="item">
+                <div class="item-name">
+                    <strong>${item.name}</strong>
+                </div>
 
-            <div class="item-name">
+                <div class="qty">
+                    <button onclick="changeQty(${index}, -1)">-</button>
+                    ${item.qty}
+                    <button onclick="changeQty(${index}, 1)">+</button>
+                </div>
 
-                <strong>${item.name}</strong>
+                <div class="item-price">
+                    ${itemTotal.toFixed(2)} MT
+                </div>
 
-            </div>
-
-            <div class="qty">
-
-                <button onclick="changeQty(${index},-1)">−</button>
-
-                ${item.qty}
-
-                <button onclick="changeQty(${index},1)">+</button>
-
-            </div>
-
-            <div class="item-price">
-
-                ${(item.price*item.qty).toFixed(2)} MT
+                <button class="remove" onclick="removeItem(${index})">
+                    ✕
+                </button>
 
             </div>
-
-            <button class="remove"
-                    onclick="removeItem(${index})">
-
-                ✕
-
-            </button>
-
-        </div>
-
         `;
-
     });
 
-    if(totalEl){
-
-        totalEl.innerText = total.toFixed(2)+" MT";
-
+    if (totalEl) {
+        totalEl.innerText = total.toFixed(2) + " MT";
     }
 
-    const pedidoData=document.getElementById("pedido-data");
-
-    if(pedidoData){
-
-        pedidoData.value=JSON.stringify(cart);
-
+    const pedidoData = document.getElementById("pedido-data");
+    if (pedidoData) {
+        pedidoData.value = JSON.stringify(cart);
     }
-
 }
 
 // ================================
@@ -248,80 +209,49 @@ function renderCart() {
 // ================================
 function checkout() {
 
-    if(cart.length===0){
-
+    if (cart.length === 0) {
         showToast("Carrinho vazio");
-
         return;
-
     }
 
-    fetch("/pedido",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
+    fetch("/pedido", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
         },
-
-        body:JSON.stringify({
-            cart:cart
-        })
-
+        body: JSON.stringify({ cart: cart })
     })
+    .then(r => r.json())
+    .then(data => {
 
-    .then(r=>r.json())
-
-    .then(data=>{
-
-        if(data.success){
-
+        if (data.success) {
             showToast("Pedido enviado 🍽️");
-
             clearCart();
-
-        }
-
-        else{
-
+        } else {
             showToast("Erro ao enviar");
-
         }
 
     })
-
-    .catch(err=>{
-
+    .catch(err => {
         console.error(err);
-
         showToast("Erro de ligação");
-
     });
-
 }
 
 // ================================
-// SINCRONIZAR ENTRE PÁGINAS
+// SINCRONIZAÇÃO ENTRE PÁGINAS
 // ================================
-window.addEventListener("storage",function(){
-
-    cart = JSON.parse(localStorage.getItem("cart")) || [];
-
+window.addEventListener("storage", () => {
+    cart = getCart();
     updateCartCounter();
-
     renderCart();
-
 });
 
 // ================================
 // INICIALIZAÇÃO
 // ================================
-document.addEventListener("DOMContentLoaded",function(){
-
-    cart = JSON.parse(localStorage.getItem("cart")) || [];
-
+document.addEventListener("DOMContentLoaded", () => {
+    cart = getCart();
     updateCartCounter();
-
     renderCart();
-
 });
