@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{ config.NOME_RESTAURANTE }} | Sistema Digital</title>
 
-<link rel="stylesheet"
-href="{{ url_for('static',
-filename='css/style.css') }}">
-
-<link rel="stylesheet"
-href="{{ url_for('static',
-filename='css/cart.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
@@ -64,19 +60,15 @@ filename='css/cart.css') }}">
 ========================================== -->
 
 <div id="floating-cart">
-
     <a href="/cart">
-
         🛒
-
-        <span id="cart-counter">
-            0
-        </span>
-
+        <span id="cart-counter">0</span>
     </a>
-
 </div>
 
+<!-- =====================================================
+     SÓ UMA FONTE DE VERDADE: cart.js
+===================================================== -->
 <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 
 </body>
