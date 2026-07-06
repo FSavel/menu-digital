@@ -96,7 +96,17 @@ def set_language(lang):
 @app.route("/pedido", methods=["POST"])
 def pedido():
 
-    data = request.get_json()
+@app.route("/pedido", methods=["POST"])
+def pedido():
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "error": "Pedido inválido"
+        }), 400
+
     cart = data.get("cart", [])
 
     if not cart:
@@ -124,7 +134,12 @@ def pedido():
 
 @app.route("/cart")
 def cart():
-    return render_template("cart.html")
+
+    return render_template(
+        "cart.html",
+        config=Config,
+        lang=session.get("lang", "pt")
+    )
 # ======================================================
 # CHAMAR GARÇOM
 # ======================================================
