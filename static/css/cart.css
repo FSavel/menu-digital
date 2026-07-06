@@ -292,3 +292,11 @@ font-weight:bold;
 .menu-card {
     cursor: pointer;
 }
+
+.menu-card{
+
+cursor:pointer;
+
+user-select:none;
+
+}
