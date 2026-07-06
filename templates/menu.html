@@ -6,15 +6,11 @@
 
     <h1>
         🍽️
-        {% if lang=="pt" %}
-            Menu
-        {% else %}
-            Menu
-        {% endif %}
+        {{ "Menu" if lang == "pt" else "Menu" }}
     </h1>
 
     <p>
-        {% if lang=="pt" %}
+        {% if lang == "pt" %}
             Escolha os seus pratos favoritos.
         {% else %}
             Choose your favourite dishes.
@@ -25,68 +21,72 @@
 
 <div class="menu-grid">
 
-    {% for item in menu %}
+{% for item in menu %}
 
-    <!-- CARD PRINCIPAL (clicável inteiro) -->
-    <div class="menu-card"
-         onclick="addToCart('{{ item.Produto_PT }}', parseFloat('{{ item.Preço }}'))">
+<div class="menu-card"
 
-        <!-- IMAGEM -->
-        <div class="imagem">
+     onclick="addToCart(
+        '{{ item.Produto_PT if lang == 'pt' else item.Produto_EN }}',
+        parseFloat('{{ item.Preço }}')
+     )">
 
-            {% if item.Imagem %}
-                <img src="{{ item.Imagem }}">
-            {% else %}
-                <img src="{{ url_for('static', filename='img/default-food.jpg') }}">
-            {% endif %}
+    <!-- IMAGEM -->
 
-        </div>
+    <div class="imagem">
 
-        <!-- CONTEÚDO -->
-        <div class="conteudo">
+        {% if item.Imagem %}
 
-            <h3>
-                {% if lang=="pt" %}
-                    {{ item.Produto_PT }}
-                {% else %}
-                    {{ item.Produto_EN }}
-                {% endif %}
-            </h3>
+            <img src="{{ item.Imagem }}">
 
-            <p>
-                {% if lang=="pt" %}
-                    {{ item.Descrição_PT }}
-                {% else %}
-                    {{ item.Descrição_EN }}
-                {% endif %}
-            </p>
+        {% else %}
 
-        </div>
+            <img src="{{ url_for('static', filename='img/default-food.jpg') }}">
 
-        <!-- RODAPÉ -->
-        <div class="rodape">
-
-            <span class="preco">
-                {{ item.Preço }}
-            </span>
-
-            <!-- BOTÃO OPCIONAL (não obrigatório, mas mantido) -->
-            <button class="btn-add"
-                onclick="event.stopPropagation(); addToCart('{{ item.Produto_PT }}', parseFloat('{{ item.Preço }}'))">
-
-                {% if lang=="pt" %}
-                    Adicionar
-                {% else %}
-                    Add
-                {% endif %}
-
-            </button>
-
-        </div>
+        {% endif %}
 
     </div>
 
-    {% endfor %}
+    <!-- CONTEÚDO -->
+
+    <div class="conteudo">
+
+        <h3>
+
+            {% if lang == "pt" %}
+                {{ item.Produto_PT }}
+            {% else %}
+                {{ item.Produto_EN }}
+            {% endif %}
+
+        </h3>
+
+        <p>
+
+            {% if lang == "pt" %}
+                {{ item.Descrição_PT }}
+            {% else %}
+                {{ item.Descrição_EN }}
+            {% endif %}
+
+        </p>
+
+    </div>
+
+    <!-- RODAPÉ -->
+
+    <div class="rodape">
+
+        <span class="preco">
+
+            {{ item.Preço }} MT
+
+        </span>
+
+    </div>
+
+</div>
+
+{% endfor %}
 
 </div>
 
