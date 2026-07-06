@@ -156,7 +156,11 @@ def chamar():
     add_call(Config.SHEET_CALLS, chamada)
 
     flash("Garçom chamado com sucesso!", "success")
-    return redirect(url_for("menu_pt"))
+    lang = session.get("lang", "pt")
+
+return redirect(
+    url_for("menu_en" if lang == "en" else "menu_pt")
+)
 
 
 # ======================================================
