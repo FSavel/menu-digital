@@ -111,76 +111,69 @@
 <div class="board">
 
     <!-- RECEBIDO -->
-    <div class="column">
+    <div class="column" data-status="Recebido">
         <h2>🆕 Recebido</h2>
-
-        {% for p in pedidos if p.status == "Recebido" %}
-        <div class="card">
-            <div class="cliente">
-                {{ p.cliente }}
-                <span class="new-badge">NOVO</span>
-            </div>
-            <div class="items">{{ p.itens }}</div>
-            <div class="hora">{{ p.hora }}</div>
-
-            <div class="actions">
-                <a class="btn prep" href="/admin/pedido/status/{{ p.id }}/Preparando">
-                    Preparar
-                </a>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 
-    <!-- PREPARANDO -->
-    <div class="column">
+    <!-- EM PREPARAÇÃO -->
+    <div class="column" data-status="Em Preparação">
         <h2>👨‍🍳 A Preparar</h2>
-
-        {% for p in pedidos if p.status == "Preparando" %}
-        <div class="card">
-            <div class="cliente">{{ p.cliente }}</div>
-            <div class="items">{{ p.itens }}</div>
-            <div class="hora">{{ p.hora }}</div>
-
-            <div class="actions">
-                <a class="btn ready" href="/admin/pedido/status/{{ p.id }}/Pronto">
-                    Pronto
-                </a>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 
     <!-- PRONTO -->
-    <div class="column">
+    <div class="column" data-status="Pronto">
         <h2>✅ Pronto</h2>
+    </div>
 
-        {% for p in pedidos if p.status == "Pronto" %}
-        <div class="card">
-            <div class="cliente">{{ p.cliente }}</div>
-            <div class="items">{{ p.itens }}</div>
-            <div class="hora">{{ p.hora }}</div>
-
-            <div class="actions">
-                <a class="btn done" href="/admin/pedido/status/{{ p.id }}/Entregue">
-                    Entregar
-                </a>
-            </div>
-        </div>
-        {% endfor %}
+    <!-- ENTREGUE -->
+    <div class="column" data-status="Entregue">
+        <h2>📦 Entregue</h2>
     </div>
 
 </div>
-
-<!-- SOM DE NOVO PEDIDO -->
-<audio id="alertSound">
-    <source src="/static/sound/alert.mp3" type="audio/mpeg">
-</audio>
 
 <!-- JS LIMPO E FUNCIONAL -->
 <script>
 
 let lastHash = "";
+let firstLoad = true;
+
+// ================================
+// ESTADO -> BOTÃO SEGUINTE
+// ================================
+const NEXT_ACTION = {
+    "Recebido":       { label: "Preparar", status: "Em Preparação", cls: "prep" },
+    "Em Preparação":  { label: "Pronto",   status: "Pronto",        cls: "ready" },
+    "Pronto":         { label: "Entregar", status: "Entregue",      cls: "done" }
+};
+
+// ================================
+// ALERTA SONORO (Web Audio, sem ficheiro externo)
+// ================================
+function playAlert() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+        console.warn("Alerta sonoro indisponível:", e);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.innerText = text == null ? "" : String(text);
+    return div.innerHTML;
+}
 
 function loadOrders() {
 
@@ -190,16 +183,18 @@ function loadOrders() {
 
             const pedidos = data.pedidos || [];
 
+            // Só conta pedidos "Recebido" para o alerta de novo pedido
+            const novos = pedidos.filter(p => p.status === "Recebido").length;
             const newHash = JSON.stringify(pedidos);
 
             if (newHash === lastHash) return;
 
-            // ALERTA SOM (novo pedido)
-            if (lastHash !== "") {
-                const audio = document.getElementById("alertSound");
-                if (audio) audio.play();
+            if (!firstLoad && novos > (window._lastNovos || 0)) {
+                playAlert();
             }
 
+            window._lastNovos = novos;
+            firstLoad = false;
             lastHash = newHash;
 
             renderBoard(pedidos);
@@ -211,32 +206,36 @@ function loadOrders() {
 
 function renderBoard(pedidos) {
 
-    const recebido = document.querySelector(".column:nth-child(1)");
-    const preparando = document.querySelector(".column:nth-child(2)");
-    const pronto = document.querySelector(".column:nth-child(3)");
+    document.querySelectorAll(".column").forEach(col => {
+        const status = col.getAttribute("data-status");
+        const title = col.querySelector("h2").outerHTML;
+        col.innerHTML = title;
 
-    recebido.innerHTML = "<h2>🆕 Recebido</h2>";
-    preparando.innerHTML = "<h2>👨‍🍳 A Preparar</h2>";
-    pronto.innerHTML = "<h2>✅ Pronto</h2>";
+        pedidos
+            .filter(p => p.status === status)
+            .forEach(p => {
 
-    pedidos.forEach(p => {
+                const next = NEXT_ACTION[status];
+                const badge = status === "Recebido"
+                    ? '<span class="new-badge">NOVO</span>' : "";
 
-        const card = `
-        <div class="card">
-            <div class="cliente">${p.cliente || "Cliente"}</div>
-            <div class="items">${JSON.stringify(p.itens || p.cart || [])}</div>
-            <div class="hora">${p.hora || ""}</div>
+                const action = next
+                    ? `<div class="actions">
+                         <a class="btn ${next.cls}"
+                            href="/admin/pedido/status/${encodeURIComponent(p.id)}/${encodeURIComponent(next.status)}">
+                            ${next.label}
+                         </a>
+                       </div>`
+                    : "";
 
-            <div class="actions">
-                <a class="btn prep" href="/admin/pedido/status/${p.id}/Preparando">Preparar</a>
-                <a class="btn ready" href="/admin/pedido/status/${p.id}/Pronto">Pronto</a>
-                <a class="btn done" href="/admin/pedido/status/${p.id}/Entregue">Entregar</a>
-            </div>
-        </div>`;
-
-        if (p.status === "Recebido") recebido.innerHTML += card;
-        if (p.status === "Preparando") preparando.innerHTML += card;
-        if (p.status === "Pronto") pronto.innerHTML += card;
+                col.innerHTML += `
+                <div class="card">
+                    <div class="cliente">${escapeHtml(p.cliente || "Cliente")} ${badge}</div>
+                    <div class="items">${escapeHtml(p.items || "")}</div>
+                    <div class="hora">${escapeHtml(p.hora || "")}</div>
+                    ${action}
+                </div>`;
+            });
     });
 }
 

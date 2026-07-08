@@ -14,16 +14,36 @@ SHEET_NAME = "Pedidos"
 def add_order(file, cliente, cart, hora):
 
     try:
+        def _num(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return 0
+
+        # Aceita as chaves do carrinho (name/price/qty) com fallback
+        # para nomes antigos (nome/preco/quantidade) por segurança.
+        def _price(item):
+            return _num(item.get("price", item.get("preco", 0)))
+
+        def _qty(item):
+            return _num(item.get("qty", item.get("quantidade", 1)))
+
+        def _name(item):
+            return item.get("name", item.get("nome", ""))
+
+        resumo = ", ".join(
+            f"{int(_qty(item))}x {_name(item)}" for item in cart
+        )
+
+        total = sum(_price(item) * _qty(item) for item in cart)
+
         pedido = {
             "id": str(hora),
             "cliente": cliente,
-            "items": str(cart),
+            "items": resumo,
             "hora": hora,
             "status": "Recebido",
-            "total": sum(
-                item.get("preco", 0) * item.get("quantidade", 1)
-                for item in cart
-            )
+            "total": total
         }
 
         return append_row(SHEET_NAME, pedido)

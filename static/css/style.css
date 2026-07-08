@@ -124,8 +124,63 @@ body {
   flex-direction: column;
 }
 
+.menu-card {
+  cursor: pointer;
+}
+
 .menu-card:hover {
   transform: translateY(-6px);
+}
+
+/* SELEÇÃO: salto + destaque temporário */
+.menu-card.selected {
+  animation: cardJump 0.45s ease;
+  outline: 3px solid var(--primary);
+  box-shadow: 0 10px 28px rgba(39, 174, 96, 0.55);
+}
+
+.menu-card.selected .footer,
+.menu-card.selected .rodape {
+  background: var(--primary);
+}
+
+.menu-card.selected .price,
+.menu-card.selected .preco {
+  color: #fff;
+}
+
+@keyframes cardJump {
+  0%   { transform: scale(1) translateY(0); }
+  30%  { transform: scale(1.06) translateY(-10px); }
+  60%  { transform: scale(0.98) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+/* ======================================================
+   ADMIN (ACESSO DISCRETO - ENGRENAGEM)
+====================================================== */
+.admin-gear {
+  position: fixed;
+  bottom: 18px;
+  left: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  text-decoration: none;
+  z-index: 9998;
+  transition: 0.25s;
+}
+
+.admin-gear:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: rotate(45deg);
 }
 
 .menu-card img {

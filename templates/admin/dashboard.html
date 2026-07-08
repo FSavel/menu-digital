@@ -127,7 +127,7 @@
         </div>
 
         <div class="card">
-            <h2>{{ stats.pendentes }}</h2>
+            <h2>{{ stats.recebidos + stats.preparacao }}</h2>
             <p>Pendentes</p>
         </div>
 
@@ -152,8 +152,8 @@
 
         {% for p in pedidos %}
         <tr>
-            <td>{{ p.nome }}</td>
-            <td>{{ p.pedido }}</td>
+            <td>{{ p.cliente }}</td>
+            <td>{{ p.items }}</td>
             <td>{{ p.total }}</td>
 
             <td>

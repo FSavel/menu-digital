@@ -96,9 +96,6 @@ def set_language(lang):
 @app.route("/pedido", methods=["POST"])
 def pedido():
 
-@app.route("/pedido", methods=["POST"])
-def pedido():
-
     data = request.get_json(silent=True)
 
     if not data:
@@ -158,9 +155,9 @@ def chamar():
     flash("Garçom chamado com sucesso!", "success")
     lang = session.get("lang", "pt")
 
-return redirect(
-    url_for("menu_en" if lang == "en" else "menu_pt")
-)
+    return redirect(
+        url_for("menu_en" if lang == "en" else "menu_pt")
+    )
 
 
 # ======================================================
@@ -305,6 +302,55 @@ def api_update_status():
     )
 
     return {"success": True}
+
+
+# ======================================================
+# UPDATE STATUS (LINK/GET - usado pela cozinha e admin)
+# ======================================================
+@app.route("/admin/pedido/status/<pedido_id>/<status>")
+def admin_update_status(pedido_id, status):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    if status not in Config.STATUS_PEDIDO:
+        flash("Status inválido!", "danger")
+        return redirect(request.referrer or url_for("cozinha"))
+
+    update_order_status(Config.SHEET_ORDERS, pedido_id, status)
+
+    return redirect(request.referrer or url_for("cozinha"))
+
+
+# ======================================================
+# DASHBOARD (ADMIN)
+# ======================================================
+@app.route("/admin/dashboard")
+def admin_dashboard():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    pedidos = list(reversed(get_orders(Config.SHEET_ORDERS)))
+
+    def _count(status):
+        return sum(1 for p in pedidos if str(p.get("status")) == status)
+
+    stats = {
+        "total_pedidos": len(pedidos),
+        "total_receita": get_total_sales(Config.SHEET_ORDERS),
+        "recebidos": _count("Recebido"),
+        "preparacao": _count("Em Preparação"),
+        "prontos": _count("Pronto"),
+        "entregues": _count("Entregue"),
+    }
+
+    return render_template(
+        "admin/dashboard.html",
+        pedidos=pedidos,
+        stats=stats,
+        config=Config
+    )
 
 
 # ======================================================
