@@ -1,75 +1,246 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="{{ session.get('lang','pt') }}">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ config.NOME_RESTAURANTE }} | Sistema Digital</title>
+    <title>
+        {{ config.NOME_RESTAURANTE }}
+    </title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- CSS PRINCIPAL -->
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <!-- CSS CARRINHO -->
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/cart.css') }}">
+
+
+    <!-- FONTE -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+    rel="stylesheet">
+
+
 </head>
+
 
 <body>
 
+
+<!-- ==============================
+     HEADER
+================================ -->
+
 <header class="topbar">
 
-    <div class="logo">
+
+    <div class="logo"
+         id="admin-trigger">
+
         🍽️ {{ config.NOME_RESTAURANTE }}
+
     </div>
+
 
     <div class="slogan">
+
         {{ config.SLOGAN }}
+
     </div>
 
+
     <nav class="menu">
-        <a href="/menu_pt">Menu</a>
-        <a href="/reserva">Reservas</a>
-        <a href="/pedidos">Painel</a>
-        <a href="/sobre">Sobre</a>
+
+
+        <a href="/menu_pt">
+
+            {% if session.get('lang')=="en" %}
+                Menu
+            {% else %}
+                Menu
+            {% endif %}
+
+        </a>
+
+
+        <a href="/reserva">
+
+            {% if session.get('lang')=="en" %}
+                Reservation
+            {% else %}
+                Reservas
+            {% endif %}
+
+        </a>
+
+
+        <a href="/sobre">
+
+            {% if session.get('lang')=="en" %}
+                About
+            {% else %}
+                Sobre
+            {% endif %}
+
+        </a>
+
+
     </nav>
+
 
 </header>
 
+
+
+
+
+<!-- ==============================
+     MENSAGENS
+================================ -->
+
+
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="flash-container">
-            {% for category, message in messages %}
-                <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
+
+{% if messages %}
+
+<div class="flash-container">
+
+{% for category,message in messages %}
+
+<div class="flash {{ category }}">
+
+{{ message }}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endif %}
+
 {% endwith %}
 
+
+
+
+
+<!-- ==============================
+     CONTEUDO
+================================ -->
+
+
 <main class="container">
-    {% block content %}{% endblock %}
+
+
+{% block content %}
+
+
+{% endblock %}
+
+
 </main>
+
+
+
+
+
+
+<!-- ==============================
+     FOOTER
+================================ -->
+
 
 <footer class="footer">
 
-    <p>📍 {{ config.NOME_RESTAURANTE }} - Sistema Digital</p>
-    <p>📞 {{ config.TELEFONE }} | 📧 {{ config.EMAIL }}</p>
-    <p>👨‍💻 {{ config.DESENVOLVEDOR }}</p>
+
+<p>
+
+📍 {{ config.NOME_RESTAURANTE }}
+
+</p>
+
+
+<p>
+
+📞 {{ config.TELEFONE }}
+
+</p>
+
+
+<p>
+
+{{ config.COPYRIGHT }}
+
+</p>
+
 
 </footer>
 
-<!-- ==========================================
+
+
+
+
+
+<!-- ==============================
      CARRINHO FLUTUANTE
-========================================== -->
+================================ -->
+
 
 <div id="floating-cart">
-    <a href="/cart">
-        🛒
-        <span id="cart-counter">0</span>
-    </a>
+
+
+<a href="/cart">
+
+
+🛒
+
+
+<span id="cart-counter">
+
+0
+
+</span>
+
+
+</a>
+
+
 </div>
 
-<!-- =====================================================
-     SÓ UMA FONTE DE VERDADE: cart.js
-===================================================== -->
-<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+
+
+
+
+
+
+<!-- ==============================
+     JAVASCRIPT GLOBAL
+================================ -->
+
+
+<script src="{{ url_for('static',
+filename='js/cart.js') }}">
+</script>
+
+
+
+<script src="{{ url_for('static',
+filename='js/app.js') }}">
+</script>
+
+
 
 </body>
+
+
 </html>
