@@ -85,7 +85,7 @@
         {% for p in pedidos %}
         <tr>
             <td>{{ p.cliente }}</td>
-            <td>{{ p.items }}</td>
+            <td>{{ p['items'] }}</td>
             <td>{{ p.total }}</td>
             <td>
                 <span class="status {{ p.status }}">
