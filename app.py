@@ -58,15 +58,12 @@ def admin_required_json(f):
 
 
 # ======================================================
-# HOME / WELCOME PAGE
+# HOME / WELCOME PAGE (CORRIGIDO)
 # ======================================================
 @app.route("/")
 def index():
-    # Se o utilizador já escolheu o idioma nesta sessão, pode ir direto ao menu
-    if "lang" in session:
-        return redirect(url_for("menu"))
-    
-    # Caso contrário, mostra a Welcome Page Premium para escolha de idioma
+    # Força sempre a exibição da Welcome Page Premium para escolha de idioma,
+    # garantindo que o fluxo inicial do QR Code nunca seja ignorado.
     return render_template("welcome.html", config=Config)
 
 
@@ -87,7 +84,7 @@ def set_language(lang):
 # ======================================================
 @app.route("/menu")
 def menu():
-    # Garante que existe um idioma padrão na sessão antes de carregar o menu
+    # Garante que existe um idioma padrão na sessão caso o utilizador tente aceder direto à rota
     if "lang" not in session:
         session["lang"] = "pt"
         
@@ -104,7 +101,7 @@ def menu():
     )
 
 
-# RETROCOMPATIBILIDADE: Mantido caso existam QR Codes impressos com estas rotas
+# RETROCOMPATIBILIDADE: Mantido caso existam QR Codes impressos com estas rotas antigos
 @app.route("/menu_pt")
 def menu_pt():
     session["lang"] = "pt"
