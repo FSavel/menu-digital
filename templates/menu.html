@@ -318,8 +318,10 @@
                                 
                                 <div class="product-footer">
                                     <span class="product-price">{{ prato.preco }} {{ textos.currency_symbol }}</span>
-                                    <button onclick="adicionarAoCarrinho('{{ prato.id }}', '{% if lang == \'en\' and prato.nome_en %}{{ prato.nome_en }}{% else %}{{ prato.nome }}{% endif %}', {{ prato.preco }})" class="btn-add-cart">
-                                        <i class="fa-solid fa-plus"></i>
+                                    {% set nome_exibicao = prato.nome_en if (lang == 'en' and prato.nome_en) else prato.nome %}
+
+                                    <button onclick="adicionarAoCarrinho('{{ prato.id }}', '{{ nome_exibicao }}', {{ prato.preco }})" class="btn-add-cart">
+                                    <i class="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
                             </div>
