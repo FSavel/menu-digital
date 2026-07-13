@@ -1,136 +1,228 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo | {{ config.NOME_RESTAURANTE }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: {{ config.COR_PRIMARIA }};
+            --secondary: {{ config.COR_SECUNDARIA }};
+            --accent: {{ config.COR_DESTAQUE }};
+            --bg-dark: {{ config.COR_FUNDO }};
+            --card-white: {{ config.COR_CARD }};
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<title>Welcome</title>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
 
-<style>
+        /* Fundo Premium com Imagem e Overlay */
+        .bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('{{ config.BANNER }}');
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.05);
+            filter: blur(3px);
+            z-index: 1;
+        }
 
-body{
+        .bg-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.55) 100%);
+        }
 
-    margin:0;
-    background:#101010;
-    color:white;
+        /* Card Principal Responsivo */
+        .card {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    font-family:Arial;
+        /* Container da Logo/Imagem */
+        .logo-container {
+            width: 90px;
+            height: 90px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+        .logo-img {
+            max-width: 60%;
+            max-height: 60%;
+            object-fit: contain;
+        }
 
-    height:100vh;
+        .restaurant-name {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
 
-}
+        .restaurant-slogan {
+            font-size: 14px;
+            font-weight: 500;
+            color: #7f8c8d;
+            margin-bottom: 24px;
+        }
 
-.card{
+        .experience-badge {
+            display: inline-block;
+            background: #edfcf2;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 35px;
+        }
 
-    text-align:center;
+        /* Grupo de Botões de Idioma */
+        .lang-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
 
-}
+        .btn-lang {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            background: var(--primary);
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+            transition: all 0.25s ease;
+        }
 
-.logo{
+        .btn-lang:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.35);
+            background: #219653; /* Tom ligeiramente mais escuro para contraste */
+        }
 
-    font-size:70px;
-    margin-bottom:20px;
+        .btn-lang:active {
+            transform: translateY(1px);
+        }
 
-}
+        /* Botão Secundário - Sobre Nós */
+        .btn-about {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #7f8c8d;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            padding: 8px 16px;
+        }
 
-h1{
+        .btn-about:hover {
+            color: var(--secondary);
+        }
 
-    margin-bottom:10px;
+        /* Animação de Entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-}
-
-p{
-
-    opacity:.7;
-    margin-bottom:40px;
-
-}
-
-.lang{
-
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-
-}
-
-.lang a{
-
-    text-decoration:none;
-
-    color:white;
-
-    background:#27ae60;
-
-    padding:18px;
-
-    border-radius:12px;
-
-    font-size:22px;
-
-    transition:.2s;
-
-}
-
-.lang a:hover{
-
-    transform:scale(1.04);
-
-    background:#2ecc71;
-
-}
-
-</style>
-
+        /* Ajustes finos para telas muito pequenas */
+        @media (max-width: 360px) {
+            .card {
+                padding: 30px 20px;
+            }
+            .restaurant-name {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
+    <div class="bg-overlay"></div>
 
-<div class="logo">
-🍽️
-</div>
+    <div class="card">
+        <div class="logo-container">
+            <img src="{{ config.LOGO }}" alt="Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none; font-size: 32px;">🍽️</span>
+        </div>
 
-<h1>
-Bem-vindo
-</h1>
+        <h1 class="restaurant-name">{{ config.NOME_RESTAURANTE }}</h1>
+        <p class="restaurant-slogan">{{ config.SLOGAN }}</p>
+        
+        <div class="experience-badge">
+            <i class="fa-solid fa-mobile-screen-button"></i> Experiência Digital Moderna
+        </div>
 
-<h3>
-Welcome
-</h3>
+        <div class="lang-group">
+            <a href="/set_language/pt" class="btn-lang">
+                <span>🇵🇹</span> Português
+            </a>
+            <a href="/set_language/en" class="btn-lang">
+                <span>🇬🇧</span> English
+            </a>
+        </div>
 
-<p>
-
-Escolha a língua<br>
-
-Choose your language
-
-</p>
-
-<div class="lang">
-
-<a href="/set_language/pt">
-
-🇵🇹 Português
-
-</a>
-
-<a href="/set_language/en">
-
-🇬🇧 English
-
-</a>
-
-</div>
-
-</div>
+        <a href="/sobre" class="btn-about">
+            <i class="fa-solid fa-circle-info"></i> Sobre Nós
+        </a>
+    </div>
 
 </body>
-
 </html>
