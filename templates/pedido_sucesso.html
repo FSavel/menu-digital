@@ -1,49 +1,103 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="{{ lang }}">
 <head>
-<meta charset="UTF-8">
-<title>Pedido Enviado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ textos.success if textos.success else "Pedido Enviado" }} | {{ config.NOME_RESTAURANTE }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-body {
-    margin:0;
-    font-family:Arial;
-    background:#0f0f0f;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    text-align:center;
-}
+    <style>
+        :root {
+            --primary: {{ config.COR_PRIMARIA }};
+            --secondary: {{ config.COR_SECUNDARIA }};
+            --accent: {{ config.COR_DESTAQUE }};
+            --bg-light: #f8f9fa;
+            --card-white: {{ config.COR_CARD }};
+        }
 
-.box {
-    background:#1e1e1e;
-    padding:30px;
-    border-radius:12px;
-}
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg-light);
+            color: var(--secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-h1 { color:#2ecc71; }
+        .box {
+            background: var(--card-white);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #f1f2f6;
+        }
 
-a {
-    display:inline-block;
-    margin-top:20px;
-    padding:10px 15px;
-    background:orange;
-    color:black;
-    text-decoration:none;
-    border-radius:8px;
-}
-</style>
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            margin: 0 auto 24px auto;
+        }
+
+        h1 { 
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 15px;
+            color: #7f8c8d;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        a {
+            display: block;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.25);
+            transition: all 0.2s;
+        }
+
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.35);
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="box">
-    <h1>✔️ Pedido enviado com sucesso!</h1>
-    <p>Obrigado pelo seu pedido.</p>
+    <div class="icon-wrapper">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    
+    <h1>{{ textos.success if textos.success else "Pedido enviado com sucesso!" }}</h1>
+    <p>{{ textos.thank_you if textos.thank_you else "Obrigado pela preferência!" }}</p>
 
-    <a href="/menu_pt">Voltar ao Menu</a>
+    <a href="/menu"><i class="fa-solid fa-utensils"></i> &nbsp;{{ textos.back if textos.back else "Voltar ao Menu" }}</a>
 </div>
 
 </body>
