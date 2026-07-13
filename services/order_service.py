@@ -1,44 +1,47 @@
 # ======================================================
 # ORDER SERVICE (GOOGLE SHEETS ONLY)
 # ======================================================
-
+import pandas as pd
 from services.google_service import read_sheet, append_row, write_sheet
+from utils.helpers import gerar_id  # Importa o nosso gerador de ID único curto
 
-# Nome da aba no Google Sheets
-SHEET_NAME = "Pedidos"
+# Fallback caso o nome da aba não venha por parâmetro
+DEFAULT_SHEET_NAME = "Pedidos"
 
 
 # ======================================================
 # ADICIONAR PEDIDO
 # ======================================================
-def add_order(file, cliente, cart, hora):
-
+def add_order(sheet_name, cliente, cart, hora):
     try:
+        # Garante o uso do nome correto da aba enviado pelo app.py
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+
         def _num(value):
             try:
                 return float(value)
             except (TypeError, ValueError):
-                return 0
+                return 0.0
 
-        # Aceita as chaves do carrinho (name/price/qty) com fallback
-        # para nomes antigos (nome/preco/quantidade) por segurança.
         def _price(item):
             return _num(item.get("price", item.get("preco", 0)))
 
         def _qty(item):
-            return _num(item.get("qty", item.get("quantidade", 1)))
+            return int(_num(item.get("qty", item.get("quantidade", 1))))
 
         def _name(item):
             return item.get("name", item.get("nome", ""))
 
+        # Monta o resumo descritivo para visualização rápida na cozinha
         resumo = ", ".join(
-            f"{int(_qty(item))}x {_name(item)}" for item in cart
+            f"{_qty(item)}x {_name(item)}" for item in cart
         )
 
         total = sum(_price(item) * _qty(item) for item in cart)
 
+        # ID único alfanumérico gerado pelo nosso helper para evitar colisões de horário
         pedido = {
-            "id": str(hora),
+            "id": gerar_id(),
             "cliente": cliente,
             "items": resumo,
             "hora": hora,
@@ -46,7 +49,7 @@ def add_order(file, cliente, cart, hora):
             "total": total
         }
 
-        return append_row(SHEET_NAME, pedido)
+        return append_row(aba, pedido)
 
     except Exception as e:
         print("[Order Service] erro ao adicionar pedido:", e)
@@ -56,13 +59,19 @@ def add_order(file, cliente, cart, hora):
 # ======================================================
 # LISTAR PEDIDOS
 # ======================================================
-def get_orders(file_path=None):
-
+def get_orders(sheet_name=None):
     try:
-        df = read_sheet(SHEET_NAME)
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+        df = read_sheet(aba)
 
         if df.empty:
             return []
+
+        # Garante que o ID e o status sejam sempre tratados como String pura
+        if "id" in df.columns:
+            df["id"] = df["id"].astype(str)
+        if "status" in df.columns:
+            df["status"] = df["status"].astype(str)
 
         return df.to_dict(orient="records")
 
@@ -74,11 +83,12 @@ def get_orders(file_path=None):
 # ======================================================
 # ÚLTIMOS PEDIDOS
 # ======================================================
-def get_last_orders(file_path=None, quantidade=10):
-
+def get_last_orders(sheet_name=None, quantidade=10):
     try:
-        pedidos = get_orders()
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+        pedidos = get_orders(aba)
 
+        # Ordena cronologicamente do mais recente para o mais antigo
         pedidos = sorted(
             pedidos,
             key=lambda x: x.get("hora", ""),
@@ -95,24 +105,24 @@ def get_last_orders(file_path=None, quantidade=10):
 # ======================================================
 # UPDATE STATUS
 # ======================================================
-def update_order_status(file_path, pedido_id, novo_status):
-
+def update_order_status(sheet_name, pedido_id, novo_status):
     try:
-        df = read_sheet(SHEET_NAME)
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+        df = read_sheet(aba)
 
         if df.empty:
             return False
 
         df["id"] = df["id"].astype(str)
-
         mask = df["id"] == str(pedido_id)
 
         if not mask.any():
+            print(f"[Order Service] Pedido ID {pedido_id} não encontrado para atualização.")
             return False
 
-        df.loc[mask, "status"] = novo_status
+        df.loc[mask, "status"] = str(novo_status)
 
-        return write_sheet(SHEET_NAME, df)
+        return write_sheet(aba, df)
 
     except Exception as e:
         print("[Order Service] erro status:", e)
@@ -122,36 +132,41 @@ def update_order_status(file_path, pedido_id, novo_status):
 # ======================================================
 # TOTAL DO DIA
 # ======================================================
-def get_total_sales(file_path=None):
-
+def get_total_sales(sheet_name=None):
     try:
-        df = read_sheet(SHEET_NAME)
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+        df = read_sheet(aba)
 
-        if df.empty:
-            return 0
+        if df.empty or "total" not in df.columns:
+            return 0.0
 
-        if "total" not in df.columns:
-            return 0
-
-        return float(df["total"].sum())
+        # Força a conversão da coluna total para numérico antes de somar
+        # para evitar problemas de concatenação de strings textuais do Sheets
+        totais_numericos = pd.to_numeric(df["total"], errors='coerce').fillna(0)
+        return float(totais_numericos.sum())
 
     except Exception as e:
         print("[Order Service] erro total vendas:", e)
-        return 0
+        return 0.0
 
-def get_dashboard_stats(sheet):
-    import pandas as pd
-    import os
 
-    if not os.path.exists(sheet):
+# ======================================================
+# STATS DO DASHBOARD (CORRIGIDO PARA GOOGLE SHEETS)
+# ======================================================
+def get_dashboard_stats(sheet_name=None):
+    try:
+        aba = sheet_name if sheet_name else DEFAULT_SHEET_NAME
+        pedidos = get_orders(aba)
+        
+        total_vendas = get_total_sales(aba)
+
+        return {
+            "total_pedidos": len(pedidos),
+            "total_dia": total_vendas
+        }
+    except Exception as e:
+        print("[Order Service] erro nas estatísticas do dashboard:", e)
         return {
             "total_pedidos": 0,
-            "total_dia": 0
+            "total_dia": 0.0
         }
-
-    df = pd.read_excel(sheet)
-
-    return {
-        "total_pedidos": len(df),
-        "total_dia": df["total"].sum() if "total" in df.columns else 0
-    }
