@@ -1,6 +1,7 @@
 # ======================================================
 # CONFIGURAÇÃO DO SISTEMA (PRODUÇÃO)
 # ======================================================
+import os
 
 class Config:
 
@@ -71,14 +72,14 @@ class Config:
     # ==================================================
     # ADMIN
     # ==================================================
-    ADMIN_USERNAME = "admin"
-    ADMIN_PASSWORD = "admin123"
+    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
     # ==================================================
     # AUTO REFRESH
     # ==================================================
     AUTO_REFRESH_ADMIN = 30
-    AUTO_REFRESH_CLIENTE = 0
+    AUTO_REFRESH_CLIENTE = 120  # 2 minutos como especificado no Master Project
 
     # ==================================================
     # GOOGLE SHEETS (NOMES DAS ABAS)
