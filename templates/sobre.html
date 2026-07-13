@@ -1,62 +1,224 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Sobre</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>{{ textos.about_title if textos.about_title else "Sobre Nós" }} | {{ config.NOME_RESTAURANTE }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body {
-            font-family: Arial;
-            background: #0f0f0f;
-            color: white;
+        :root {
+            --primary: {{ config.COR_PRIMARIA }};
+            --secondary: {{ config.COR_SECUNDARIA }};
+            --accent: {{ config.COR_DESTAQUE }};
+            --bg-light: #f8f9fa;
+            --card-white: {{ config.COR_CARD }};
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--secondary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: white;
             padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px 15px;
         }
 
         .box {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 700px;
-            margin: auto;
+            background: var(--card-white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #f1f2f6;
+        }
+
+        .restaurant-brand {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .restaurant-brand h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .restaurant-brand p {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .about-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #4f5f6f;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .hours-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .hours-box h4 {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+        .hours-box p {
+            font-size: 13px;
+            color: #6f7f8f;
+            margin-bottom: 4px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 25px 0;
+            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px dashed #dcdde1;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .contact-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .location-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         iframe {
             width: 100%;
             height: 250px;
-            border-radius: 10px;
-            margin-top: 15px;
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        .contact {
-            margin-top: 15px;
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 11px;
+            color: #95a5a6;
         }
     </style>
 </head>
-
 <body>
 
-<div class="box">
+<header>
+    <a href="/menu"><i class="fa-solid fa-chevron-left"></i> {{ textos.back if textos.back else "Voltar" }}</a>
+    <div>ℹ️ {{ textos.about if textos.about else "Sobre Nós" }}</div>
+    <div style="width: 50px;"></div>
+</header>
 
-    <h2>🍽️ Sobre o Restaurante</h2>
+<div class="container">
+    <div class="box">
+        <div class="restaurant-brand">
+            <h2>{{ config.NOME_RESTAURANTE }}</h2>
+            <p>{{ config.SLOGAN }}</p>
+        </div>
 
-    <p><strong>{{ config.NOME_RESTAURANTE }}</strong></p>
-    <p>{{ config.SLOGAN }}</p>
+        <p class="about-text">
+            {{ textos.about_text_1 if textos.about_text_1 else "Bem-vindo ao nosso restaurante. Oferecemos uma experiência gastronómica de padrão premium com ingredientes selecionados." }}
+        </p>
 
-    <div class="contact">
-        <p>📞 {{ config.TELEFONE }}</p>
-        <p>📧 {{ config.EMAIL }}</p>
-        <p>👨‍💻 {{ config.DESENVOLVEDOR }}</p>
+        <p class="about-text">
+            {{ textos.about_text_2 if textos.about_text_2 else "" }}
+        </p>
+
+        <div class="hours-box">
+            <h4><i class="fa-regular fa-clock"></i> {{ textos.about_hours if textos.about_hours else "Horário de Funcionamento" }}</h4>
+            <p>{{ textos.about_days if textos.about_days else "Terça a Domingo: 12h00 às 23h00" }}</p>
+            <p style="color: #c0392b; font-weight: 600;">{{ textos.about_closed if textos.about_closed else "Segunda-feira: Encerrado" }}</p>
+        </div>
+
+        <div class="contact-info">
+            <a href="tel:{{ config.TELEFONE }}" class="contact-item">
+                <i class="fa-solid fa-phone"></i>
+                <span>{{ config.TELEFONE }}</span>
+            </a>
+            <a href="mailto:{{ config.EMAIL }}" class="contact-item">
+                <i class="fa-solid fa-envelope"></i>
+                <span>{{ config.EMAIL }}</span>
+            </a>
+        </div>
+
+        <div class="location-section">
+            <h3><i class="fa-solid fa-map-location-dot"></i> {{ textos.location if textos.location else "Localização" }}</h3>
+            <iframe
+                src="{{ config.GOOGLE_MAPS }}"
+                allowfullscreen
+                loading="lazy">
+            </iframe>
+        </div>
     </div>
 
-    <h3>📍 Localização</h3>
-
-    <iframe
-        src="{{ config.GOOGLE_MAPS }}"
-        allowfullscreen>
-    </iframe>
-
+    <footer>
+        Powered by {{ config.DESENVOLVEDOR }} &copy; 2026
+    </footer>
 </div>
 
 </body>
