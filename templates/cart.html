@@ -1,220 +1,318 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="{{ lang }}">
 <head>
-
     <meta charset="UTF-8">
-    <title>Carrinho | Dourados</title>
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ textos.cart }} | {{ config.NOME_RESTAURANTE }}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-
-        body{
-            margin:0;
-            font-family:Arial;
-            background:#101010;
-            color:white;
+        :root {
+            --primary: {{ config.COR_PRIMARIA }};
+            --secondary: {{ config.COR_SECUNDARIA }};
+            --accent: {{ config.COR_DESTAQUE }};
+            --bg-light: #f8f9fa;
+            --card-white: {{ config.COR_CARD }};
         }
 
-        header{
-
-            background:#181818;
-            padding:18px;
-            text-align:center;
-            font-size:24px;
-            font-weight:bold;
-
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .container{
-
-            max-width:700px;
-            margin:auto;
-            padding:20px;
-
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--secondary);
+            min-height: 100vh;
+            padding-bottom: 40px;
         }
 
-        .item{
-
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-
-            background:#1f1f1f;
-
-            margin-bottom:12px;
-
-            padding:15px;
-
-            border-radius:10px;
-
+        header {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .item-info{
-
-            flex:1;
-
+        header a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .item-info h3{
-
-            margin:0;
-            font-size:18px;
-
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px 15px;
         }
 
-        .item-info p{
-
-            margin-top:6px;
-            opacity:.8;
-
+        .item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-white);
+            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #f1f2f6;
+            animation: fadeIn 0.3s ease;
         }
 
-        .controls{
-
-            display:flex;
-            align-items:center;
-            gap:8px;
-
+        .item-info {
+            flex: 1;
+            padding-right: 15px;
         }
 
-        .controls button{
-
-            width:35px;
-            height:35px;
-
-            border:none;
-
-            border-radius:6px;
-
-            cursor:pointer;
-
-            font-size:18px;
-
+        .item-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
         }
 
-        .remove{
-
-            background:#e74c3c;
-            color:white;
-
+        .item-info p {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
         }
 
-        .plus{
-
-            background:#2ecc71;
-            color:white;
-
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f2f6;
+            padding: 4px 8px;
+            border-radius: 30px;
         }
 
-        .minus{
-
-            background:#f39c12;
-            color:white;
-
+        .controls button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
-        .total{
+        .btn-minus { background: white; color: #7f8c8d; }
+        .btn-plus { background: var(--primary); color: white; }
+        .qty-label { font-weight: 700; font-size: 15px; min-width: 20px; text-align: center; }
 
-            margin-top:25px;
-
-            text-align:right;
-
-            font-size:22px;
-
-            font-weight:bold;
-
+        .total-container {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #f1f2f6;
         }
 
-        .checkout{
+        .total-title { font-size: 16px; font-weight: 600; color: #7f8c8d; }
+        .total-value { font-size: 24px; font-weight: 800; color: var(--secondary); }
 
-            width:100%;
-
-            margin-top:25px;
-
-            padding:18px;
-
-            background:#27ae60;
-
-            color:white;
-
-            border:none;
-
-            border-radius:10px;
-
-            font-size:18px;
-
-            cursor:pointer;
-
+        .btn-checkout {
+            width: 100%;
+            margin-top: 20px;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.25);
+            transition: all 0.2s;
         }
 
-        .checkout:hover{
-
-            background:#2ecc71;
-
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.35);
         }
 
-        .empty{
+        .btn-checkout:active { transform: translateY(0); }
 
-            text-align:center;
-
-            margin-top:70px;
-
-            opacity:.7;
-
-            font-size:20px;
-
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
         }
 
+        .empty-icon { font-size: 60px; margin-bottom: 15px; display: block; opacity: 0.5; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
-
 </head>
-
 <body>
 
 <header>
-
-🛒 Carrinho
-
-</header>
+    <a href="/menu"><i class="fa-solid fa-chevron-left"></i> {{ textos.back }}</a>
+    <div>🛒 {{ textos.cart }}</div>
+    <div style="width: 50px;"></div> </header>
 
 <div class="container">
+    <div id="cart-items"></div>
 
-    <div id="cart-items">
-
+    <div class="total-container" id="total-section">
+        <span class="total-title">{{ textos.total }}:</span>
+        <span class="total-value"><span id="cart-total">0.00</span> {{ textos.currency_symbol }}</span>
     </div>
 
-    <div class="total">
-
-        Total:
-        <span id="cart-total">
-            0.00
-        </span>
-        MT
-
-    </div>
-
-    <button
-        class="checkout"
-        onclick="checkout()">
-
-        Confirmar Pedido
-
+    <button class="btn-checkout" id="checkout-btn" onclick="checkout()">
+        {{ textos.checkout }}
     </button>
-
 </div>
 
-<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
-
 <script>
+// Lógica interna do Carrinho sincronizada com o Menu Digital
+function loadCart() {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+}
 
-renderCart();
-updateCartCounter();
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
 
+function renderCart() {
+    const cart = loadCart();
+    const itemsContainer = document.getElementById("cart-items");
+    const totalSection = document.getElementById("total-section");
+    const checkoutBtn = document.getElementById("checkout-btn");
+    
+    if (cart.length === 0) {
+        itemsContainer.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">🛒</span>
+                <p>{{ textos.empty_cart }}</p>
+            </div>
+        `;
+        totalSection.style.display = "none";
+        checkoutBtn.style.display = "none";
+        return;
+    }
+
+    totalSection.style.display = "flex";
+    checkoutBtn.style.display = "block";
+    itemsContainer.innerHTML = "";
+    
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
+
+        itemsContainer.innerHTML += `
+            <div class="item-card">
+                <div class="item-info">
+                    <h3>${item.name}</h3>
+                    <p>${item.price.toFixed(2)} {{ textos.currency_symbol }}</p>
+                </div>
+                <div class="controls">
+                    <button class="btn-minus" onclick="changeQty(${index}, -1)">-</button>
+                    <span class="qty-label">${item.qty}</span>
+                    <button class="btn-plus" onclick="changeQty(${index}, 1)">+</button>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById("cart-total").innerText = total.toFixed(2);
+}
+
+function changeQty(index, delta) {
+    let cart = loadCart();
+    cart[index].qty += delta;
+
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+    }
+
+    saveCart(cart);
+    renderCart();
+}
+
+// Global function usada também pelo arquivo de menu para guardar novos itens
+window.addToCart = function(name, price) {
+    let cart = loadCart();
+    let existingItem = cart.find(item => item.name === name);
+
+    if (existingItem) {
+        existingItem.qty += 1;
+    } else {
+        cart.push({ name: name, price: price, qty: 1 });
+    }
+
+    saveCart(cart);
+};
+
+function checkout() {
+    const cart = loadCart();
+    if (cart.length === 0) return;
+
+    const checkoutBtn = document.getElementById("checkout-btn");
+    checkoutBtn.disabled = true;
+    checkoutBtn.innerText = "{{ textos.loading }}";
+
+    // Envio assíncrono via POST JSON para o endpoint Flask /pedido
+    fetch("/pedido", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ cart: cart })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Limpa o carrinho local após gravação bem-sucedida no Sheets
+            localStorage.removeItem("cart");
+            alert("{{ textos.success }}");
+            window.location.href = "/menu";
+        } else {
+            alert("Erro: " + (data.error || "Falha ao enviar o pedido"));
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerText = "{{ textos.checkout }}";
+        }
+    })
+    .catch(error => {
+        console.error("Erro no checkout:", error);
+        alert("Erro de conexão com o servidor.");
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerText = "{{ textos.checkout }}";
+    });
+}
+
+// Inicialização automática do ecrã
+document.addEventListener("DOMContentLoaded", function() {
+    renderCart();
+});
 </script>
 
 </body>
