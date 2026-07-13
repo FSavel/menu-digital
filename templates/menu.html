@@ -25,8 +25,9 @@
 
 <div class="menu-card"
 
-     onclick="addToCart(
-        '{{ item.Produto_PT if lang == 'pt' else item.Produto_EN }}',
+     onclick="selecionarPrato(
+        this,
+        '{{ (item.Produto_PT if lang == 'pt' else item.Produto_EN)|e }}',
         parseFloat('{{ item.Preço }}')
      )">
 
@@ -89,5 +90,33 @@
 {% endfor %}
 
 </div>
+
+<script>
+// ================================
+// SELEÇÃO DE PRATO (animação + destaque + carrinho)
+// ================================
+function selecionarPrato(card, name, price) {
+
+    // efeito de "salto" + destaque temporário
+    card.classList.remove("selected");
+    // força reflow para reiniciar a animação em cliques rápidos
+    void card.offsetWidth;
+    card.classList.add("selected");
+
+    setTimeout(() => card.classList.remove("selected"), 600);
+
+    // adiciona ao carrinho (função global em cart.js)
+    if (typeof addToCart === "function") {
+        addToCart(name, price);
+    }
+}
+
+// ================================
+// AUTO-REFRESH (evita o servidor Render adormecer)
+// ================================
+setInterval(function () {
+    location.reload();
+}, 120000);
+</script>
 
 {% endblock %}
