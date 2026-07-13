@@ -35,13 +35,14 @@ from services.call_service import (
 # APP
 # ======================================================
 app = Flask(__name__)
-app.secret_key = "restaurante_secret_key"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "restaurante_secret_key")
 
 
 # ======================================================
 # HELPERS
 # ======================================================
-def get_language(lang):
+def get_language_dict():
+    lang = session.get("lang", "pt")
     if lang not in LANGUAGES:
         lang = "pt"
     return LANGUAGES[lang]
@@ -57,37 +58,63 @@ def admin_required_json(f):
 
 
 # ======================================================
-# HOME
+# HOME / WELCOME PAGE
 # ======================================================
 @app.route("/")
 def index():
-
-    return render_template("welcome.html")
+    # Se o utilizador já escolheu o idioma nesta sessão, pode ir direto ao menu
+    if "lang" in session:
+        return redirect(url_for("menu"))
+    
+    # Caso contrário, mostra a Welcome Page Premium para escolha de idioma
+    return render_template("welcome.html", config=Config)
 
 
 # ======================================================
-# MENU
+# IDIOMA ROTAS
 # ======================================================
+@app.route("/set_language/<lang>")
+def set_language(lang):
+    if lang not in Config.IDIOMAS:
+        lang = "pt"
+
+    session["lang"] = lang
+    return redirect(url_for("menu"))
+
+
+# ======================================================
+# MENU DIGITAL (UNIFICADO)
+# ======================================================
+@app.route("/menu")
+def menu():
+    # Garante que existe um idioma padrão na sessão antes de carregar o menu
+    if "lang" not in session:
+        session["lang"] = "pt"
+        
+    lang = session["lang"]
+    textos = get_language_dict()
+    
+    return render_template(
+        "menu.html", 
+        menu=load_menu(), 
+        lang=lang, 
+        textos=textos, 
+        config=Config,
+        refresh_time=Config.AUTO_REFRESH_CLIENTE
+    )
+
+
+# RETROCOMPATIBILIDADE: Mantido caso existam QR Codes impressos com estas rotas
 @app.route("/menu_pt")
 def menu_pt():
     session["lang"] = "pt"
-    return render_template("menu.html", menu=load_menu(), lang="pt", config=Config)
+    return redirect(url_for("menu"))
 
 
 @app.route("/menu_en")
 def menu_en():
     session["lang"] = "en"
-    return render_template("menu.html", menu=load_menu(), lang="en", config=Config)
-
-
-@app.route("/set_language/<lang>")
-def set_language(lang):
-    if lang not in ["pt", "en"]:
-        lang = "pt"
-
-    session["lang"] = lang
-
-    return redirect(url_for("menu_en" if lang == "en" else "menu_pt"))
+    return redirect(url_for("menu"))
 
 
 # ======================================================
@@ -95,7 +122,6 @@ def set_language(lang):
 # ======================================================
 @app.route("/pedido", methods=["POST"])
 def pedido():
-
     data = request.get_json(silent=True)
 
     if not data:
@@ -113,7 +139,6 @@ def pedido():
         }), 400
 
     total = 0
-
     for item in cart:
         total += item.get("price", 0) * item.get("qty", 1)
 
@@ -131,18 +156,18 @@ def pedido():
 
 @app.route("/cart")
 def cart():
-
     return render_template(
         "cart.html",
         config=Config,
-        lang=session.get("lang", "pt")
+        lang=session.get("lang", "pt"),
+        textos=get_language_dict()
     )
+
 # ======================================================
 # CHAMAR GARÇOM
 # ======================================================
 @app.route("/chamar")
 def chamar():
-
     chamada = {
         "id": gerar_id(),
         "mesa": request.args.get("mesa", "Não informada"),
@@ -151,13 +176,9 @@ def chamar():
     }
 
     add_call(Config.SHEET_CALLS, chamada)
-
     flash("Garçom chamado com sucesso!", "success")
-    lang = session.get("lang", "pt")
 
-    return redirect(
-        url_for("menu_en" if lang == "en" else "menu_pt")
-    )
+    return redirect(url_for("menu"))
 
 
 # ======================================================
@@ -165,9 +186,8 @@ def chamar():
 # ======================================================
 @app.route("/reserva", methods=["GET", "POST"])
 def reserva():
-
     if request.method == "GET":
-        return render_template("reserva.html", config=Config)
+        return render_template("reserva.html", config=Config, textos=get_language_dict())
 
     novo = {
         "id": gerar_id(),
@@ -182,13 +202,13 @@ def reserva():
         "status": "Pendente"
     }
 
-    # ✅ CORREÇÃO CRÍTICA: agora usa Google Sheets corretamente
     add_reservation(Config.SHEET_RESERVATIONS, novo)
 
     return render_template(
         "pedido_sucesso.html",
         total="Reserva enviada",
-        config=Config
+        config=Config,
+        textos=get_language_dict()
     )
 
 
@@ -197,7 +217,6 @@ def reserva():
 # ======================================================
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
-
     if request.method == "GET":
         return render_template("admin/login.html")
 
@@ -228,12 +247,10 @@ def admin_logout():
 # ======================================================
 @app.route("/pedidos")
 def pedidos():
-
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
     pedidos = get_orders(Config.SHEET_ORDERS)
-
     total_dia = get_total_sales(Config.SHEET_ORDERS)
 
     return render_template(
@@ -249,7 +266,6 @@ def pedidos():
 # ======================================================
 @app.route("/cozinha")
 def cozinha():
-
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
@@ -267,40 +283,31 @@ def cozinha():
 # ======================================================
 @app.route("/api/pedidos/count")
 def pedidos_count():
-
     pedidos = get_orders(Config.SHEET_ORDERS)
+    return {"count": len(pedidos)}
 
-    return {
-        "count": len(pedidos)
-    }
 # ======================================================
 # Actualizacao de pedidos
 # ======================================================    
 @app.route("/api/pedidos")
 def api_pedidos():
-
     pedidos = get_orders(Config.SHEET_ORDERS)
+    return {"pedidos": pedidos}    
 
-    return {
-        "pedidos": pedidos
-    }    
 # ======================================================
 # UPDATE STATUS
 # ======================================================
 @app.route("/api/pedido/status", methods=["POST"])
 def api_update_status():
-
     if not session.get("admin_logged_in"):
         return {"error": "unauthorized"}, 401
 
     data = request.json
-
     update_order_status(
         Config.SHEET_ORDERS,
         data.get("id"),
         data.get("status")
     )
-
     return {"success": True}
 
 
@@ -309,7 +316,6 @@ def api_update_status():
 # ======================================================
 @app.route("/admin/pedido/status/<pedido_id>/<status>")
 def admin_update_status(pedido_id, status):
-
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
@@ -318,7 +324,6 @@ def admin_update_status(pedido_id, status):
         return redirect(request.referrer or url_for("cozinha"))
 
     update_order_status(Config.SHEET_ORDERS, pedido_id, status)
-
     return redirect(request.referrer or url_for("cozinha"))
 
 
@@ -327,7 +332,6 @@ def admin_update_status(pedido_id, status):
 # ======================================================
 @app.route("/admin/dashboard")
 def admin_dashboard():
-
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
@@ -369,8 +373,9 @@ def health():
 # ======================================================
 @app.route("/sobre")
 def sobre():
-    return render_template("sobre.html", config=Config)
+    return render_template("sobre.html", config=Config, textos=get_language_dict())
     
+
 # ======================================================
 # RUN
 # ======================================================
