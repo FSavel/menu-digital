@@ -205,36 +205,23 @@ function renderCart() {
 }
 
 // ================================
-// CHECKOUT (ATUALIZADO PARA GOOGLE SHEETS)
+// CHECKOUT CORRIGIDO (ENVIA O CARRINHO E O NOME REAL)
 // ================================
 function checkout() {
-    cart = getCart();
+    const listaItens = getCart();
     
-    // Recupera o nome que o cliente digitou no menu
+    // Recupera o nome do cliente guardado no popup do menu
     const nomeCliente = localStorage.getItem("nome_cliente") || "Cliente";
 
-    if (cart.length === 0) {
+    if (listaItens.length === 0) {
         showToast("Carrinho vazio");
         return;
     }
 
-    // Junta todos os produtos numa linha de texto limpa. Ex: "2x Pizza, 1x Coca-cola"
-    const produtosTexto = cart.map(item => `${item.qty}x ${item.name}`).join(", ");
-
-    // Calcula o valor total do carrinho
-    let totalPreco = 0;
-    cart.forEach(item => {
-        totalPreco += item.price * item.qty;
-    });
-
-    // Cria exatamente o formato que o teu Google Sheets espera receber!
+    // Enviamos o "cart" original para o python não quebrar, mais o "nome" do cliente!
     const pacoteDados = {
-        id: "PED-" + Date.now().toString().slice(-5), // Cria um ID curto como PED-48291
-        nome: nomeCliente,
-        pedido: produtosTexto,
-        total: totalPreco.toFixed(2),
-        hora: new Date().toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' }),
-        status: "Recebido"
+        cart: listaItens,
+        nome: nomeCliente
     };
 
     fetch("/pedido", {
@@ -242,16 +229,16 @@ function checkout() {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(pacoteDados) // Envia o pedido arrumadinho
+        body: JSON.stringify(pacoteDados)
     })
     .then(r => r.json())
     .then(data => {
         if (data.success) {
             showToast("Pedido enviado 🍽️");
             clearCart();
-            localStorage.removeItem("nome_cliente"); // Apaga o nome para o próximo pedido
+            localStorage.removeItem("nome_cliente"); // Limpa o nome para o próximo cliente
             
-            // Espera 2 segundos e volta ao menu principal
+            // Espera 2 segundos e regressa ao menu
             setTimeout(() => {
                 window.location.href = "/";
             }, 2000);
