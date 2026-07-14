@@ -219,7 +219,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            cursor: pointer;
+            cursor: pointer; /* Garante a carinha/mãozinha em todo o cartão */
         }
 
         .product-img-wrapper {
@@ -357,11 +357,11 @@
     </div>
 
     <div class="categories-nav">
-        {% set categorias_vistas = [] %}
+        {% set categories_seen = [] %}
         {% for prato in menu %}
             {% set cat_atual = prato.Categoria if prato.Categoria is defined else (prato.categoria if prato.categoria is defined else '') %}
-            {% if cat_atual and cat_atual not in categorias_vistas %}
-                {% set _ = categorias_vistas.append(cat_atual) %}
+            {% if cat_atual and cat_atual not in categories_seen %}
+                {% set _ = categories_seen.append(cat_atual) %}
                 <a href="#cat-{{ loop.index }}" class="category-badge">{{ cat_atual }}</a>
             {% endif %}
         {% endfor %}
@@ -369,11 +369,11 @@
 </header>
 
 <div class="container">
-    {% set categorias_vistas_corpo = [] %}
+    {% set categories_seen_body = [] %}
     {% for prato_cat in menu %}
         {% set cat_atual_corpo = prato_cat.Categoria if prato_cat.Categoria is defined else (prato_cat.categoria if prato_cat.categoria is defined else '') %}
-        {% if cat_atual_corpo and cat_atual_corpo not in categorias_vistas_corpo %}
-            {% set _ = categorias_vistas_corpo.append(cat_atual_corpo) %}
+        {% if cat_atual_corpo and cat_atual_corpo not in categories_seen_body %}
+            {% set _ = categories_seen_body.append(cat_atual_corpo) %}
             
             <div class="category-section" id="cat-{{ loop.index }}">
                 <h3 class="category-title">{{ cat_atual_corpo }}</h3>
@@ -397,23 +397,22 @@
                             {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome_pt %}
                             {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao_pt %}
 
-                            <div class="product-card" onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')" style="cursor: pointer !important; display: flex; flex-direction: column;">
+                            <div class="product-card" onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')">
                                 <div class="product-img-wrapper">
                                     <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ nome_exibicao }}">
                                 </div>
                                 <div class="product-info">
                                     <h4 class="product-name">{{ nome_exibicao }}</h4>
                                     <p class="product-desc">{{ desc_exibicao }}</p>
-                                    
                                     <div class="product-footer">
                                         <span class="product-price">{{ p_preco }} {{ textos.currency_symbol if textos.currency_symbol is defined else 'MT' }}</span>
-                                        
                                         <span class="btn-add-cart">
                                             <i class="fa-solid fa-plus"></i>
                                         </span>
                                     </div>
                                 </div>
                             </div>
+
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -438,17 +437,13 @@ function chamarGarcom() {
     }
 }
 
-// Lógica para o Clique Secreto de 5 vezes no logotipo do Restaurante
 let cliques_logo = 0;
 let reset_cliques_timeout;
 
 function detectarCliquesSecretos() {
     cliques_logo++;
-    
     clearTimeout(reset_cliques_timeout);
-    reset_cliques_timeout = setTimeout(() => {
-        cliques_logo = 0;
-    }, 2000);
+    reset_cliques_timeout = setTimeout(() => { cliques_logo = 0; }, 2000);
 
     if (cliques_logo >= 5) {
         cliques_logo = 0;
