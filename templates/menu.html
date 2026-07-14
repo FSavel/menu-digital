@@ -409,7 +409,7 @@
                                     <div class="product-footer">
                                         <span class="product-price">{{ p_preco }} {{ textos.currency_symbol if textos.currency_symbol is defined else 'MT' }}</span>
                                         
-                                        <button onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', {{ p_preco }})" class="btn-add-cart">
+                                        <button onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')" class="btn-add-cart">
                                             <i class="fa-solid fa-plus"></i>
                                         </button>
                                     </div>
