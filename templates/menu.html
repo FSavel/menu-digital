@@ -397,7 +397,7 @@
                             {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome_pt %}
                             {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao_pt %}
 
-                            <div class="product-card" onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')">
+                            <div class="product-card" onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')" style="cursor: pointer !important; display: flex; flex-direction: column;">
                                 <div class="product-img-wrapper">
                                     <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ nome_exibicao }}">
                                 </div>
