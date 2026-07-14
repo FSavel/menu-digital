@@ -205,32 +205,59 @@ function renderCart() {
 }
 
 // ================================
-// CHECKOUT
+// CHECKOUT (ATUALIZADO PARA GOOGLE SHEETS)
 // ================================
 function checkout() {
+    cart = getCart();
+    
+    // Recupera o nome que o cliente digitou no menu
+    const nomeCliente = localStorage.getItem("nome_cliente") || "Cliente";
 
     if (cart.length === 0) {
         showToast("Carrinho vazio");
         return;
     }
 
+    // Junta todos os produtos numa linha de texto limpa. Ex: "2x Pizza, 1x Coca-cola"
+    const produtosTexto = cart.map(item => `${item.qty}x ${item.name}`).join(", ");
+
+    // Calcula o valor total do carrinho
+    let totalPreco = 0;
+    cart.forEach(item => {
+        totalPreco += item.price * item.qty;
+    });
+
+    // Cria exatamente o formato que o teu Google Sheets espera receber!
+    const pacoteDados = {
+        id: "PED-" + Date.now().toString().slice(-5), // Cria um ID curto como PED-48291
+        nome: nomeCliente,
+        pedido: produtosTexto,
+        total: totalPreco.toFixed(2),
+        hora: new Date().toLocaleTimeString("pt-PT", { hour: '2-digit', minute: '2-digit' }),
+        status: "Recebido"
+    };
+
     fetch("/pedido", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ cart: cart })
+        body: JSON.stringify(pacoteDados) // Envia o pedido arrumadinho
     })
     .then(r => r.json())
     .then(data => {
-
         if (data.success) {
             showToast("Pedido enviado 🍽️");
             clearCart();
+            localStorage.removeItem("nome_cliente"); // Apaga o nome para o próximo pedido
+            
+            // Espera 2 segundos e volta ao menu principal
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2000);
         } else {
             showToast("Erro ao enviar");
         }
-
     })
     .catch(err => {
         console.error(err);
