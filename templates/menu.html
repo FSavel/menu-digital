@@ -47,6 +47,7 @@
             margin-bottom: 15px;
         }
 
+        /* Gatilho Admin configurado com o ID correto */
         .brand h1 {
             font-size: 20px;
             font-weight: 800;
@@ -289,7 +290,7 @@
 <header>
     <div class="header-top">
         <div class="brand">
-            <h1 onclick="detectarCliquesSecretos()">{{ config.NOME_RESTAURANTE }}</h1>
+            <h1 id="admin-trigger">{{ config.NOME_RESTAURANTE }}</h1>
             <p>{{ config.SLOGAN }}</p>
         </div>
         <div class="actions-btn">
@@ -334,7 +335,6 @@
                         {% set cat_item = prato.Categoria if prato.Categoria is defined else (prato.categoria if prato.categoria is defined else '') %}
                         {% if cat_item == cat_atual_corpo %}
                             
-                            {% set p_id = prato.ID if prato.ID is defined else (prato.id if prato.id is defined else loop.index) %}
                             {% set p_nome_pt = prato.Produto_PT if prato.Produto_PT is defined else (prato.produto_pt if prato.produto_pt is defined else '') %}
                             {% set p_nome_en = prato.Produto_EN if prato.Produto_EN is defined else (prato.produto_en if prato.produto_en is defined else '') %}
                             {% set p_descricao_pt = prato.Descrição_PT if prato.Descrição_PT is defined else (prato.descricao_pt if prato.descricao_pt is defined else '') %}
@@ -345,7 +345,7 @@
                             {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome_pt %}
                             {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao_pt %}
 
-                            <div class="product-card" onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')">
+                            <div class="product-card" onclick="addToCart('{{ nome_exibicao | replace("'", "\\'") }}', '{{ p_preco }}')">
                                 <div class="product-img-wrapper">
                                     <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ nome_exibicao }}">
                                 </div>
@@ -370,10 +370,9 @@
     {% endfor %}
 </div>
 
-<!-- Barra Flutuante do Carrinho -->
 <a href="/cart" class="cart-floating-btn" id="cart-floating-bar">
     <span><i class="fa-solid fa-basket-shopping"></i> &nbsp;{{ textos.view_cart if textos.view_cart is defined else 'Ver Carrinho' }}</span>
-    <span id="cart-total-badge" style="background: white; color: var(--primary); padding: 2px 10px; border-radius: 12px; font-size: 13px;">0</span>
+    <span id="cart-counter" style="background: white; color: var(--primary); padding: 2px 10px; border-radius: 12px; font-size: 13px;">0</span>
 </a>
 
 <script>
@@ -383,20 +382,6 @@ function chamarGarcom() {
         .then(res => res.json())
         .then(data => alert("{{ textos.loading if textos.loading is defined else 'Chamando...' }}"))
         .catch(err => console.error(err));
-    }
-}
-
-let cliques_logo = 0;
-let reset_cliques_timeout;
-
-function detectarCliquesSecretos() {
-    cliques_logo++;
-    clearTimeout(reset_cliques_timeout);
-    reset_cliques_timeout = setTimeout(() => { cliques_logo = 0; }, 2000);
-
-    if (cliques_logo >= 5) {
-        cliques_logo = 0;
-        window.location.href = "/admin";
     }
 }
 
