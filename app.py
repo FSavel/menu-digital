@@ -115,7 +115,7 @@ def menu_en():
 
 
 # ======================================================
-# PEDIDO (CART - ATUALIZADO PARA GOOGLE SHEETS)
+# PEDIDO (CART - SINCRO PERFEITA COM O GOOGLE SHEETS)
 # ======================================================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -127,39 +127,37 @@ def pedido():
             "error": "Pedido inválido"
         }), 400
 
-    # 1. Recupera as informações enviadas pelo teu cart.js
-    pedido_id = data.get("id", f"PED-{gerar_id()}")
-    nome_cliente = data.get("nome", "Cliente")
-    pedido_texto = data.get("pedido", "")
-    total_recebido = data.get("total", 0)
-    hora_envio = data.get("hora", hora_mocambique())
-    status_inicial = data.get("status", "Recebido")
+    # 1. Tenta buscar o carrinho enviado diretamente ou dentro do pacote
+    cart = data.get("cart", [])
+    if not cart and "pedido" in data:
+        # Se o JS enviou estruturado, tentamos pegar o carrinho
+        cart = data.get("cart", [])
 
-    # 2. Mantém compatibilidade caso o teu service 'add_order' precise do formato de array original
-    # Caso a tua integração com o Google Sheets precise ler as chaves individuais mais tarde
-    pedido_estruturado = {
-        "id": pedido_id,
-        "nome": nome_cliente,
-        "cliente": nome_cliente, # garante compatibilidade com campos antigos
-        "pedido": pedido_texto,
-        "items": pedido_texto,   # limpa o erro do built-in de vez no backend também
-        "total": total_recebido,
-        "hora": hora_envio,
-        "status": status_inicial
-    }
+    # 2. Busca o nome do cliente dinâmico enviado pelo formulário do menu
+    nome_cliente = data.get("nome") or data.get("cliente") or "Cliente"
 
-    # 3. Envia para o teu Google Sheets usando as funções nativas existentes
-    # Passamos o nome dinâmico (nome_cliente) em vez do texto fixo "Cliente"
+    if not cart:
+        return jsonify({
+            "success": False,
+            "error": "Carrinho vazio"
+        }), 400
+
+    # 3. Deixa o teu order_service calcular o total e salvar com o nome real!
+    total = 0
+    for item in cart:
+        total += item.get("price", 0) * item.get("qty", 1)
+
+    # Aqui enviamos o nome_cliente capturado dinamicamente
     add_order(
         Config.SHEET_ORDERS,
-        pedido_estruturado, # Envia o objeto estruturado com ID e Nome do Cliente real
-        pedido_texto, 
-        hora_envio
+        nome_cliente,
+        cart,
+        hora_mocambique()
     )
 
     return jsonify({
         "success": True,
-        "total": total_recebido
+        "total": total
     })
 
 @app.route("/cart")
