@@ -288,9 +288,10 @@
     <div class="categories-nav">
         {% set categorias_vistas = [] %}
         {% for prato in menu %}
-            {% if prato.categoria not in categorias_vistas %}
-                {% set _ = categorias_vistas.append(prato.categoria) %}
-                <a href="#cat-{{ loop.index }}" class="category-badge">{{ prato.categoria }}</a>
+            {% set cat_atual = prato.categoria if prato.categoria is defined else prato.Categoria %}
+            {% if cat_atual not in categorias_vistas %}
+                {% set _ = categorias_vistas.append(cat_atual) %}
+                <a href="#cat-{{ loop.index }}" class="category-badge">{{ cat_atual }}</a>
             {% endif %}
         {% endfor %}
     </div>
@@ -299,33 +300,46 @@
 <div class="container">
     {% set categorias_vistas_corpo = [] %}
     {% for prato_cat in menu %}
-        {% if prato_cat.categoria not in categorias_vistas_corpo %}
-            {% set _ = categorias_vistas_corpo.append(prato_cat.categoria) %}
+        {% set cat_atual_corpo = prato_cat.categoria if prato_cat.categoria is defined else prato_cat.Categoria %}
+        {% if cat_atual_corpo not in categorias_vistas_corpo %}
+            {% set _ = categorias_vistas_corpo.append(cat_atual_corpo) %}
             
             <div class="category-section" id="cat-{{ loop.index }}">
-                <h3 class="category-title">{{ prato_cat.categoria }}</h3>
+                <h3 class="category-title">{{ cat_atual_corpo }}</h3>
                 
                 <div class="products-grid">
                     {% for prato in menu %}
-                        {% if prato.categoria == prato_cat.categoria %}
-                        <div class="product-card">
-                            <div class="product-img-wrapper">
-                                <img src="{{ prato.foto if prato.foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ prato.nome }}">
-                            </div>
-                            <div class="product-info">
-                                <h4 class="product-name">{% if lang == 'en' and prato.nome_en %}{{ prato.nome_en }}{% else %}{{ prato.nome }}{% endif %}</h4>
-                                <p class="product-desc">{% if lang == 'en' and prato.descricao_en %}{{ prato.descricao_en }}{% else %}{{ prato.descricao if prato.descricao else '' }}{% endif %}</p>
-                                
-                                <div class="product-footer">
-                                    <span class="product-price">{{ prato.preco }} {{ textos.currency_symbol }}</span>
-                                    {% set nome_exibicao = prato.nome_en if (lang == 'en' and prato.nome_en) else prato.nome %}
+                        {% set cat_item = prato.categoria if prato.categoria is defined else prato.Categoria %}
+                        {% if cat_item == cat_atual_corpo %}
+                            
+                            {% set p_id = prato.id if prato.id is defined else prato.ID %}
+                            {% set p_nome = prato.nome if prato.nome is defined else prato.Nome %}
+                            {% set p_nome_en = prato.nome_en if prato.nome_en is defined else prato.Nome_EN %}
+                            {% set p_descricao = prato.descricao if prato.descricao is defined else prato.Descricao %}
+                            {% set p_descricao_en = prato.descricao_en if prato.descricao_en is defined else prato.Descricao_EN %}
+                            {% set p_preco = prato.preco if prato.preco is defined else prato.Preco %}
+                            {% set p_foto = prato.foto if prato.foto is defined else prato.Foto %}
+                            
+                            {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome %}
+                            {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao %}
 
-                                    <button onclick="adicionarAoCarrinho('{{ prato.id }}', '{{ nome_exibicao }}', {{ prato.preco }})" class="btn-add-cart">
-                                    <i class="fa-solid fa-plus"></i>
-                                    </button>
+                            <div class="product-card">
+                                <div class="product-img-wrapper">
+                                    <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ p_nome }}">
+                                </div>
+                                <div class="product-info">
+                                    <h4 class="product-name">{{ nome_exibicao }}</h4>
+                                    <p class="product-desc">{{ desc_exibicao if desc_exibicao else '' }}</p>
+                                    
+                                    <div class="product-footer">
+                                        <span class="product-price">{{ p_preco }} {{ textos.currency_symbol }}</span>
+                                        
+                                        <button onclick="adicionarAoCarrinho('{{ p_id }}', '{{ nome_exibicao }}', {{ p_preco }})" class="btn-add-cart">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -363,9 +377,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-    
+
 <script src="/static/js/cart.js"></script>
 <script src="/static/js/app.js"></script>
-    
+
 </body>
 </html>
