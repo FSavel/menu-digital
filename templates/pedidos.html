@@ -82,10 +82,12 @@
             <th>Ações</th>
         </tr>
 
-        {% for p in pedidos %}
+{% for p in pedidos %}
         <tr>
-            <td>{{ p.cliente }}</td>
-            <td>{{ p['items'] }}</td>
+            <td>{{ p.nome if p.nome is defined else p.cliente }}</td>
+            
+            <td>{{ p.pedido if p.pedido is defined else (p.items if p.items is defined else '') }}</td>
+            
             <td>{{ p.total }}</td>
             <td>
                 <span class="status {{ p.status }}">
@@ -102,6 +104,7 @@
             </td>
         </tr>
         {% endfor %}
+        
     </table>
 
     <div class="total">
