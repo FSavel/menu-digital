@@ -47,7 +47,6 @@
             margin-bottom: 15px;
         }
 
-        /* Gatilho Admin configurado com o ID correto */
         .brand h1 {
             font-size: 20px;
             font-weight: 800;
@@ -173,7 +172,7 @@
             }
         }
 
-        /* Cartão de Prato Inteligente */
+        /* Cartão de Prato */
         .product-card {
             background: var(--card-white);
             border-radius: 16px;
@@ -261,7 +260,7 @@
             box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);
         }
 
-        /* Botão Flutuante do Carrinho */
+        /* Barra Flutuante do Carrinho */
         .cart-floating-btn {
             position: fixed;
             bottom: 20px;
@@ -275,7 +274,7 @@
             font-weight: 700;
             text-decoration: none;
             box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4);
-            display: none; /* Controlado pelo cart.js */
+            display: none; /* Controlado dinamicamente via JS corrigido abaixo */
             align-items: center;
             gap: 12px;
             z-index: 99;
@@ -400,6 +399,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script src="/static/js/cart.js"></script>
 <script src="/static/js/app.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Substitui a função original para também gerir o estado do botão flutuante
+    if (typeof updateCartCounter === 'function') {
+        const originalUpdate = updateCartCounter;
+        window.updateCartCounter = function() {
+            originalUpdate(); // Corre o teu código original
+            
+            const bar = document.getElementById("cart-floating-bar");
+            if (bar) {
+                const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+                // Se houver itens, mostra a barra flexível. Se não, esconde.
+                bar.style.display = currentCart.length > 0 ? "flex" : "none";
+            }
+        };
+        // Executa uma primeira vez para carregar o estado correto
+        window.updateCartCounter();
+    }
+});
+</script>
 
 </body>
 </html>
