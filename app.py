@@ -115,7 +115,7 @@ def menu_en():
 
 
 # ======================================================
-# PEDIDO (CART - SINCRO PERFEITA COM O GOOGLE SHEETS)
+# PEDIDO (CART - RECONSTRUTOR DINÂMICO)
 # ======================================================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -127,13 +127,10 @@ def pedido():
             "error": "Pedido inválido"
         }), 400
 
-    # 1. Tenta buscar o carrinho enviado diretamente ou dentro do pacote
+    # 1. Pega o carrinho original enviado pelo JS
     cart = data.get("cart", [])
-    if not cart and "pedido" in data:
-        # Se o JS enviou estruturado, tentamos pegar o carrinho
-        cart = data.get("cart", [])
-
-    # 2. Busca o nome do cliente dinâmico enviado pelo formulário do menu
+    
+    # 2. Pega o nome do cliente que foi digitado (se não houver, assume "Cliente")
     nome_cliente = data.get("nome") or data.get("cliente") or "Cliente"
 
     if not cart:
@@ -142,12 +139,12 @@ def pedido():
             "error": "Carrinho vazio"
         }), 400
 
-    # 3. Deixa o teu order_service calcular o total e salvar com o nome real!
+    # 3. Calcula o total para responder ao cliente
     total = 0
     for item in cart:
         total += item.get("price", 0) * item.get("qty", 1)
 
-    # Aqui enviamos o nome_cliente capturado dinamicamente
+    # 4. Envia o nome real e o carrinho para a tua função do Google Sheets gerar os IDs e o resumo!
     add_order(
         Config.SHEET_ORDERS,
         nome_cliente,
