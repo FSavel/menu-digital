@@ -115,7 +115,7 @@ def menu_en():
 
 
 # ======================================================
-# PEDIDO (CART)
+# PEDIDO (CART - ATUALIZADO PARA GOOGLE SHEETS)
 # ======================================================
 @app.route("/pedido", methods=["POST"])
 def pedido():
@@ -127,28 +127,39 @@ def pedido():
             "error": "Pedido inválido"
         }), 400
 
-    cart = data.get("cart", [])
+    # 1. Recupera as informações enviadas pelo teu cart.js
+    pedido_id = data.get("id", f"PED-{gerar_id()}")
+    nome_cliente = data.get("nome", "Cliente")
+    pedido_texto = data.get("pedido", "")
+    total_recebido = data.get("total", 0)
+    hora_envio = data.get("hora", hora_mocambique())
+    status_inicial = data.get("status", "Recebido")
 
-    if not cart:
-        return jsonify({
-            "success": False,
-            "error": "Carrinho vazio"
-        }), 400
+    # 2. Mantém compatibilidade caso o teu service 'add_order' precise do formato de array original
+    # Caso a tua integração com o Google Sheets precise ler as chaves individuais mais tarde
+    pedido_estruturado = {
+        "id": pedido_id,
+        "nome": nome_cliente,
+        "cliente": nome_cliente, # garante compatibilidade com campos antigos
+        "pedido": pedido_texto,
+        "items": pedido_texto,   # limpa o erro do built-in de vez no backend também
+        "total": total_recebido,
+        "hora": hora_envio,
+        "status": status_inicial
+    }
 
-    total = 0
-    for item in cart:
-        total += item.get("price", 0) * item.get("qty", 1)
-
+    # 3. Envia para o teu Google Sheets usando as funções nativas existentes
+    # Passamos o nome dinâmico (nome_cliente) em vez do texto fixo "Cliente"
     add_order(
         Config.SHEET_ORDERS,
-        "Cliente",
-        cart,
-        hora_mocambique()
+        pedido_estruturado, # Envia o objeto estruturado com ID e Nome do Cliente real
+        pedido_texto, 
+        hora_envio
     )
 
     return jsonify({
         "success": True,
-        "total": total
+        "total": total_recebido
     })
 
 @app.route("/cart")
