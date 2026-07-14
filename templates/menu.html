@@ -64,7 +64,7 @@
             gap: 8px;
         }
 
-        /* Botão Mudar Idioma (Voltar ao Início) */
+        /* Botão Mudar Idioma */
         .btn-lang {
             background: #f1f2f6;
             border: none;
@@ -85,7 +85,7 @@
             background: #e4e7eb;
         }
 
-        /* Botão de Reservas Super Visível */
+        /* Botão de Reservas */
         .btn-reservation {
             background: var(--primary);
             color: white;
@@ -138,7 +138,7 @@
             font-size: 15px;
         }
 
-        /* Barra de Categorias Deslizante */
+        /* Barra de Categorias */
         .categories-nav {
             display: flex;
             gap: 10px;
@@ -356,7 +356,7 @@
     <div class="categories-nav">
         {% set categorias_vistas = [] %}
         {% for prato in menu %}
-            {% set cat_atual = prato.categoria if prato.categoria is defined else (prato.Categoria if prato.Categoria is defined else '') %}
+            {% set cat_atual = prato.Categoria if prato.Categoria is defined else (prato.categoria if prato.categoria is defined else '') %}
             {% if cat_atual and cat_atual not in categorias_vistas %}
                 {% set _ = categorias_vistas.append(cat_atual) %}
                 <a href="#cat-{{ loop.index }}" class="category-badge">{{ cat_atual }}</a>
@@ -368,7 +368,7 @@
 <div class="container">
     {% set categorias_vistas_corpo = [] %}
     {% for prato_cat in menu %}
-        {% set cat_atual_corpo = prato_cat.categoria if prato_cat.categoria is defined else (prato_cat.Categoria if prato_cat.Categoria is defined else '') %}
+        {% set cat_atual_corpo = prato_cat.Categoria if prato_cat.Categoria is defined else (prato_cat.categoria if prato_cat.categoria is defined else '') %}
         {% if cat_atual_corpo and cat_atual_corpo not in categorias_vistas_corpo %}
             {% set _ = categorias_vistas_corpo.append(cat_atual_corpo) %}
             
@@ -377,26 +377,26 @@
                 
                 <div class="products-grid">
                     {% for prato in menu %}
-                        {% set cat_item = prato.categoria if prato.categoria is defined else (prato.Categoria if prato.Categoria is defined else '') %}
+                        {% set cat_item = prato.Categoria if prato.Categoria is defined else (prato.categoria if prato.categoria is defined else '') %}
                         {% if cat_item == cat_atual_corpo %}
                             
-                            {% set p_id = prato.id if prato.id is defined else (prato.ID if prato.ID is defined else loop.index) %}
+                            {% set p_id = prato.ID if prato.ID is defined else (prato.id if prato.id is defined else loop.index) %}
                             
-                            {% set p_nome = prato.nome if prato.nome is defined else (prato.Nome if prato.Nome is defined else '') %}
-                            {% set p_nome_en = prato.nome_en if prato.nome_en is defined else (prato.Nome_EN if prato.Nome_EN is defined else (prato['Nome EN'] if prato['Nome EN'] is defined else '')) %}
+                            {% set p_nome_pt = prato.Produto_PT if prato.Produto_PT is defined else (prato.produto_pt if prato.produto_pt is defined else '') %}
+                            {% set p_nome_en = prato.Produto_EN if prato.Produto_EN is defined else (prato.produto_en if prato.produto_en is defined else '') %}
                             
-                            {% set p_descricao = prato.descricao if prato.descricao is defined else (prato.Descricao if prato.Descricao is defined else (prato['Descrição'] if prato['Descrição'] is defined else '')) %}
-                            {% set p_descricao_en = prato.descricao_en if prato.descricao_en is defined else (prato.Descricao_EN if prato.Descricao_EN is defined else (prato['Descrição EN'] if prato['Descrição EN'] is defined else '')) %}
+                            {% set p_descricao_pt = prato.Descrição_PT if prato.Descrição_PT is defined else (prato['Descrição_PT'] if prato['Descrição_PT'] is defined else (prato.descricao_pt if prato.descricao_pt is defined else '')) %}
+                            {% set p_descricao_en = prato.Descrição_EN if prato.Descrição_EN is defined else (prato['Descrição_EN'] if prato['Descrição_EN'] is defined else (prato.descricao_en if prato.descricao_en is defined else '')) %}
                             
-                            {% set p_preco = prato.preco if prato.preco is defined else (prato.Preco if prato.Preco is defined else (prato['Preço'] if prato['Preço'] is defined else '0')) %}
-                            {% set p_foto = prato.foto if prato.foto is defined else (prato.Foto if prato.Foto is defined else '') %}
+                            {% set p_preco = prato.Preço if prato.Preço is defined else (prato['Preço'] if prato['Preço'] is defined else (prato.preco if prato.preco is defined else '0')) %}
+                            {% set p_foto = prato.Imagem if prato.Imagem is defined else (prato.imagem if prato.imagem is defined else '') %}
                             
-                            {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome %}
-                            {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao %}
+                            {% set nome_exibicao = p_nome_en if (lang == 'en' and p_nome_en) else p_nome_pt %}
+                            {% set desc_exibicao = p_descricao_en if (lang == 'en' and p_descricao_en) else p_descricao_pt %}
 
                             <div class="product-card">
                                 <div class="product-img-wrapper">
-                                    <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ p_nome }}">
+                                    <img src="{{ p_foto if p_foto else 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200' }}" class="product-img" alt="{{ nome_exibicao }}">
                                 </div>
                                 <div class="product-info">
                                     <h4 class="product-name">{{ nome_exibicao }}</h4>
