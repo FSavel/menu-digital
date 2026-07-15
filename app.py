@@ -155,6 +155,9 @@ def pedido():
     return jsonify({
         "success": True,
         "total": total
+
+    global CACHE_PEDIDOS
+    CACHE_PEDIDOS = None
     })
 
 @app.route("/cart")
