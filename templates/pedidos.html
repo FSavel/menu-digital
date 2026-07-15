@@ -99,40 +99,32 @@
         </thead>
         <tbody>
             {% for p in pedidos %}
-            <tr>
-                <td>
-                    {% if p.nome %}{{ p.nome }}
-                    {% elif p.cliente %}{{ p.cliente }}
-                    {% else %}Cliente Anonimo{% endif %}
-                </td>
-                
-                <td>
-                    {% if p.pedido %}{{ p.pedido }}
-                    {% elif p.items %}{{ p.items }}
-                    {% else %}-{% endif %}
-                </td>
-                
-                <td>
-                    {% if p.total %}{{ p.total }}{% else %}0.00{% endif %} Mt
-                </td>
-                
-                <td>
-                    {% set status_limpo = p.status if p.status else 'Recebido' %}
-                    <span class="status {{ status_limpo }}">
-                        {{ status_limpo }}
-                    </span>
-                </td>
-                
-                <td>
-                    {% set id_pedido = p.id if p.id else p.ID %}
-                    {% if id_pedido %}
-                        <a href="/admin/pedido/status/{{ id_pedido }}/Recebido">Recebido</a>
-                        <a href="/admin/pedido/status/{{ id_pedido }}/Em%20Preparação">Prep</a>
-                        <a href="/admin/pedido/status/{{ id_pedido }}/Pronto">Pronto</a>
-                        <a href="/admin/pedido/status/{{ id_pedido }}/Entregue">OK</a>
-                    {% else %}
-                        <span style="color: #666; font-size: 11px;">Sem ID</span>
-                    {% endif %}
+        <tr>
+            <td>{{ p.cliente if p.cliente else 'Cliente Anónimo' }}</td>
+            
+            <td>{{ p.pedido if p.pedido else '-' }}</td>
+            
+            <td>{{ p.total if p.total else '0.00' }} Mt</td>
+            
+            <td>
+                <span class="status {{ p.status }}">
+                    {{ p.status if p.status else 'Recebido' }}
+                </span>
+            </td>
+            
+            <td>
+                {% set id_pedido = p.id if p.id else p.ID %}
+                {% if id_pedido %}
+                    <a href="/admin/pedido/status/{{ id_pedido }}/Recebido">Recebido</a>
+                    <a href="/admin/pedido/status/{{ id_pedido }}/Em%20Preparação">Prep</a>
+                    <a href="/admin/pedido/status/{{ id_pedido }}/Pronto">Pronto</a>
+                    <a href="/admin/pedido/status/{{ id_pedido }}/Entregue">OK</a>
+                {% else %}
+                    <span style="color: #666; font-size: 11px;">Sem ID</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
                 </td>
             </tr>
             {% endfor %}
