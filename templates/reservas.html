@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservas | Dourados</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        .header {
+            padding: 15px;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h3 {
+            margin: 0;
+            color: #f1c40f;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            background: #1e1e1e;
+            color: #f1c40f;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background: #151515;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .Pendente { background: #e67e22; color: black; }
+        .Confirmada { background: #2ecc71; color: black; }
+        .Cancelada { background: #e74c3c; color: white; }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #444;
+            padding: 6px 12px;
+            border-radius: 4px;
+            background: #222;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #444;
+            color: #f1c40f;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h3>📅 Reservas Recebidas</h3>
+    <a href="/admin/dashboard" class="back-btn">⬅ Dashboard</a>
+</div>
+
+<div class="container">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Contacto</th>
+                <th>Tipo/Mesa</th>
+                <th>Pessoas</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Observações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reservas %}
+            <tr>
+                <td><strong>{{ r.nome if r.nome else '-' }}</strong></td>
+                <td>{{ r.contacto if r.contacto else '-' }}</td>
+                <td>{{ r.tipo if r.tipo else (r.descricao if r.descricao else 'Mesa Comum') }}</td>
+                <td>👤 {{ r.quantidade if r.quantidade else (r.pessoas if r.pessoas else '1') }}</td>
+                <td>📅 {{ r.data if r.data else '-' }}</td>
+                <td>
+                    <span class="status {{ r.status if r.status else 'Pendente' }}">
+                        {{ r.status if r.status else 'Pendente' }}
+                    </span>
+                </td>
+                <td style="color: #aaa; font-style: italic; font-size: 12px;">
+                    {{ r.observacoes if r.observacoes else '-' }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #666; padding: 30px;">
+                    Nenhuma reserva encontrada na base de dados.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
