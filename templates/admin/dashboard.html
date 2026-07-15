@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Dashboard Administrativo | Dourados</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Chart.js para os gráficos sem complicações -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -164,26 +163,23 @@
 <header>
     <h1>📈 DOURADOS - ADMIN</h1>
     <div class="nav-links">
-        <a href="/cozinha" target="_blank">📋 Monitor da Cozinha</a>
+        <a href="/admin/reservas">📅 Ver Reservas</a> <a href="/cozinha" target="_blank">📋 Monitor da Cozinha</a>
         <a href="#" onclick="fetchData()">🔄 Atualizar</a>
     </div>
 </header>
 
 <div class="container">
-    <!-- Linha de Cartões de Métricas -->
     <div class="metrics-grid">
         <div class="metric-card">
             <h3>Faturamento Hoje</h3>
-            <div class="value" id="revenue-today">0,00 €</div>
-        </div>
+            <div class="value" id="revenue-today">0,00 Mt</div> </div>
         <div class="metric-card">
             <h3>Pedidos Hoje</h3>
             <div class="value" id="orders-count">0</div>
         </div>
         <div class="metric-card">
             <h3>Ticket Médio</h3>
-            <div class="value" id="ticket-average">0,00 €</div>
-        </div>
+            <div class="value" id="ticket-average">0,00 Mt</div> </div>
         <div class="metric-card">
             <h3>Em Preparação</h3>
             <div class="value" id="pending-kitchen">0</div>
@@ -191,7 +187,6 @@
     </div>
 
     <div class="dashboard-content">
-        <!-- Gráfico de Vendas -->
         <div class="chart-section">
             <h2>Vendas por Hora (Hoje)</h2>
             <div class="chart-container">
@@ -199,12 +194,10 @@
             </div>
         </div>
 
-        <!-- Últimos Pedidos Registados -->
         <div class="recent-section">
             <h2>Últimos Pedidos</h2>
             <div class="order-list" id="recent-orders-container">
-                <!-- Inserido via JS -->
-            </div>
+                </div>
         </div>
     </div>
 </div>
@@ -224,7 +217,7 @@ function initChart(labels = [], datasetData = []) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Faturamento (€)',
+                label: 'Faturamento (Mt)', // Corrigido para Mt
                 data: datasetData,
                 borderColor: '#f1c40f',
                 backgroundColor: 'rgba(241, 196, 15, 0.1)',
@@ -290,10 +283,10 @@ function fetchData() {
 
             const ticketAverage = totalOrdersToday > 0 ? (totalRevenue / totalOrdersToday) : 0;
 
-            // Atualizar UI dos cards
-            document.getElementById("revenue-today").innerText = totalRevenue.toFixed(2).replace('.', ',') + " €";
+            // Atualizar UI dos cards (Exibe em Meticais)
+            document.getElementById("revenue-today").innerText = totalRevenue.toFixed(2).replace('.', ',') + " Mt";
             document.getElementById("orders-count").innerText = totalOrdersToday;
-            document.getElementById("ticket-average").innerText = ticketAverage.toFixed(2).replace('.', ',') + " €";
+            document.getElementById("ticket-average").innerText = ticketAverage.toFixed(2).replace('.', ',') + " Mt";
             document.getElementById("pending-kitchen").innerText = activeInKitchen;
 
             // 2. Atualizar o gráfico
@@ -302,44 +295,3 @@ function fetchData() {
             initChart(chartLabels, chartData);
 
             // 3. Renderizar últimos 5 pedidos
-            const recentOrdersContainer = document.getElementById("recent-orders-container");
-            recentOrdersContainer.innerHTML = "";
-
-            // Mostra os mais recentes primeiro
-            const topPedidos = [...pedidos].reverse().slice(0, 5);
-
-            if (topPedidos.length === 0) {
-                recentOrdersContainer.innerHTML = '<div style="font-size:13px; color:#666; text-align:center; padding:20px;">Nenhum pedido registado hoje.</div>';
-            }
-
-            topPedidos.forEach(p => {
-                let statusClass = "status-recebido";
-                if (p.status === "Em Preparação") statusClass = "status-preparacao";
-                if (p.status === "Pronto") statusClass = "status-pronto";
-                if (p.status === "Entregue") statusClass = "status-entregue";
-
-                const valorFormatado = (parseFloat(p.total) || 0).toFixed(2).replace('.', ',') + " €";
-
-                recentOrdersContainer.innerHTML += `
-                    <div class="order-row">
-                        <div class="order-info">
-                            <div class="client-name">${escapeHtml(p.cliente || "Cliente")}</div>
-                            <div class="order-time">${escapeHtml(p.hora || "")}</div>
-                            <span class="status-badge ${statusClass}">${escapeHtml(p.status || "Recebido")}</span>
-                        </div>
-                        <div class="order-value">${valorFormatado}</div>
-                    </div>
-                `;
-            });
-        })
-        .catch(err => console.error("Erro ao carregar dados do dashboard:", err));
-}
-
-// Inicialização automática e atualização a cada 15 segundos
-initChart();
-fetchData();
-setInterval(fetchData, 15000);
-</script>
-
-</body>
-</html>
