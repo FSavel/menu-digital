@@ -171,3 +171,17 @@ def get_dashboard_stats(sheet_name=None):
             "total_pedidos": 0,
             "total_dia": 0.0
         }
+        
+# ======================================================
+# RESERVAS
+# ======================================================
+def get_reservations():
+    try:
+        # Lê especificamente a aba "Reservas" do teu Sheets
+        df = read_sheet("Reservas")
+        if df.empty:
+            return []
+        return df.to_dict(orient="records")
+    except Exception as e:
+        print("[Reservation Service] erro ao carregar reservas:", e)
+        return []
