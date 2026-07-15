@@ -4,6 +4,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from functools import wraps
 import os
+import time
 
 from config import Config
 from languages import LANGUAGES
@@ -152,12 +153,13 @@ def pedido():
         hora_mocambique()
     )
 
+    # LIMPEZA DA CACHE (Garante que estas 2 linhas têm exatamente 4 espaços de avanço à esquerda!)
+    global CACHE_PEDIDOS
+    CACHE_PEDIDOS = None 
+
     return jsonify({
         "success": True,
         "total": total
-
-    global CACHE_PEDIDOS
-    CACHE_PEDIDOS = None
     })
 
 @app.route("/cart")
