@@ -45,7 +45,7 @@ def add_order(sheet_name, cliente, cart, hora):
         pedido = {
             "id": gerar_id(),
             "cliente": cliente,
-            "pedido": resumo,
+            "items": resumo,
             "hora": hora,
             "status": "Recebido",
             "total": total
