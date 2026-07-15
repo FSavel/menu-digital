@@ -191,7 +191,7 @@ def chamar():
 
 
 # ======================================================
-# RESERVA
+# RESERVAS (CLIENTE - SUBMETER RESERVA)
 # ======================================================
 @app.route("/reserva", methods=["GET", "POST"])
 def reserva():
@@ -217,6 +217,22 @@ def reserva():
         "pedido_sucesso.html",
         total="Reserva enviada",
         config=Config,
+        textos=get_language_dict()
+    )
+
+# ======================================================
+# RESERVAS (ADMIN - VER LISTA DE RESERVAS)
+# ======================================================
+@app.route("/admin/reservas")
+def admin_reservas():
+    # Vai buscar a lista de reservas do Google Sheets
+    from services.order_service import get_reservations  # Garante que importas a função!
+    
+    reservas = get_reservations() 
+    return render_template(
+        "reservas.html", 
+        reservas=reservas, 
+        config=Config, 
         textos=get_language_dict()
     )
 
