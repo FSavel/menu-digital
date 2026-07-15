@@ -41,12 +41,11 @@ def add_order(sheet_name, cliente, cart, hora):
 
         # Criamos o dicionário com suporte tanto para chaves antigas como novas
         # para que o 'append_row' preencha qualquer coluna presente na folha!
+        # ID único alfanumérico gerado pelo nosso helper para evitar colisões de horário
         pedido = {
             "id": gerar_id(),
-            "cliente": cliente,     # se a coluna for 'cliente'
-            "nome": cliente,        # se a coluna for 'nome'
-            "items": resumo,        # se a coluna for 'items'
-            "pedido": resumo,       # se a coluna for 'pedido'
+            "cliente": cliente,
+            "pedido": resumo,
             "hora": hora,
             "status": "Recebido",
             "total": total
