@@ -290,12 +290,40 @@ def pedidos_count():
     return {"count": len(pedidos)}
 
 # ======================================================
-# Actualizacao de pedidos
-# ======================================================    
-@app.route("/api/pedidos")
+# CACHE INTELIGENTE PARA EVITAR O ERRO 429 DO GOOGLE
+# ======================================================
+CACHE_PEDIDOS = None
+ULTIMA_ATUALIZACAO = 0
+TEMPO_CACHE = 15  # Tempo em segundos que o servidor guarda a cópia em memória
+
+@app.route("/api/pedidos", methods=["GET"])
 def api_pedidos():
-    pedidos = get_orders(Config.SHEET_ORDERS)
-    return {"pedidos": pedidos}    
+    global CACHE_PEDIDOS, ULTIMA_ATUALIZACAO
+    agora = time.time()
+
+    # Se a cache estiver vazia ou já passarem 15 segundos, vai buscar dados frescos ao Google
+    if CACHE_PEDIDOS is None or (agora - ULTIMA_ATUALIZACAO) > TEMPO_CACHE:
+        try:
+            from services.google_service import read_sheet
+            from config import Config
+            
+            df = read_sheet(Config.SHEET_ORDERS)
+            
+            if df.empty:
+                CACHE_PEDIDOS = []
+            else:
+                # Converte o DataFrame do pandas para uma lista de dicionários limpa
+                CACHE_PEDIDOS = df.to_dict(orient="records")
+                
+            ULTIMA_ATUALIZACAO = agora
+            print("[Cache] Dados atualizados diretamente do Google Sheets.")
+            
+        except Exception as e:
+            print(f"[Cache] Erro ao ler do Google, usando dados antigos: {e}")
+            if CACHE_PEDIDOS is None:
+                CACHE_PEDIDOS = []
+
+    return jsonify(CACHE_PEDIDOS)    
 
 # ======================================================
 # UPDATE STATUS
