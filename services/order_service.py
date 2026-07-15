@@ -10,7 +10,7 @@ DEFAULT_SHEET_NAME = "Pedidos"
 
 
 # ======================================================
-# ADICIONAR PEDIDO
+# ADICIONAR PEDIDO (MAPEADO PARA AS COLUNAS DO SHEET)
 # ======================================================
 def add_order(sheet_name, cliente, cart, hora):
     try:
@@ -32,18 +32,21 @@ def add_order(sheet_name, cliente, cart, hora):
         def _name(item):
             return item.get("name", item.get("nome", ""))
 
-        # Monta o resumo descritivo para visualização rápida na cozinha
+        # Monta o resumo descritivo
         resumo = ", ".join(
             f"{_qty(item)}x {_name(item)}" for item in cart
         )
 
         total = sum(_price(item) * _qty(item) for item in cart)
 
-        # ID único alfanumérico gerado pelo nosso helper para evitar colisões de horário
+        # Criamos o dicionário com suporte tanto para chaves antigas como novas
+        # para que o 'append_row' preencha qualquer coluna presente na folha!
         pedido = {
             "id": gerar_id(),
-            "cliente": cliente,
-            "items": resumo,
+            "cliente": cliente,     # se a coluna for 'cliente'
+            "nome": cliente,        # se a coluna for 'nome'
+            "items": resumo,        # se a coluna for 'items'
+            "pedido": resumo,       # se a coluna for 'pedido'
             "hora": hora,
             "status": "Recebido",
             "total": total
@@ -54,7 +57,6 @@ def add_order(sheet_name, cliente, cart, hora):
     except Exception as e:
         print("[Order Service] erro ao adicionar pedido:", e)
         return False
-
 
 # ======================================================
 # LISTAR PEDIDOS
