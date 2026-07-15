@@ -44,8 +44,8 @@ def add_order(sheet_name, cliente, cart, hora):
         # ID único alfanumérico gerado pelo nosso helper para evitar colisões de horário
         pedido = {
             "id": gerar_id(),
-            "cliente": cliente,
-            "items": resumo,
+            "nome": cliente,
+            "pedido": resumo,
             "hora": hora,
             "status": "Recebido",
             "total": total
