@@ -56,17 +56,16 @@ def get_client():
 # ======================================================
 
 def open_sheet(sheet_name, worksheet_index=0):
-
     if not SPREADSHEET_ID:
         raise Exception("GOOGLE_SHEETS_ID não definida no ambiente")
-
     client = get_client()
-
     sheet = client.open_by_key(SPREADSHEET_ID)
-
-    worksheet = sheet.get_worksheet(worksheet_index)
-
-    return worksheet
+    try:
+        # Tenta abrir exatamente pelo nome da aba (ex: "Pedidos", "Menu")
+        return sheet.worksheet(sheet_name)
+    except Exception:
+        # Se não encontrar pelo nome, usa o índice de fallback
+        return sheet.get_worksheet(worksheet_index)
 
 
 # ======================================================
