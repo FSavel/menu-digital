@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #0f0f0f;
             color: white;
         }
@@ -33,6 +33,7 @@
         th, td {
             padding: 10px;
             border-bottom: 1px solid #333;
+            text-align: left;
         }
 
         th {
@@ -43,23 +44,36 @@
             padding: 5px 8px;
             border-radius: 6px;
             font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
         }
 
-        .Recebido { background: orange; }
-        .Entregue { background: green; }
-        .Pronto { background: #2ecc71; }
-        .Em { background: #3498db; }
+        /* Cores dos status */
+        .Recebido { background: orange; color: black; }
+        .Entregue { background: green; color: white; }
+        .Pronto { background: #2ecc71; color: black; }
+        .Em.Preparação, .Preparação, .Em { background: #3498db; color: white; }
 
         a {
             color: white;
             text-decoration: none;
-            margin-right: 5px;
+            margin-right: 8px;
             font-size: 12px;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #222;
+            transition: background 0.2s;
+        }
+
+        a:hover {
+            background: #444;
         }
 
         .total {
             margin-top: 15px;
             font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -68,47 +82,65 @@
 
 <div class="header">
     <h3>📦 Pedidos</h3>
-    <a href="/admin/dashboard">⬅ Dashboard</a>
+    <a href="/admin/dashboard" style="border: none; background: none; font-size: 14px;">⬅ Dashboard</a>
 </div>
 
 <div class="container">
 
     <table>
-        <tr>
-            <th>Cliente</th>
-            <th>Pedido</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Ações</th>
-        </tr>
-
-{% for p in pedidos %}
-        <tr>
-            <td>{{ p.nome if p.nome is defined else p.cliente }}</td>
-            
-            <td>{{ p.pedido if p.pedido is defined else (p.items if p.items is defined else '') }}</td>
-            
-            <td>{{ p.total }}</td>
-            <td>
-                <span class="status {{ p.status }}">
-                    {{ p.status }}
-                </span>
-            </td>
-            <td>
-
-                <a href="/admin/pedido/status/{{ p.id }}/Recebido">Recebido</a>
-                <a href="/admin/pedido/status/{{ p.id }}/Em%20Preparação">Prep</a>
-                <a href="/admin/pedido/status/{{ p.id }}/Pronto">Pronto</a>
-                <a href="/admin/pedido/status/{{ p.id }}/Entregue">OK</a>
-
-            </td>
-        </tr>
-        {% endfor %}
-        
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Pedido</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>
+                    {% if p.nome %}{{ p.nome }}
+                    {% elif p.cliente %}{{ p.cliente }}
+                    {% else %}Cliente Anonimo{% endif %}
+                </td>
+                
+                <td>
+                    {% if p.pedido %}{{ p.pedido }}
+                    {% elif p.items %}{{ p.items }}
+                    {% else %}-{% endif %}
+                </td>
+                
+                <td>
+                    {% if p.total %}{{ p.total }}{% else %}0.00{% endif %} Mt
+                </td>
+                
+                <td>
+                    {% set status_limpo = p.status if p.status else 'Recebido' %}
+                    <span class="status {{ status_limpo }}">
+                        {{ status_limpo }}
+                    </span>
+                </td>
+                
+                <td>
+                    {% set id_pedido = p.id if p.id else p.ID %}
+                    {% if id_pedido %}
+                        <a href="/admin/pedido/status/{{ id_pedido }}/Recebido">Recebido</a>
+                        <a href="/admin/pedido/status/{{ id_pedido }}/Em%20Preparação">Prep</a>
+                        <a href="/admin/pedido/status/{{ id_pedido }}/Pronto">Pronto</a>
+                        <a href="/admin/pedido/status/{{ id_pedido }}/Entregue">OK</a>
+                    {% else %}
+                        <span style="color: #666; font-size: 11px;">Sem ID</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
     <div class="total">
-        💰 Total do dia: {{ total_dia }}
+        💰 Total do dia: {{ total_dia }} Mt
     </div>
 
 </div>
