@@ -154,8 +154,9 @@ def pedido():
     )
 
     # LIMPEZA DA CACHE (Garante que estas 2 linhas têm exatamente 4 espaços de avanço à esquerda!)
-    global CACHE_PEDIDOS
-    CACHE_PEDIDOS = None 
+    global CACHE_PEDIDOS, ULTIMA_ATUALIZACAO
+    CACHE_PEDIDOS = None
+    ULTIMA_ATUALIZACAO = 0 
 
     return jsonify({
         "success": True,
@@ -328,7 +329,9 @@ def api_pedidos():
             if CACHE_PEDIDOS is None:
                 CACHE_PEDIDOS = []
 
-    return jsonify(CACHE_PEDIDOS)    
+    return jsonify({
+        "pedidos": CACHE_PEDIDOS
+    })    
 
 # ======================================================
 # UPDATE STATUS
@@ -350,7 +353,7 @@ def api_update_status():
 # ======================================================
 # UPDATE STATUS (LINK/GET - usado pela cozinha e admin)
 # ======================================================
-@app.route("/admin/pedido/status/<pedido_id>/<status>")
+@app.route("/admin/pedido/status/<pedido_id>/<status>", methods=["GET", "POST"])
 def admin_update_status(pedido_id, status):
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
