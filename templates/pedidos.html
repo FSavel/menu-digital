@@ -100,14 +100,18 @@
         <tbody>
             {% for p in pedidos %}
             <tr>
-                <td>{{ p.cliente if p.cliente else 'Cliente Anónimo' }}</td>
-                <td>{{ p.items if p.items else '-' }}</td>
+                <td>{{ p.nome if p.nome else 'Cliente Anónimo' }}</td>
+                
+                <td>{{ p.pedido if p.pedido else '-' }}</td>
+                
                 <td>{{ p.total if p.total else '0.00' }} Mt</td>
+                
                 <td>
                     <span class="status {{ p.status }}">
                         {{ p.status if p.status else 'Recebido' }}
                     </span>
                 </td>
+                
                 <td>
                     {% set id_pedido = p.id if p.id else p.ID %}
                     {% if id_pedido %}
