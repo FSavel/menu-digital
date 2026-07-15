@@ -113,6 +113,7 @@
             </td>
             
             <td>
+                <td>
                 {% set id_pedido = p.id if p.id else p.ID %}
                 {% if id_pedido %}
                     <a href="/admin/pedido/status/{{ id_pedido }}/Recebido">Recebido</a>
@@ -125,9 +126,6 @@
             </td>
         </tr>
         {% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 
