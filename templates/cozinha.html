@@ -289,14 +289,14 @@ function renderBoard(pedidos) {
                 }
 
                 card.innerHTML = `
-                    <div class="cliente">
-                        <span>${escapeHtml(p.cliente || "Cliente")}</span>
-                        ${badge}
-                    </div>
-                    <div class="items">${escapeHtml(p.items || "")}</div>
-                    <div class="hora">${escapeHtml(p.hora || "")}</div>
-                    ${actionHtml}
-                `;
+<div class="cliente">
+    <span>${escapeHtml(p.nome || "Cliente")}</span>
+    ${badge}
+</div>
+<div class="items">${escapeHtml(p.pedido || "")}</div>
+<div class="hora">${escapeHtml(p.hora || "")}</div>
+${actionHtml}
+`;
                 
                 col.appendChild(card);
             });
