@@ -276,23 +276,30 @@ function checkout() {
     const cart = loadCart();
     if (cart.length === 0) return;
 
+    // Recupera o nome do cliente que foi guardado no menu!
+    const nomeCliente = localStorage.getItem("nome_cliente") || "Cliente";
+
     const checkoutBtn = document.getElementById("checkout-btn");
     checkoutBtn.disabled = true;
     checkoutBtn.innerText = "{{ textos.loading }}";
 
-    // Envio assíncrono via POST JSON para o endpoint Flask /pedido
+    // Envia o carrinho e o nome recolhido
     fetch("/pedido", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ cart: cart })
+        body: JSON.stringify({ 
+            cart: cart,
+            nome: nomeCliente 
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Limpa o carrinho local após gravação bem-sucedida no Sheets
+            // Limpa o carrinho e o nome do cliente
             localStorage.removeItem("cart");
+            localStorage.removeItem("nome_cliente");
             alert("{{ textos.success }}");
             window.location.href = "/menu";
         } else {
