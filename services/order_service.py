@@ -185,3 +185,23 @@ def get_reservations():
     except Exception as e:
         print("[Reservation Service] erro ao carregar reservas:", e)
         return []
+
+# ======================================================
+# LISTAR RESERVAS
+# ======================================================
+def get_reservations(sheet_name=None):
+    try:
+        from config import Config
+        aba = sheet_name if sheet_name else "Reservas"
+        df = read_sheet(aba)
+        if df.empty:
+            return []
+        
+        # Garante que o ID é tratado como String
+        if "id" in df.columns:
+            df["id"] = df["id"].astype(str)
+            
+        return df.to_dict(orient="records")
+    except Exception as e:
+        print("[Order Service] erro ao carregar reservas:", e)
+        return []
